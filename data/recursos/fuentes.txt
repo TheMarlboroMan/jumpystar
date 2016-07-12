@@ -1,0 +1,2 @@
+#fuente tamaño	ruta
+akashi	16	data/fuentes/akashi.ttf

@@ -1,0 +1,80 @@
+################################################################################
+#Definciones
+
+DIR_CLASES_APP=./class/app/
+DIR_CLASES_IMPLEMENTACION_FRAMEWORK=./class/app/framework_impl/
+
+################################################################################
+#Implementación framework...
+################################################################################
+
+$(DIR_O)kernel_config.o:\
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.h \
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)kernel_config.cpp -o $(DIR_O)kernel_config.o
+
+$(DIR_O)app_config.o:\
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.h \
+$(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_IMPLEMENTACION_FRAMEWORK)app_config.cpp -o $(DIR_O)app_config.o
+
+################################################################################
+#Definiciones...
+################################################################################
+
+################################################################################
+#Clases...
+################################################################################
+
+$(DIR_O)player.o:\
+$(DIR_O)motion_actor.o \
+$(DIR_O)drawable.o \
+$(DIR_CLASES_APP)player.h\
+$(DIR_CLASES_APP)player.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)player.cpp -o $(DIR_O)player.o
+
+$(DIR_O)platform.o:\
+$(DIR_O)motion_actor.o \
+$(DIR_O)game_object.o \
+$(DIR_O)drawable.o \
+$(DIR_CLASES_APP)platform.h\
+$(DIR_CLASES_APP)platform.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)platform.cpp -o $(DIR_O)platform.o
+
+$(DIR_O)actor.o:\
+$(DIR_O)spatiable.o \
+$(DIR_CLASES_APP)actor.h\
+$(DIR_CLASES_APP)actor.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)actor.cpp -o $(DIR_O)actor.o
+
+$(DIR_O)motion_actor.o:\
+$(DIR_O)actor.o \
+$(DIR_O)motionable.o \
+$(DIR_CLASES_APP)motion_actor.h\
+$(DIR_CLASES_APP)motion_actor.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)motion_actor.cpp -o $(DIR_O)motion_actor.o
+
+$(DIR_O)motionable.o:\
+$(DIR_CLASES_APP)motionable.h\
+$(DIR_CLASES_APP)motionable.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)motionable.cpp -o $(DIR_O)motionable.o
+
+$(DIR_O)spatiable.o:\
+$(DIR_CLASES_APP)spatiable.h\
+$(DIR_CLASES_APP)spatiable.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)spatiable.cpp -o $(DIR_O)spatiable.o
+
+$(DIR_O)drawable.o:\
+$(DIR_CLASES_APP)drawable.h\
+$(DIR_CLASES_APP)drawable.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)drawable.cpp -o $(DIR_O)drawable.o
+
+$(DIR_O)game_object.o:\
+$(DIR_CLASES_APP)game_object.h\
+$(DIR_CLASES_APP)game_object.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)game_object.cpp -o $(DIR_O)game_object.o
+
+$(DIR_O)draw_struct.o:\
+$(DIR_CLASES_APP)draw_struct.h\
+$(DIR_CLASES_APP)draw_struct.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)draw_struct.cpp -o $(DIR_O)draw_struct.o

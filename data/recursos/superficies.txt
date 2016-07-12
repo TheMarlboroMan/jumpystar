@@ -1,0 +1,1 @@
+#indice	ruta	transparencia	rtrans	gtrans	btrans
