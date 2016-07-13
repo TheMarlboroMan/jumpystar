@@ -1,7 +1,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include "motion_actor.h"
+#include "actor.h"
 #include "drawable.h"
 #include "game_object.h"
 
@@ -9,7 +9,7 @@ namespace App_Game
 {
 
 class Platform:
-	public Motion_actor,
+	public Actor,
 	public App_Interfaces::Drawable,
 	public App_Interfaces::Game_object
 {
@@ -17,14 +17,6 @@ class Platform:
 	public:
 
 				Platform(float, float, int);
-
-	void			turn(float);
-
-	//////////////////////
-	//Motion actor.
-	virtual float 	get_weight() const {return 0.f;}
-	virtual float 	get_max_fall_speed() const {return 0.f;}
-	virtual void 	adjust_callback(float, adjust_pos) {}
 
 	//////////////////////
 	//Drawable.

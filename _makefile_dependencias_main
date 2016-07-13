@@ -21,6 +21,7 @@ $(DIR_O)game_object.o\
 $(DIR_O)actor.o\
 $(DIR_O)motion_actor.o\
 $(DIR_O)draw_struct.o\
+$(DIR_O)world.o\
 $(DIR_O)player.o\
 $(DIR_O)platform.o\
 

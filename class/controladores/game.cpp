@@ -9,9 +9,10 @@ using namespace App;
 
 Controller_game::Controller_game(DLibH::Log_base& log)
 	:log(log),
-	camera({0,0,400,600},{0,0})
+	camera({0,0,400,500},{0,0}),
+	world()
 {
-	world.init();
+	reset();
 }
 
 void Controller_game::preloop(DFramework::Input& input, float delta)
@@ -43,7 +44,7 @@ void Controller_game::dibujar(DLibV::Pantalla& screen)
 
 	std::vector<App_Interfaces::Drawable const *> drawables;
 	drawables.push_back(&player_instance);
-	for(const auto& p : world.platforms) drawables.push_back(&p);
+	for(const auto& p : world.get_platforms()) drawables.push_back(&p);
 
 	App_Interfaces::Drawable_order dorder;
  	std::sort(std::begin(drawables), std::end(drawables), dorder);
@@ -79,9 +80,9 @@ bool Controller_game::es_posible_abandonar_estado() const
 
 void Controller_game::do_player_turn(float delta, App_Game::Player& pl, App_Game::Player_input pi)
 {
-	if(!world.moving && pl.get_spatiable_y() < 450.f)
+	if(!world.is_moving() && pl.get_spatiable_y() < 350.f)
 	{
-		world.moving=true;
+		world.set_moving(true);
 	}
 
 	pl.get_input(pi);
@@ -89,6 +90,11 @@ void Controller_game::do_player_turn(float delta, App_Game::Player& pl, App_Game
 	pl.do_gravity(delta);
 	pl.update_previos_position();
 	pl.move(delta);
+
+	if(world.is_outside_bounds(pl))
+	{
+		reset();
+	}
 }
 
 App_Game::Player_input Controller_game::get_user_input(const DFramework::Input& input)
@@ -118,13 +124,13 @@ void Controller_game::do_player_collisions(App_Game::Player& pl)
 	}
 
 	//World.
-	for(const auto& p : world.platforms)
+	for(const auto& p : world.get_platforms())
 	{
 		if(pl.is_colliding_with(p))
 		{
 			if(p.is_under(pl.get_previous_position()))
 			{
-				pl.latch_to_platform(p);
+				pl.adjust(p, App_Game::Motion_actor::adjust_pos::bottom);
 			}
 		}
 	}
@@ -132,26 +138,20 @@ void Controller_game::do_player_collisions(App_Game::Player& pl)
 
 void Controller_game::do_world_turn(float delta)
 {
-	world.do_distance(delta);
-
-	//TODO: How to change the vector of them all at the same time?.
-	//EASY: LET THEM HAVE NO VECTOR AND HAVE THE CAMERA MOVING.
-	if(world.moving)
+	if(world.is_moving())
 	{
-		for(auto& p : world.platforms)
-		{
-			p.move(delta);
-			p.turn(delta);
-		}
+		world.do_turn(delta);
+		camera.movimiento_relativo(0, -world.get_camera_movement());
 
-		//TODO: What happens when the platform the player is latched to dissapears?. 
-		//We cannot check now because it's already deleted. I am sure you can
-		//figure something out.
-
-		auto it=std::remove_if(std::begin(world.platforms), std::end(world.platforms), [](const App_Game::Platform& p) {return p.is_delete();});
-		world.platforms.erase(it, std::end(world.platforms));
+		//TODO: Delete platforms out of bounds...
+//		auto it=std::remove_if(std::begin(world.platforms), std::end(world.platforms), [](const App_Game::Platform& p) {return p.is_delete();});
+//		world.platforms.erase(it, std::end(world.platforms));
 	}
+}
 
-
-
+void Controller_game::reset()
+{
+	world.reset();
+	world.init();
+	player_instance.set_position(20.f, 400.f);	
 }

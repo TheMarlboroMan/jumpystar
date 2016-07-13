@@ -20,7 +20,6 @@ class Player:
 	const t_box&	get_previous_position() const {return previous_position;}
 	void		update_previos_position() {previous_position=get_box();}
 	void		turn(float delta);
-	void		latch_to_platform(const Spatiable& s);
 
 	////////////////////
 	//Motion actor
@@ -43,7 +42,6 @@ class Player:
 
 	t_box			previous_position;
 	states			state;
-	Spatiable const *	latched_platform;
 	Player_input		player_input;
 	
 

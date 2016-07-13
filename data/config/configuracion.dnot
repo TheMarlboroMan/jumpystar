@@ -18,6 +18,6 @@ config:{
 	}, meta:{
 		v:1
 	}, video:{
-		doble_buffer:1, h_fisica_ventana:600, h_logica_ventana:600, modo_hardware:1, modo_pantalla:0, w_fisica_ventana:400, w_logica_ventana:400
+		doble_buffer:1, h_fisica_ventana:500, h_logica_ventana:500, modo_hardware:1, modo_pantalla:0, w_fisica_ventana:400, w_logica_ventana:400
 	}
 }

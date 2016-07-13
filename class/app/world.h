@@ -1,0 +1,35 @@
+#ifndef WORLD_H
+#define WORLD_H
+
+#include "platform.h"
+
+namespace App_Game
+{
+
+class World
+{
+	public:
+
+			World();
+
+	const		std::vector<App_Game::Platform>& get_platforms() const {return platforms;}
+	bool		is_moving() const {return moving;}
+	void		set_moving(bool v) {moving=v;}	
+	int		get_camera_movement() const {return camera_movement;}
+	bool		is_outside_bounds(const App_Interfaces::Spatiable&) const;
+
+	void		do_turn(float delta);
+	void 		init();
+	void 		reset();
+
+	private:
+
+	std::vector<App_Game::Platform>	platforms;
+	bool				moving;
+	float				distance, partial;
+	int				camera_movement;
+};
+
+}
+
+#endif

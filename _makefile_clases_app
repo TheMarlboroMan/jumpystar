@@ -33,8 +33,14 @@ $(DIR_CLASES_APP)player.h\
 $(DIR_CLASES_APP)player.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)player.cpp -o $(DIR_O)player.o
 
+$(DIR_O)world.o:\
+$(DIR_O)platform.o \
+$(DIR_CLASES_APP)world.h\
+$(DIR_CLASES_APP)world.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)world.cpp -o $(DIR_O)world.o
+
 $(DIR_O)platform.o:\
-$(DIR_O)motion_actor.o \
+$(DIR_O)actor.o \
 $(DIR_O)game_object.o \
 $(DIR_O)drawable.o \
 $(DIR_CLASES_APP)platform.h\

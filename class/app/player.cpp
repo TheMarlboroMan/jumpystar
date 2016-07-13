@@ -3,10 +3,9 @@
 using namespace App_Game;
 
 Player::Player()
-	:Motion_actor(20.f, 520.f, 20, 32), 
+	:Motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
-	state(states::air),
-	latched_platform(nullptr)
+	state(states::air)
 {
 
 }
@@ -80,25 +79,12 @@ void Player::turn(float delta)
 
 	if(state==states::ground)
 	{
-		//TODO: Isn't the above check redundant???
-		if(latched_platform)
-		{
-			adjust(*latched_platform, Motion_actor::adjust_pos::bottom);
-		}
-
 		if(player_input.jump)
 		{
-			latched_platform=nullptr;
 			set_vector(-300.f, axis::y);
 			//TODO: Not really... Better check each frame what's the current state.
 			state=states::air;
 		}
 	}
 
-}
-
-void Player::latch_to_platform(const Spatiable& s) 
-{
-	latched_platform=&s;
-	adjust(*latched_platform, App_Game::Motion_actor::adjust_pos::bottom);
 }
