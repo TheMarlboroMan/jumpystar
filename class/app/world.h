@@ -17,12 +17,16 @@ class World
 	void		set_moving(bool v) {moving=v;}	
 	int		get_camera_movement() const {return camera_movement;}
 	bool		is_outside_bounds(const App_Interfaces::Spatiable&) const;
+	void		delete_discarded_objects();
+	void		generate_new_world();
 
 	void		do_turn(float delta);
 	void 		init();
 	void 		reset();
 
 	private:
+
+	void				create_new_platform(float y);
 
 	std::vector<App_Game::Platform>	platforms;
 	bool				moving;

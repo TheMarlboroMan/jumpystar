@@ -141,11 +141,11 @@ void Controller_game::do_world_turn(float delta)
 	if(world.is_moving())
 	{
 		world.do_turn(delta);
+		world.generate_new_world();
+		world.delete_discarded_objects();
 		camera.movimiento_relativo(0, -world.get_camera_movement());
 
-		//TODO: Delete platforms out of bounds...
-//		auto it=std::remove_if(std::begin(world.platforms), std::end(world.platforms), [](const App_Game::Platform& p) {return p.is_delete();});
-//		world.platforms.erase(it, std::end(world.platforms));
+//		std::cout<<"THERE ARE "<<world.get_platforms().size()<<" PLATFORMS REMAINING"<<std::endl;
 	}
 }
 
@@ -153,5 +153,6 @@ void Controller_game::reset()
 {
 	world.reset();
 	world.init();
-	player_instance.set_position(20.f, 400.f);	
+	player_instance.set_position(20.f, 400.f);
+	camera.enfocar_a({0,0});
 }
