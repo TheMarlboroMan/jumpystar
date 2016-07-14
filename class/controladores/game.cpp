@@ -85,6 +85,8 @@ void Controller_game::do_player_turn(float delta, App_Game::Player& pl, App_Game
 		world.set_moving(true);
 	}
 
+	//TODO: Check if player is in air to change its state.
+	
 	pl.get_input(pi);
 	pl.turn(delta);
 	pl.do_gravity(delta);
@@ -114,6 +116,7 @@ App_Game::Player_input Controller_game::get_user_input(const DFramework::Input& 
 void Controller_game::do_player_collisions(App_Game::Player& pl)
 {
 	//Horizontal limits...
+	//TODO: Add constants.
 	if(pl.get_spatiable_x() < 0.f)
 	{
 		pl.adjust(0.f, App_Game::Motion_actor::adjust_pos::left);

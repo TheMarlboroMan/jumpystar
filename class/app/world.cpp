@@ -4,7 +4,8 @@
 using namespace App_Game;
 
 World::World()
-	:moving(false), distance(0.f), partial(0.f), camera_movement(0)
+	:moving(false), distance(0.f), partial(0.f), 
+	camera_movement(0), next_platform_diff(50)
 {
 
 }
@@ -30,8 +31,10 @@ void World::do_turn(float delta)
 		camera_movement=0;
 	}
 
-	//Now, let's see what platforms are out of bounds...
-	for(auto& p : platforms) p.set_delete(is_outside_bounds(p));
+	//Now, let's see what platforms are out of bounds... There's a 
+	//slight margin that allows for the world to persist outside the screen
+	//for a bit.
+	for(auto& p : platforms) p.set_delete(is_outside_bounds(p, 32.f));
 
 	//And maybe create some other platforms...
 	
@@ -65,15 +68,13 @@ that the distance goes into the positive while the camera goes into the
 negative.
 */
 
-bool World::is_outside_bounds(const App_Interfaces::Spatiable& s) const
+bool World::is_outside_bounds(const App_Interfaces::Spatiable& s, float extra) const
 {
-	//Measure from the top of the object.
-	float y=-s.get_spatiable_y();
-	const float cam_height=500.f;
+	const float 	cam_height=500.f;
+	const float bottom_limit=distance-cam_height-s.get_spatiable_h()-extra;
 
-	const float bottom_limit=distance-cam_height;
-
-	return bottom_limit > y;
+	//Measure from the bottom of the object since it's negated.
+	return bottom_limit > -s.get_spatiable_ey();
 }
 
 void World::delete_discarded_objects()
@@ -88,11 +89,17 @@ void World::generate_new_world()
 	//distance. This assumes that platforms are created bottom-top.
 
 	const auto& last_platform=platforms.back();
-	const float difference=distance-(-last_platform.get_spatiable_y());
+	const int difference=distance-(-last_platform.get_spatiable_y());
 
-	if(difference >= 50.f)
+	if(difference >= next_platform_diff)
 	{
+		Herramientas_proyecto::Generador_int next_diff_gen(1, 3);
+		next_platform_diff=next_diff_gen()*30;
 		create_new_platform(-(std::round(distance)+10.f));
+
+		//TODO: Take into account the previous position.
+
+		//TODO: Generate bonus on the platform.
 	}
 }
 

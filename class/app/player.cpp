@@ -14,9 +14,15 @@ void Player::adjust_callback(float position, Motion_actor::adjust_pos apos)
 {
 	switch(apos)
 	{
+		//This is falling against a platform: spot y and half x.
 		case Motion_actor::adjust_pos::bottom:
 			set_vector(0.f, axis::y);
-			state=states::ground;
+			
+			if(state!=states::ground)
+			{
+				set_vector(get_vector_x()/2.f, axis::x);
+				state=states::ground;
+			}
 		break;
 		case Motion_actor::adjust_pos::top:
 
@@ -43,8 +49,8 @@ void Player::transform_draw_struct(Draw_struct& b)const
 void Player::turn(float delta)
 {
 
-	const float ACELERACION_HORIZONTAL_SEGUNDO=300.f;
-	const float MAXIMA_VELOCIDAD_HORIZONTAL=250.f;
+	const float ACELERACION_HORIZONTAL_SEGUNDO=200.f; //300.f;
+	const float MAXIMA_VELOCIDAD_HORIZONTAL=150.f; //250.f;
 
 	//We did this before and worked nice in Winter.
 	//Frenada o aceleración.
@@ -81,7 +87,7 @@ void Player::turn(float delta)
 	{
 		if(player_input.jump)
 		{
-			set_vector(-300.f, axis::y);
+			set_vector(-340.f, axis::y);
 			//TODO: Not really... Better check each frame what's the current state.
 			state=states::air;
 		}
