@@ -1,77 +1,73 @@
-#ifdef WINCOMPIL
-//Terrible parche para SDL2_Gfx...
-#include <SDL2_gfxPrimitives.c>
-#include <SDL2_rotozoom.c>
-#include <SDL2_imageFilter.c>
-#endif
-
 #include <libDan2.h>
-#include <defDanSDL.h>
-#include "class/framework/kernel.h"
-#include "class/app/framework_impl/kernel_config.h"
-#include "class/app/framework_impl/app_config.h"
-#include "class/controladores/director_estados.h"
+#include <class/kernel.h>
+#include "class/controllers_impl/kernel_config.h"
+#include "class/controllers_impl/app_config.h"
+#include "class/controllers_impl/state_driver.h"
 
 //Declaración del log de aplicación en espacio global.
-DLibH::Log_base LOG;
+ldt::log LOG;
 
 int main(int argc, char ** argv)
 {
-	using namespace App;
+	using namespace app;
 
 	//Inicializar control de logs.
-	LOG.inicializar("logs/global.log");
-	LOG.activar();
-	DLibH::Log_motor::arrancar("logs/libdansdl2.log");
+	LOG.init("logs/global.log");
+	LOG.activate();
+
+	//Init libdansdl2 log.
+	ldt::log_lsdl::init("logs/libdansdl2.log");
 
 	//Inicializar control de argumentos.
-	Herramientas_proyecto::Controlador_argumentos CARG(argc, argv);
+	tools::arg_manager CARG(argc, argv);
 
-	DLibH::Log_base log_app("logs/app.log");
-	log_app<<"Init main process..."<<std::endl;
+	//Init application log.
+	ldt::log log_app("logs/app.log");
+	log_app<<"starting main process..."<<std::endl;
 
 	//Intentar inicializar sin cargar aún la SDL...
 	try
 	{
-		log_app<<"Init application config..."<<std::endl;
-		App_config config;
+		log_app<<"init app config..."<<std::endl;
+		app_config config;
 
 		//Si la inicialización ha tenido éxito podemos arrancar la SDL y el Kernel.
-		log_app<<"Init kernel config..."<<std::endl;
-		Kernel_config kernel_config(config);
+		log_app<<"init kernel config..."<<std::endl;
+		kernel_config kconfig(config);
 
-		log_app<<"Init SDL2..."<<std::endl;	
-		if(!DLibH::Herramientas_SDL::iniciar_SDL(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK))
+		log_app<<"init sdl2..."<<std::endl;	
+		if(!ldt::sdl_init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_JOYSTICK))
 		{
-			throw std::runtime_error("Unable to init SD2L");
+			throw std::runtime_error("unable to init sdl2");
 		}
 		
-		log_app<<"Creating kernel..."<<std::endl;
-		DFramework::Kernel kernel(CARG);
+		log_app<<"creating kernel..."<<std::endl;
+		dfw::kernel kernel(log_app, CARG);
 
-		log_app<<"Init kernel..."<<std::endl;
-		kernel.inicializar(kernel_config, config);
+		log_app<<"init kernel..."<<std::endl;
+		kernel.init(kconfig, config);
 
-		log_app<<"Init state director..."<<std::endl;
-		App::Director_estados APP(kernel, config, log_app);
-		APP.iniciar(kernel);
+		log_app<<"create state driver..."<<std::endl;
+		state_driver APP(kernel, config);
 
-		log_app<<"Main process ends..."<<std::endl;
+		log_app<<"init state driver..."<<std::endl;
+		APP.init(kernel);
+
+		log_app<<"finish main proccess"<<std::endl;
 	}
 	catch(std::exception& e)
 	{
-		log_app<<"ERROR "<<e.what()<<std::endl;
-		std::cout<<"Exiting due to error : "<<e.what()<<std::endl;
-
-		log_app<<"Closing SDL2..."<<std::endl;
-		DLibH::Herramientas_SDL::apagar_SDL();
-		DLibH::Log_motor::finalizar();
+		std::cout<<"Interrupting due to exception: "<<e.what()<<std::endl;
+		log_app<<"an error happened "<<e.what()<<std::endl;
+		log_app<<"stopping sdl2..."<<std::endl;
+		ldt::sdl_shutdown();
+		ldt::log_lsdl::end();
 
 		return 1;
 	}
 
-	log_app<<"Finalizando SDL2..."<<std::endl;
-	DLibH::Herramientas_SDL::apagar_SDL();
-	DLibH::Log_motor::finalizar();
+	log_app<<"stopping sdl2..."<<std::endl;
+	ldt::sdl_shutdown();
+	ldt::log_lsdl::end();
 	return 0;
 }

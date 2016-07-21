@@ -1,11 +1,7 @@
-DIR_O=./objects/
-DIR_CLASS=./class/
-DIR_BOOTSTRAP=./bootstrap/
-
 ################################################################################
 #Definición de objetos necesarios para main.
 
-include _makefile_dependencias_main
+include _makefile_app
 
 ################################################################################
 #Definiciones de targets.
