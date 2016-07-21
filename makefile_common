@@ -24,7 +24,3 @@ main.cpp
 
 clean:
 	$(LIMPIAR)
-
-include _makefile_controladores
-include _makefile_clases_app
-include _makefile_framework
