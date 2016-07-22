@@ -41,7 +41,7 @@ void state_driver::prepare_video(dfw::kernel& kernel)
 void state_driver::register_controllers(dfw::kernel& kernel)
 {
 	log<<"registering controllers..."<<std::endl;
-	c_game.reset(new game_controller(log, kernel.get_video_resource_manager()));
+	c_game.reset(new game_controller(log, kernel.get_video_resource_manager(), fonts));
 
 	register_controller(t_states::state_game, *c_game);
 }

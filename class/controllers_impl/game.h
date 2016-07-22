@@ -12,7 +12,6 @@
 
 //Tools.
 #include <class/ttf_manager.h>
-#include <templates/compatibility_patches.h>
 
 //local
 #include "states.h"
@@ -27,7 +26,7 @@ class game_controller:
 {
 	public:
 
-						game_controller(ldt::log&, ldv::resource_manager&);
+						game_controller(ldt::log&, ldv::resource_manager&, tools::ttf_manager&);
 
 	virtual void 				preloop(dfw::input& input, float delta, int);
 	virtual void 				loop(dfw::input& input, float delta);
@@ -49,6 +48,7 @@ class game_controller:
 	ldt::log&				log;
 
 	ldv::camera				camera;
+	ldv::ttf_representation			fps_text;
 	app_game::world				world;
 	app_game::draw_struct			draw_struct;
 	app_game::player			player_instance;

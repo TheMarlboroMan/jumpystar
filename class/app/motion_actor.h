@@ -22,6 +22,7 @@ class motion_actor:
 	void 		adjust(float, adjust_pos);
 	void 		adjust(const spatiable&, adjust_pos);
 	void 		move(float delta);
+	t_box		get_below_position() const;
 
 	/////////////////
 	//motionable

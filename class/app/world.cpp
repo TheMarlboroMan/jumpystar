@@ -100,18 +100,36 @@ void world::generate_new_world()
 		//TODO: Take into account the previous position.
 
 		//TODO: Generate bonus on the platform.
+
+		//TODO: Generate obstacles in the previous position.
 	}
 }
 
+//TODO: Account for last platform's position to generate the width and max
+//distance.
 void world::create_new_platform(float y)
 {
 	//First get the width.
-	tools::int_generator width_generator(3, 8);
-	int w=width_generator()*10;
+	tools::int_generator width_generator(3, 10);
+	int w=width_generator()*20;
 
 	//Now the position...
 	tools::int_generator position_generator(20, 400-20-w);
 
 	//Now we place it.
 	platforms.push_back({(float)position_generator(),y,w});
+}
+
+std::vector<app_interfaces::spatiable const *> world::get_collidables() const
+{
+	std::vector<app_interfaces::spatiable const *> res;
+	for(const auto &p : platforms) res.push_back(&p);
+	return res;
+}
+
+std::vector<app_interfaces::drawable const *> world::get_drawables() const
+{
+	std::vector<app_interfaces::drawable const *> res;
+	for(const auto &p : platforms) res.push_back(&p);
+	return res;
 }

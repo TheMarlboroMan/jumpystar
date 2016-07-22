@@ -20,11 +20,13 @@ class player:
 	const t_box&	get_previous_position() const {return previous_position;}
 	void		update_previos_position() {previous_position=get_box();}
 	void		turn(float delta);
+	void		set_falling();
+	bool		can_fall() const {return state==states::ground;}
 
 	////////////////////
 	//Motion actor
 
-	virtual float 	get_weight() const {return 600.f;}
+	virtual float 	get_weight() const {return cancel_jump ? 1200.f : 600.f;}
 	virtual float 	get_max_fall_speed() const {return 600.f;}
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos);
 
@@ -43,6 +45,8 @@ class player:
 	t_box			previous_position;
 	states			state;
 	player_input		p_input;
+	int			remaining_jumps;
+	bool			cancel_jump;
 	
 
 };

@@ -48,3 +48,10 @@ void motion_actor::move(float delta)
 	const auto& v=get_vector();
 	displace_box(v.x * delta, v.y * delta);
 }
+
+app_interfaces::spatiable::t_box motion_actor::get_below_position() const
+{
+	auto res=get_box();
+	++res.h;
+	return res;
+}

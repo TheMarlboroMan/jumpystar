@@ -12,7 +12,9 @@ class world
 
 			world();
 
-	const		std::vector<app_game::platform>& get_platforms() const {return platforms;}
+	std::vector<app_interfaces::spatiable const *> get_collidables() const;
+	std::vector<app_interfaces::drawable const *> get_drawables() const;
+
 	bool		is_moving() const {return moving;}
 	void		set_moving(bool v) {moving=v;}	
 	int		get_camera_movement() const {return camera_movement;}

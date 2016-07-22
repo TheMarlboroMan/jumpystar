@@ -2,6 +2,11 @@
 
 using namespace app_interfaces;
 
+bool spatiable::is_colliding_with(const t_box& e, bool roce_es_colision) const
+{
+	return get_box().collides_with(e, roce_es_colision);
+}
+
 bool spatiable::is_colliding_with(const spatiable& e, bool roce_es_colision) const
 {
 	return get_box().collides_with(e.get_box(), roce_es_colision);

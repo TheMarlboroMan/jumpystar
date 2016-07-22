@@ -5,7 +5,7 @@ using namespace app_game;
 player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
-	state(states::air)
+	state(states::air), remaining_jumps(2), cancel_jump(false)
 {
 
 }
@@ -14,7 +14,7 @@ void player::adjust_callback(float position, motion_actor::adjust_pos apos)
 {
 	switch(apos)
 	{
-		//This is falling against a platform: spot y and half x.
+		//This is falling against a platform: stop y and halve x speed.
 		case motion_actor::adjust_pos::bottom:
 			set_vector(0.f, axis::y);
 			
@@ -22,6 +22,7 @@ void player::adjust_callback(float position, motion_actor::adjust_pos apos)
 			{
 				set_vector(get_vector_x()/2.f, axis::x);
 				state=states::ground;
+				remaining_jumps=2;
 			}
 		break;
 		case motion_actor::adjust_pos::top:
@@ -42,7 +43,10 @@ void player::adjust_callback(float position, motion_actor::adjust_pos apos)
 void player::transform_draw_struct(draw_struct& b)const
 {
 	b.set_type(draw_struct::types::box);
-	b.set_color(ldv::rgba8(0,0,160, 255));
+
+	auto color=state==states::ground ? ldv::rgba8(0,0,160, 255) : ldv::rgba8(0,160,0,255);
+
+	b.set_color(color);
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
@@ -83,14 +87,37 @@ void player::turn(float delta)
 		else if(vr < 0.0) set_vector(-v, axis::x);
 	}
 
-	if(state==states::ground)
+	if(p_input.jump && remaining_jumps)
 	{
-		if(p_input.jump)
-		{
-			set_vector(-340.f, axis::y);
-			//TODO: Not really... Better check each frame what's the current state.
-			state=states::air;
-		}
+		//TODO: Current speed downwards should count.
+		set_vector(-300.f, axis::y);
+		state=states::air;
+		--remaining_jumps;
+		cancel_jump=false;
 	}
 
+	switch(state)
+	{
+		case states::ground:
+
+		break;
+		case states::air:
+		{
+			//Allow for shortening the jump if the button is not pressed.
+			float vy=get_vector_y();
+
+			//This takes form of a flag so the jump can only be cancelled once...
+			//This affects the weight of the player.
+			//TODO: I don't like the effect it has...
+			cancel_jump=cancel_jump || (!p_input.jump_press && vy < 0.f);
+		}
+		break;
+	}
+
+}
+
+void player::set_falling()
+{
+	state=states::air;
+	remaining_jumps=0;
 }

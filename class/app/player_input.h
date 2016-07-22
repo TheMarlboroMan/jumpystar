@@ -8,7 +8,8 @@ struct player_input
 {
 	int 		x,
 			y;
-	bool 		jump;
+	bool 		jump,
+			jump_press;
 };
 
 }

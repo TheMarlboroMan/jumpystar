@@ -61,6 +61,7 @@ class spatiable
 	float		 		cartesian_angle_for(const spatiable& a, const spatiable& b) const;
 
 	bool 				is_colliding_with(const spatiable&, bool=false) const;
+	bool 				is_colliding_with(const t_box& e, bool=false) const;
 
 	//Estos son siempre según la geometría en la que 0.0 es el punto superior
 	//a la izquierda.
