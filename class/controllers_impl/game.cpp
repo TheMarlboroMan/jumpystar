@@ -1,30 +1,29 @@
 #include "game.h"
 
-#include "../app/framework_impl/input.h"
-#include <templates/parches_compat.h>
-
+#include "input.h"
 #include "../app/player_input.h"
 
-using namespace App;
+using namespace app;
 
-Controller_game::Controller_game(DLibH::Log_base& log)
+game_controller::game_controller(ldt::log& log, ldv::resource_manager& vm)
 	:log(log),
 	camera({0,0,400,500},{0,0}),
-	world()
+	world(),
+	draw_struct(vm)
 {
 	reset();
 }
 
-void Controller_game::preloop(DFramework::Input& input, float delta)
+void game_controller::preloop(dfw::input& input, float delta, int fps)
 {
 	
 }
 
-void Controller_game::loop(DFramework::Input& input, float delta)
+void game_controller::loop(dfw::input& input, float delta)
 {
-	if(input.es_senal_salida() || input.es_input_down(Input::escape))
+	if(input().is_exit_signal() || input.is_input_down(input_app::escape))
 	{
-		abandonar_aplicacion();
+		set_leave(true);
 		return;
 	}
 
@@ -33,52 +32,52 @@ void Controller_game::loop(DFramework::Input& input, float delta)
 	do_player_collisions(player_instance);
 }
 
-void Controller_game::postloop(DFramework::Input& input, float delta)
+void game_controller::postloop(dfw::input& input, float delta, int fps)
 {
 
 }
 
-void Controller_game::dibujar(DLibV::Pantalla& screen)
+void game_controller::draw(ldv::screen& screen)
 {
-	screen.limpiar(DLibV::rgba8(255, 255, 255, 255));
+	screen.clear(ldv::rgba8(255, 255, 255, 255));
 
-	std::vector<App_Interfaces::Drawable const *> drawables;
+	std::vector<app_interfaces::drawable const *> drawables;
 	drawables.push_back(&player_instance);
 	for(const auto& p : world.get_platforms()) drawables.push_back(&p);
 
-	App_Interfaces::Drawable_order dorder;
+	app_interfaces::drawable_order dorder;
  	std::sort(std::begin(drawables), std::end(drawables), dorder);
 
 	//TODO: Weirdest bug... Render just one thing and it fucks up.
 	for(const auto& d : drawables)
 	{
 		d->transform_draw_struct(draw_struct);
-		draw_struct.rep->volcar(screen, camera);
+		draw_struct.rep->draw(screen, camera);
 	}
 
 	//TODO: Fix the above bug...
-	DLibV::Representacion_primitiva_caja caja{DLibV::Representacion_primitiva_caja::tipo::relleno, {0,0,6,6}, DLibV::rgba8(255,0,0,128)};
-	caja.volcar(screen);
+	ldv::box_representation caja{ldv::box_representation::type::fill, {0,0,6,6}, ldv::rgba8(255,0,0,128)};
+	caja.draw(screen);
 }
 
-void  Controller_game::despertar()
+void  game_controller::awake()
 {
 
 }
 
-void  Controller_game::dormir()
+void  game_controller::slumber()
 {
 
 }
 
-bool Controller_game::es_posible_abandonar_estado() const
+bool game_controller::can_leave_state() const
 {
 	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Controller_game::do_player_turn(float delta, App_Game::Player& pl, App_Game::Player_input pi)
+void game_controller::do_player_turn(float delta, app_game::player& pl, app_game::player_input pi)
 {
 	if(!world.is_moving() && pl.get_spatiable_y() < 350.f)
 	{
@@ -99,63 +98,63 @@ void Controller_game::do_player_turn(float delta, App_Game::Player& pl, App_Game
 	}
 }
 
-App_Game::Player_input Controller_game::get_user_input(const DFramework::Input& input)
+app_game::player_input game_controller::get_user_input(const dfw::input& input)
 {
-	App_Game::Player_input pi{0, false};
-	if(input.es_input_pulsado(Input::left)) pi.x=-1;
-	else if(input.es_input_pulsado(Input::right)) pi.x=1;
+	app_game::player_input pi{0, false};
+	if(input.is_input_pressed(input_app::left)) pi.x=-1;
+	else if(input.is_input_pressed(input_app::right)) pi.x=1;
 
-	if(input.es_input_pulsado(Input::up)) pi.y=-1;
-	else if(input.es_input_pulsado(Input::down)) pi.y=1;
+	if(input.is_input_pressed(input_app::up)) pi.y=-1;
+	else if(input.is_input_pressed(input_app::down)) pi.y=1;
 
-	if(input.es_input_down(Input::jump)) pi.jump=true;
+	if(input.is_input_down(input_app::jump)) pi.jump=true;
 
 	return pi;
 }
 
-void Controller_game::do_player_collisions(App_Game::Player& pl)
+void game_controller::do_player_collisions(app_game::player& pl)
 {
 	//Horizontal limits...
 	//TODO: Add constants.
 	if(pl.get_spatiable_x() < 0.f)
 	{
-		pl.adjust(0.f, App_Game::Motion_actor::adjust_pos::left);
+		pl.adjust(0.f, app_game::motion_actor::adjust_pos::left);
 	}
 	else if(pl.get_spatiable_ex() > 400.f)
 	{
-		pl.adjust(400.f, App_Game::Motion_actor::adjust_pos::right);
+		pl.adjust(400.f, app_game::motion_actor::adjust_pos::right);
 	}
 
-	//World.
+	//world.
 	for(const auto& p : world.get_platforms())
 	{
 		if(pl.is_colliding_with(p))
 		{
 			if(p.is_under(pl.get_previous_position()))
 			{
-				pl.adjust(p, App_Game::Motion_actor::adjust_pos::bottom);
+				pl.adjust(p, app_game::motion_actor::adjust_pos::bottom);
 			}
 		}
 	}
 }
 
-void Controller_game::do_world_turn(float delta)
+void game_controller::do_world_turn(float delta)
 {
 	if(world.is_moving())
 	{
 		world.do_turn(delta);
 		world.generate_new_world();
 		world.delete_discarded_objects();
-		camera.movimiento_relativo(0, -world.get_camera_movement());
+		camera.move_by(0, -world.get_camera_movement());
 
 //		std::cout<<"THERE ARE "<<world.get_platforms().size()<<" PLATFORMS REMAINING"<<std::endl;
 	}
 }
 
-void Controller_game::reset()
+void game_controller::reset()
 {
 	world.reset();
 	world.init();
 	player_instance.set_position(20.f, 400.f);
-	camera.enfocar_a({0,0});
+	camera.go_to({0,0});
 }

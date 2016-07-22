@@ -1,30 +1,30 @@
-#ifndef MOVIL_H
-#define MOVIL_H
+#ifndef MOTIONABLE_H
+#define MOTIONABLE_H
 
 /*Modelo de cosa que se mueve en el espacio...  En todo caso, esta es la base 
 para el cálculo de movimiento y tiene algunas cosas de gravedad también.
 */
 
-#include <herramientas/vector_2d/vector_2d.h>
+#include <tools/vector_2d/vector_2d.h>
 
-namespace App_Interfaces
+namespace app_interfaces
 {
 
-class Motionable
+class motionable
 {
 	//////////////////////
 	// Definiciones...
 	public:
 
 	enum class axis {x,y};
-	typedef DLibH::Vector_2d<float> t_vector;
+	typedef ldt::vector_2d<float> t_vector;
 
 	///////////////////////
 	// Interface pública.
 	public:
 
-	Motionable();
-	virtual ~Motionable();
+	motionable();
+	virtual ~motionable();
 
 	const t_vector&			 	get_vector() const {return vector;}
 	t_vector		 		get_vector() {return vector;}

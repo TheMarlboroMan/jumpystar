@@ -45,7 +45,7 @@ std::vector<std::string> kernel_config::get_surface_entries() const
 
 dfw::window_info kernel_config::get_window_info() const
 {
-	return dfw::window_info{800, 400, 800, 400, "Migrating to OpenGL...", true};
+	return dfw::window_info{400, 500, 400, 500, "** Jumpy star **", true};
 }
 
 std::vector<dfw::input_pair> kernel_config::get_input_pairs() const
@@ -64,20 +64,13 @@ std::vector<dfw::input_pair> kernel_config::get_input_pairs() const
 		return input_pair::types::keyboard;
 	};
 
-	auto get_user_info=[this](std::map<int, app_config::user_input>& res, int iizq, int ider, int iarr, int iaba, int iesp, int zoommas, int zoommenos, int n1, int n2, int n3, int ka, int ks)
+	auto get_user_info=[this](std::map<int, app_config::user_input>& res, int ileft, int iright, int iup, int idown, int ijump)
 	{
-		res[iizq]=config.get_left();
-		res[ider]=config.get_right();
-		res[iarr]=config.get_up();
-		res[iaba]=config.get_down();
-		res[iesp]=config.get_space();
-		res[zoommas]=config.get_zoom_more();
-		res[zoommenos]=config.get_zoom_less();
-		res[n1]=config.get_num_1();
-		res[n2]=config.get_num_2();
-		res[n3]=config.get_num_3();
-		res[ka]=config.get_key_a();
-		res[ks]=config.get_key_s();
+		res[ileft]=config.get_left();
+		res[iright]=config.get_right();
+		res[iup]=config.get_up();
+		res[idown]=config.get_down();
+		res[ijump]=config.get_jump();
 	};
 
 	using namespace dfw;
@@ -86,7 +79,8 @@ std::vector<dfw::input_pair> kernel_config::get_input_pairs() const
 
 	std::map<int, app_config::user_input> mapa;
 
-	get_user_info(mapa, input_app::left, input_app::right, input_app::up, input_app::down, input_app::space, input_app::zoom_more, input_app::zoom_less, input_app::num1, input_app::num2, input_app::num3, input_app::key_a, input_app::key_s);
+	get_user_info(mapa, input_app::left, input_app::right, input_app::up, input_app::down, input_app::jump);
+
 	for(const auto& p : mapa) res.push_back({type_from_config(p.second.type), p.first, p.second.code, p.second.device});
 
 	return res;

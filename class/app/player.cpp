@@ -1,21 +1,21 @@
 #include "player.h"
 
-using namespace App_Game;
+using namespace app_game;
 
-Player::Player()
-	:Motion_actor(0.f, 0.f, 20, 32), 
+player::player()
+	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
 	state(states::air)
 {
 
 }
 
-void Player::adjust_callback(float position, Motion_actor::adjust_pos apos)
+void player::adjust_callback(float position, motion_actor::adjust_pos apos)
 {
 	switch(apos)
 	{
 		//This is falling against a platform: spot y and half x.
-		case Motion_actor::adjust_pos::bottom:
+		case motion_actor::adjust_pos::bottom:
 			set_vector(0.f, axis::y);
 			
 			if(state!=states::ground)
@@ -24,29 +24,29 @@ void Player::adjust_callback(float position, Motion_actor::adjust_pos apos)
 				state=states::ground;
 			}
 		break;
-		case Motion_actor::adjust_pos::top:
+		case motion_actor::adjust_pos::top:
 
 		break;
-		case Motion_actor::adjust_pos::left:
+		case motion_actor::adjust_pos::left:
 			set_vector(0.f, axis::x);
 		break;
-		case Motion_actor::adjust_pos::right:
+		case motion_actor::adjust_pos::right:
 			set_vector(0.f, axis::x);
 		break;
-		case Motion_actor::adjust_pos::none:
+		case motion_actor::adjust_pos::none:
 
 		break;
 	}
 }
 
-void Player::transform_draw_struct(Draw_struct& b)const
+void player::transform_draw_struct(draw_struct& b)const
 {
-	b.set_type(Draw_struct::types::box);
-	b.set_color(DLibV::rgba8(0,0,160, 255));
-	b.set_box_position({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
+	b.set_type(draw_struct::types::box);
+	b.set_color(ldv::rgba8(0,0,160, 255));
+	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
-void Player::turn(float delta)
+void player::turn(float delta)
 {
 
 	const float ACELERACION_HORIZONTAL_SEGUNDO=200.f; //300.f;
@@ -54,22 +54,22 @@ void Player::turn(float delta)
 
 	//We did this before and worked nice in Winter.
 	//Frenada o aceleración.
-	if(player_input.x)
+	if(p_input.x)
 	{
 		float v=get_vector_x();
 		//Controlar el "contravolante...".
-		float extra=(player_input.x > 0 && v > 0.0f) 
-			|| (player_input.x < 0 && v < 0.0f) 
+		float extra=(p_input.x > 0 && v > 0.0f) 
+			|| (p_input.x < 0 && v < 0.0f) 
 			? 1.0f : 2.5f; 
 
-		v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * player_input.x;
+		v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * p_input.x;
 		if(v > MAXIMA_VELOCIDAD_HORIZONTAL) v=MAXIMA_VELOCIDAD_HORIZONTAL;
 		else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
 
 		set_vector(v, axis::x);
 
 //TODO: Set direction
-//		if(player_input.x < 0) direccion=App_Definiciones::direcciones::izquierda;
+//		if(p_input.x < 0) direccion=App_Definiciones::direcciones::izquierda;
 //		else direccion=App_Definiciones::direcciones::derecha;
 	}
 	else
@@ -85,7 +85,7 @@ void Player::turn(float delta)
 
 	if(state==states::ground)
 	{
-		if(player_input.jump)
+		if(p_input.jump)
 		{
 			set_vector(-340.f, axis::y);
 			//TODO: Not really... Better check each frame what's the current state.

@@ -12,7 +12,7 @@ using namespace app;
 extern ldt::log LOG;
 
 state_driver::state_driver(dfw::kernel& kernel, app::app_config& c)
-	:state_driver_interface(t_states::state_main, std::function<bool(int)>([](int v){return v > state_main && v < state_max;})),
+	:state_driver_interface(t_states::state_game, std::function<bool(int)>([](int v){return v > state_min && v < state_max;})),
 	config(c), log(kernel.get_log())
 {
 	prepare_video(kernel);
@@ -41,16 +41,16 @@ void state_driver::prepare_video(dfw::kernel& kernel)
 void state_driver::register_controllers(dfw::kernel& kernel)
 {
 	log<<"registering controllers..."<<std::endl;
-	c_main.reset(new main_controller(kernel.get_video_resource_manager(), kernel.get_audio_resource_manager(), log, fonts, kernel.get_audio()));
+	c_game.reset(new game_controller(log, kernel.get_video_resource_manager()));
 
-	register_controller(t_states::state_main, *c_main);
+	register_controller(t_states::state_game, *c_game);
 }
 
 void state_driver::prepare_state(int next, int current)
 {
 	switch(next)
 	{
-		case t_states::state_main: 
+		case t_states::state_game: 
 		break;
 	}
 }

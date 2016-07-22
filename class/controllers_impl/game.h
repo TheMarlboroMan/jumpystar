@@ -1,54 +1,57 @@
 #ifndef CONTROLLER_GAME_H
 #define CONTROLLER_GAME_H
 
+//std
 #include <cmath>
 
-//Dependencies...
-#include "estados_controladores.h"
-#include "../framework/controlador_interface.h"
-
-//Tools.
-#include <class/gestor_fuentes_ttf.h>
-#include <templates/parches_compat.h>
+//libdansdl2
 #include <def_video.h>
 
-//App specifics
+//framework
+#include <class/controller_interface.h>
+
+//Tools.
+#include <class/ttf_manager.h>
+#include <templates/compatibility_patches.h>
+
+//local
+#include "states.h"
 #include "../app/player.h"
 #include "../app/world.h"
 
-namespace App
+namespace app
 {
 
-class Controller_game:
-	public DFramework::Controlador_interface
+class game_controller:
+	public dfw::controller_interface
 {
 	public:
 
-						Controller_game(DLibH::Log_base&);
+						game_controller(ldt::log&, ldv::resource_manager&);
 
-	virtual void 				preloop(DFramework::Input& input, float delta);
-	virtual void 				loop(DFramework::Input& input, float delta);
-	virtual void 				postloop(DFramework::Input& input, float delta);
-	virtual void 				dibujar(DLibV::Pantalla& pantalla);
-	virtual void 				despertar();
-	virtual void 				dormir();
-	virtual bool				es_posible_abandonar_estado() const;
+	virtual void 				preloop(dfw::input& input, float delta, int);
+	virtual void 				loop(dfw::input& input, float delta);
+	virtual void 				postloop(dfw::input& input, float delta, int);
+	virtual void 				draw(ldv::screen& screen);
+	virtual void 				awake();
+	virtual void 				slumber();
+	virtual bool				can_leave_state() const;
 
 	private:
 
 	void					reset();
 	void					do_world_turn(float);
-	void					do_player_turn(float, App_Game::Player&, App_Game::Player_input);
-	void 					do_player_collisions(App_Game::Player&);
-	App_Game::Player_input			get_user_input(const DFramework::Input&);
+	void					do_player_turn(float, app_game::player&, app_game::player_input);
+	void 					do_player_collisions(app_game::player&);
+	app_game::player_input			get_user_input(const dfw::input&);
 
 
-	DLibH::Log_base&			log;
+	ldt::log&				log;
 
-	DLibV::Camara				camera;
-	App_Game::World				world;
-	App_Game::Draw_struct			draw_struct;
-	App_Game::Player			player_instance;
+	ldv::camera				camera;
+	app_game::world				world;
+	app_game::draw_struct			draw_struct;
+	app_game::player			player_instance;
 };
 
 }

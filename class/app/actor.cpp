@@ -1,29 +1,29 @@
 #include "actor.h"
 
-using namespace App_Game;
-using namespace App_Interfaces;
+using namespace app_game;
+using namespace app_interfaces;
 
-Actor::Actor()
+actor::actor()
 	:box{0.0, 0.0, 0, 0}
 {
 	
 }
 
-Actor::Actor(float x, float y, unsigned int w, unsigned int h)
+actor::actor(float x, float y, unsigned int w, unsigned int h)
 	:box{x, y, w, h}
 {
 
 }
 
-void Actor::set_box(t_box v)
+void actor::set_box(t_box v)
 {
 	box=v;
 }
 
-void Actor::set_box(float x, float y, unsigned int w, unsigned int h)
+void actor::set_box(float x, float y, unsigned int w, unsigned int h)
 {
-	box.origen.x=x;
-	box.origen.y=y;
+	box.origin.x=x;
+	box.origin.y=y;
 	box.w=w;
 	box.h=h;
 }

@@ -1,16 +1,16 @@
 #include "world.h"
-#include <templates/generador_numeros.h>
+#include <class/number_generator.h>
 
-using namespace App_Game;
+using namespace app_game;
 
-World::World()
+world::world()
 	:moving(false), distance(0.f), partial(0.f), 
 	camera_movement(0), next_platform_diff(50)
 {
 
 }
 
-void World::do_turn(float delta)
+void world::do_turn(float delta)
 {
 	//Considering the camera moves in integer values, we
 	//will fake it a bit.
@@ -40,7 +40,7 @@ void World::do_turn(float delta)
 	
 }
 
-void World::init()
+void world::init()
 {
 	float y=480.f;
 	platforms.push_back({0.f,y,400});
@@ -52,7 +52,7 @@ void World::init()
 	}while(y >= 0.f);
 }
 
-void World::reset()
+void world::reset()
 {
 	distance=0.f;
 	partial=0.f;
@@ -68,7 +68,7 @@ that the distance goes into the positive while the camera goes into the
 negative.
 */
 
-bool World::is_outside_bounds(const App_Interfaces::Spatiable& s, float extra) const
+bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) const
 {
 	const float 	cam_height=500.f;
 	const float bottom_limit=distance-cam_height-s.get_spatiable_h()-extra;
@@ -77,13 +77,13 @@ bool World::is_outside_bounds(const App_Interfaces::Spatiable& s, float extra) c
 	return bottom_limit > -s.get_spatiable_ey();
 }
 
-void World::delete_discarded_objects()
+void world::delete_discarded_objects()
 {
-	auto it=std::remove_if(std::begin(platforms), std::end(platforms), [](const App_Game::Platform& p) {return p.is_delete();});
+	auto it=std::remove_if(std::begin(platforms), std::end(platforms), [](const app_game::platform& p) {return p.is_delete();});
 	platforms.erase(it, std::end(platforms));
 }
 
-void World::generate_new_world()
+void world::generate_new_world()
 {
 	//Measure the distance from the top of the last platform to climbed 
 	//distance. This assumes that platforms are created bottom-top.
@@ -93,7 +93,7 @@ void World::generate_new_world()
 
 	if(difference >= next_platform_diff)
 	{
-		Herramientas_proyecto::Generador_int next_diff_gen(1, 3);
+		tools::int_generator next_diff_gen(1, 3);
 		next_platform_diff=next_diff_gen()*30;
 		create_new_platform(-(std::round(distance)+10.f));
 
@@ -103,14 +103,14 @@ void World::generate_new_world()
 	}
 }
 
-void World::create_new_platform(float y)
+void world::create_new_platform(float y)
 {
 	//First get the width.
-	Herramientas_proyecto::Generador_int width_generator(3, 8);
+	tools::int_generator width_generator(3, 8);
 	int w=width_generator()*10;
 
 	//Now the position...
-	Herramientas_proyecto::Generador_int position_generator(20, 400-20-w);
+	tools::int_generator position_generator(20, 400-20-w);
 
 	//Now we place it.
 	platforms.push_back({(float)position_generator(),y,w});

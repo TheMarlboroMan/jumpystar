@@ -1,8 +1,8 @@
 #include "game_object.h"
 
-using namespace App_Interfaces;
+using namespace app_interfaces;
 
-Game_object::Game_object()
+game_object::game_object()
 	:to_delete(false)
 {
 

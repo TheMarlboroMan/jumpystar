@@ -1,19 +1,19 @@
 #include "motionable.h"
 
-using namespace App_Interfaces;
+using namespace app_interfaces;
 
-Motionable::Motionable()
+motionable::motionable()
 	:vector(0.0, 0.0)
 {
 
 }
 
-Motionable::~Motionable()
+motionable::~motionable()
 {
 
 }
 
-float Motionable::integrate_vector(float delta, float &vec, float factor)
+float motionable::integrate_vector(float delta, float &vec, float factor)
 {
 	float copy=vec;
 	vec+=factor * delta;
@@ -21,7 +21,7 @@ float Motionable::integrate_vector(float delta, float &vec, float factor)
 	return val * 0.5 * delta;
 }
 
-void Motionable::add_vector(float c, axis t)
+void motionable::add_vector(float c, axis t)
 {
 	switch(t)
 	{
@@ -30,7 +30,7 @@ void Motionable::add_vector(float c, axis t)
 	}
 }
 
-void Motionable::set_vector(float c, axis t)
+void motionable::set_vector(float c, axis t)
 {
 	switch(t)
 	{
@@ -39,7 +39,7 @@ void Motionable::set_vector(float c, axis t)
 	}
 }
 
-void Motionable::do_gravity(float delta, float gravity_value)
+void motionable::do_gravity(float delta, float gravity_value)
 {
 	integrate_vector(delta, vector.y, get_weight()*gravity_value);
 	float max_v_c=get_max_fall_speed();

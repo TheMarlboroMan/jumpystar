@@ -1,13 +1,13 @@
 #include "draw_struct.h"
-#include <templates/parches_compat.h>
+#include <templates/compatibility_patches.h>
 
-using namespace App_Game;
+using namespace app_game;
 
-Draw_struct::Draw_struct()
-	:rep_bmp(), 
+draw_struct::draw_struct(ldv::resource_manager& v_m)
+	:v_manager(v_m), rep_bmp(), 
 	rep_group({0,0}, true),
-	rep_points(DLibV::rgba8(0,0,0,255)),
-	rep_box(DLibV::Representacion_primitiva_caja::tipo::relleno, {0,0,0,0}, DLibV::rgba8(0,0,0,255)),
+	rep_points(ldv::rgba8(0,0,0,255)),
+	rep_box(ldv::box_representation::type::fill, {0,0,0,0}, ldv::rgba8(0,0,0,255)),
 	rep(&rep_bmp),
 	type(types::bitmap),
 	visible(true)
@@ -15,35 +15,34 @@ Draw_struct::Draw_struct()
 
 }
 
-Draw_struct::~Draw_struct()
+draw_struct::~draw_struct()
 {
-	rep_group.vaciar_grupo();
+	rep_group.clear();
 }
 
-void Draw_struct::set_color(DLibV::ColorRGBA c)
+void draw_struct::set_color(ldv::rgba_color c)
 {
-	rep_points.mut_rgba(c);
-	rep_box.mut_rgba(c);
+	rep_points.set_rgba(c);
+	rep_box.set_rgba(c);
 }
 
-void Draw_struct::set_type(types t)
+void draw_struct::set_type(types t)
 {
 	type=t;
 
 	switch(type)
 	{
 		case types::bitmap: 
-			rep_bmp.reiniciar_transformacion();
 			rep=&rep_bmp;
 		break;
 
 		case types::group:
-			rep_group.vaciar_grupo();
+			rep_group.clear();
 			rep=&rep_group;
 		break;
 
 		case types::points:
-			rep_points.limpiar_puntos();
+			rep_points.clear();
 			rep=&rep_points;
 		break;
 
@@ -56,26 +55,27 @@ void Draw_struct::set_type(types t)
 		break;
 	}
 
+	rep->reset_transform();
 	set_alpha(255);
-	set_blend(DLibV::Representacion::blends::alpha);
+	set_blend(ldv::representation::blends::alpha);
 	visible=true;
 }
 
-void Draw_struct::set_alpha(unsigned int v) 
+void draw_struct::set_alpha(unsigned int v) 
 {
 	if(v > 255) v=255;
-	rep->establecer_alpha(v);
+	rep->set_alpha(v);
 }
 
-void Draw_struct::set_blend(DLibV::Representacion::blends v) 
+void draw_struct::set_blend(ldv::representation::blends v) 
 {
-	rep->establecer_modo_blend(v);
+	rep->set_blend(v);
 }
 
 ///////////////////
 // Metodos para manipular el grupo de representaciones...
 
-void Draw_struct::insert_in_group(DLibV::Representacion * r) 
+void draw_struct::insert_in_group(ldv::representation * r) 
 {
 	switch(type)
 	{
@@ -83,24 +83,17 @@ void Draw_struct::insert_in_group(DLibV::Representacion * r)
 		case types::points:
 		case types::box:
 		case types::external: break;
-		case types::group: rep_group.insertar_representacion(r); break;
+		case types::group: rep_group.insert(r); break;
 	}
 }
 
-void Draw_struct::set_resource(unsigned int i) //Por defecto establece el recorte al tamaño del recurso.
+void draw_struct::set_resource(unsigned int i) //Por defecto establece el recorte al tamaño del recurso.
 {
-	if(!DLibV::Gestor_texturas::comprobar(i))
-	{
-		throw std::runtime_error("Unknown resource "+compat::to_string(i)+" requested.");
-	}
-	else 
-	{
-		rep_bmp.establecer_textura(DLibV::Gestor_texturas::obtener(i));
-		rep_bmp.recorte_a_medidas_textura();
-	}
+	rep_bmp.set_texture(v_manager.get_texture(i));
+	rep_bmp.clip_to_texture();
 }
 
-void Draw_struct::set_external(DLibV::Representacion& p_rep)
+void draw_struct::set_external(ldv::representation& p_rep)
 {
 	type=types::external;
 	rep=&p_rep;

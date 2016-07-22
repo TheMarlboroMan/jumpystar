@@ -3,10 +3,10 @@
 
 #include <def_video.h>
 
-namespace App_Game
+namespace app_game
 {
 
-struct Draw_struct
+struct draw_struct
 {
 	///////////////////////////////////
 	// Definiciones...
@@ -24,57 +24,59 @@ struct Draw_struct
 
 	public:
 
-								Draw_struct();
-								~Draw_struct();
+								draw_struct(ldv::resource_manager&);
+								~draw_struct();
 
 	int							get_cycle() const {return cycle;}
-	Draw_struct&						set_cycle(int v) {cycle=v; return *this;}
+	draw_struct&						set_cycle(int v) {cycle=v; return *this;}
 	bool 							is_visible() const {return visible;}
-	void							go_to(DLibV::Punto p) {rep->ir_a(p);}
-	DLibV::Rect 						get_draw_position() const {return rep->acc_posicion_vista();}
+	void							go_to(ldv::point p) {rep->go_to(p);}
+	ldv::rect 						get_view_position() const {return rep->get_view_position();}
 	void 							set_type(types t);
 	void 							hide() {visible=false;}
 	void 							set_alpha(unsigned int v);
-	void 							set_blend(DLibV::Representacion::blends);
-	void							set_color(DLibV::ColorRGBA);
+	void 							set_blend(ldv::representation::blends);
+	void							set_color(ldv::rgba_color);
 	void 							set_rotation_center(float x, float y);
-	void 							set_rotation(float v) {rep->transformar_rotar(v);}
-	void							set_external(DLibV::Representacion * rep) {set_external(*rep);}
-	void							set_external(DLibV::Representacion&);
+	void 							set_rotation(float v) {rep->set_rotation(v);}
+	void							set_external(ldv::representation * rep) {set_external(*rep);}
+	void							set_external(ldv::representation&);
 
 	///////////////////
 	// Metodos para manipular el grupo de representaciones...
 
-	void 							insert_in_group(DLibV::Representacion * r);
+	void 							insert_in_group(ldv::representation * r);
 
 	////////////////////
 	//Métodos para manipular la representación de puntos.
 
-	void 							insert_point(DLibV::Punto p) {rep_points.insertar(p);}
+	void 							insert_point(ldv::point p) {rep_points.insert(p);}
 
 	////////////////////
 	//Métodos para manipular la representación de caja.
 
-	void 							set_box_position(DLibV::Rect p) {rep_box.establecer_posicion(p);}
+	void 							set_location_box(ldv::rect p) {rep_box.set_location(p);}
 
 	///////////////////
 	// Métodos para manipular la representación de bitmap...
 
-	void 							set_clip(DLibV::Rect r) {rep_bmp.establecer_recorte(r);}
-	void 							set_position(DLibV::Rect r) {rep_bmp.establecer_posicion(r);}
-	void 							set_bitmap_horizontal_invert(bool v) {rep_bmp.transformar_invertir_horizontal(v);}
-	void 							set_bitmap_vertical_invert(bool v) {rep_bmp.transformar_invertir_vertical(v);}
+	void 							set_clip(ldv::rect r) {rep_bmp.set_clip(r);}
+	void 							set_location(ldv::rect r) {rep_bmp.set_location(r);}
+	void 							set_set_invert_horizontal_bitmap(bool v) {rep_bmp.set_invert_horizontal(v);}
+	void 							set_set_invert_vertical_bitmap(bool v) {rep_bmp.set_invert_vertical(v);}
 	void 							set_resource(unsigned int i);
-	void 							set_texture_manual(DLibV::Textura * r) {rep_bmp.establecer_textura(r);}
+	void 							set_texture_manual(ldv::texture& r) {rep_bmp.set_texture(r);}
 
 	///////////////////////////////////
 	// Propiedades
 
-	DLibV::Representacion_bitmap 			rep_bmp;
-	DLibV::Representacion_agrupada 			rep_group;
-	DLibV::Representacion_primitiva_puntos 		rep_points;
-	DLibV::Representacion_primitiva_caja 		rep_box;
-	DLibV::Representacion * 			rep;
+	ldv::resource_manager&				v_manager;
+
+	ldv::bitmap_representation 			rep_bmp;
+	ldv::group_representation 			rep_group;
+	ldv::point_representation 			rep_points;
+	ldv::box_representation 			rep_box;
+	ldv::representation * 				rep;
 	types 						type;
 	bool 						visible;
 	int						cycle;

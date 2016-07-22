@@ -54,14 +54,7 @@ class app_config:
 	user_input get_right() const 	{return token_from_path_input("right");}
 	user_input get_up() const 	{return token_from_path_input("up");}
 	user_input get_down() const		{return token_from_path_input("down");}
-	user_input get_space() const	{return token_from_path_input("space");}
-	user_input get_zoom_more() const	{return token_from_path_input("zoom_more");}
-	user_input get_zoom_less() const	{return token_from_path_input("zoom_less");}
-	user_input get_num_1() const	{return token_from_path_input("num_1");}
-	user_input get_num_2() const	{return token_from_path_input("num_2");}
-	user_input get_num_3() const	{return token_from_path_input("num_3");}
-	user_input get_key_a() const	{return token_from_path_input("key_a");}
-	user_input get_key_s() const	{return token_from_path_input("key_s");}
+	user_input get_jump() const	{return token_from_path_input("jump");}
 
 	void set_w_screen_logical(int p_valor) {set("config:video:window_w_logical", p_valor);}
 	void set_h_screen_logical(int p_valor) {set("config:video:window_h_logical", p_valor);}

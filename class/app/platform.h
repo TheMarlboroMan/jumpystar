@@ -5,25 +5,25 @@
 #include "drawable.h"
 #include "game_object.h"
 
-namespace App_Game
+namespace app_game
 {
 
-class Platform:
-	public Actor,
-	public App_Interfaces::Drawable,
-	public App_Interfaces::Game_object
+class platform:
+	public actor,
+	public app_interfaces::drawable,
+	public app_interfaces::game_object
 {
 
 	public:
 
-				Platform(float, float, int);
+				platform(float, float, int);
 
 	//////////////////////
 	//Drawable.
 
 	virtual int		get_draw_order()const {return 30;}
 	virtual int		get_draw_cycle()const {return 1;}
-	virtual void 		transform_draw_struct(App_Game::Draw_struct &b)const;
+	virtual void 		transform_draw_struct(app_game::draw_struct &b)const;
 	virtual bool		is_draw_delete()const {return false;}
 
 	private:

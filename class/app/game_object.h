@@ -1,5 +1,5 @@
-#ifndef OBJETO_JUEGO_H
-#define OBJETO_JUEGO_H
+#ifndef GAME_OBJECT_H
+#define GAME_OBJECT_H
 
 #include <iostream>
 
@@ -9,17 +9,17 @@
 * separarse usando un visitante.
 */
 
-namespace App_Interfaces
+namespace app_interfaces
 {
 /**
 * Interface en si.
 */
 
-class Game_object
+class game_object
 {
 	public:
-					Game_object();
-	virtual 			~Game_object() {}
+					game_object();
+	virtual 			~game_object() {}
 	virtual bool			is_delete()const {return to_delete;}
 	virtual void			set_delete(bool v) {to_delete=v;}
 

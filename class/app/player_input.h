@@ -1,10 +1,10 @@
 #ifndef PLAYER_INPUT_H
 #define PLAYER_INPUT_H
 
-namespace App_Game
+namespace app_game
 {
 
-struct Player_input
+struct player_input
 {
 	int 		x,
 			y;

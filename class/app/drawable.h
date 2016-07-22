@@ -1,18 +1,10 @@
-#ifndef REPRESENTABLE_H
-#define REPRESENTABLE_H
+#ifndef DRAWABLE_INTERFACE_H
+#define DRAWABLE_INTERFACE_H
 
 #include <libDan2.h>
 #include "draw_struct.h"
 
-extern DLibH::Log_base LOG;
-/*
-namespace App_Graficos
-{
-class Bloque_transformacion_representable;
-}
-*/
-
-namespace App_Interfaces
+namespace app_interfaces
 {
 /*Todos los elementos que vayan a ser representados como parte de un nivel
 deben implementar la interface "representable". Uno de los métodos de la
@@ -28,24 +20,24 @@ ser borrado de un hipotético vector de "representables". La implementación
 dependerá de la clase derivada.
 */
 
-class Drawable
+class drawable
 {
 	public:
 
-	virtual 		~Drawable() {}
+	virtual 		~drawable() {}
 	virtual int		get_draw_order()const=0;
 	virtual int		get_draw_cycle()const=0;
-	virtual void 		transform_draw_struct(App_Game::Draw_struct &b)const=0;
+	virtual void 		transform_draw_struct(app_game::draw_struct &b)const=0;
 	virtual bool		is_draw_delete()const=0;
 
 
 };
 
-class Drawable_order
+class drawable_order
 {
 	public: 
 
-	bool operator()(const Drawable* a, const Drawable* b) const
+	bool operator()(const drawable* a, const drawable* b) const
 	{
 		return a->get_draw_order() < b->get_draw_order();
 	}

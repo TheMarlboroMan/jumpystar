@@ -5,17 +5,17 @@
 #include "drawable.h"
 #include "player_input.h"
 
-namespace App_Game
+namespace app_game
 {
 
-class Player:
-	public Motion_actor,
-	public App_Interfaces::Drawable
+class player:
+	public motion_actor,
+	public app_interfaces::drawable
 {
 	public:
 
-			Player();
-	void		get_input(Player_input pi) {player_input=pi;}
+			player();
+	void		get_input(player_input pi) {p_input=pi;}
 
 	const t_box&	get_previous_position() const {return previous_position;}
 	void		update_previos_position() {previous_position=get_box();}
@@ -26,14 +26,14 @@ class Player:
 
 	virtual float 	get_weight() const {return 600.f;}
 	virtual float 	get_max_fall_speed() const {return 600.f;}
-	virtual void 	adjust_callback(float, Motion_actor::adjust_pos);
+	virtual void 	adjust_callback(float, motion_actor::adjust_pos);
 
 	////////////////////
 	//Drawable
 
 	virtual int 	get_draw_order() const {return 50;}
 	virtual int	get_draw_cycle() const {return 0;}
-	virtual void 	transform_draw_struct(Draw_struct&)const;
+	virtual void 	transform_draw_struct(draw_struct&)const;
 	virtual bool	is_draw_delete() const {return false;}
 
 	private:
@@ -42,7 +42,7 @@ class Player:
 
 	t_box			previous_position;
 	states			state;
-	Player_input		player_input;
+	player_input		p_input;
 	
 
 };

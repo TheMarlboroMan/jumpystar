@@ -13,7 +13,7 @@
 //local.
 #include "app_config.h"
 #include "states.h"
-#include "main.h"
+#include "game.h"
 
 
 namespace app
@@ -42,7 +42,7 @@ class state_driver:
 
 	tools::ttf_manager				fonts;
 	
-	std::unique_ptr<main_controller>		c_main;
+	std::unique_ptr<game_controller>		c_game;
 };
 
 }

@@ -1,10 +1,10 @@
 #ifndef STRUCT_INPUT_FRAMEWORK_H
 #define STRUCT_INPUT_FRAMEWORK_H
 
-namespace App
+namespace app
 {
 
-struct Input
+struct input_app
 {
 	enum inputs{
 escape=0,

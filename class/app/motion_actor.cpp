@@ -1,19 +1,19 @@
 #include "motion_actor.h"
 
-using namespace App_Game;
+using namespace app_game;
 
 /*
 * @param float pos: punto en el espacio.
 * @param adjust_pos tipo: tipo de ajuste.
 *
 * Por tipo de ajuste se entiende el "lado que se ajusta":
-* 	arriba: el Motion_actor esta bajo de algo y ajustamos su parte de arriba pos.
-* 	abajo: el Motion_actor esta sobre de algo y ajustamos su parte de abajo pos.
-* 	izquierda: el Motion_actor esta a la derecha de algo y ajustamos su parte de izquierda pos.
-* 	derecha: el Motion_actor esta a la izquierda de algo y ajustamos su parte de derecha pos.
+* 	arriba: el motion_actor esta bajo de algo y ajustamos su parte de arriba pos.
+* 	abajo: el motion_actor esta sobre de algo y ajustamos su parte de abajo pos.
+* 	izquierda: el motion_actor esta a la derecha de algo y ajustamos su parte de izquierda pos.
+* 	derecha: el motion_actor esta a la izquierda de algo y ajustamos su parte de derecha pos.
 */
 
-void Motion_actor::adjust(float pos, adjust_pos type)
+void motion_actor::adjust(float pos, adjust_pos type)
 {
 	switch(type)
 	{
@@ -27,7 +27,7 @@ void Motion_actor::adjust(float pos, adjust_pos type)
 	adjust_callback(pos, type);
 }
 
-void Motion_actor::adjust(const Spatiable& e, adjust_pos type)
+void motion_actor::adjust(const spatiable& e, adjust_pos type)
 {
 	float pos=0.0f;
 
@@ -43,7 +43,7 @@ void Motion_actor::adjust(const Spatiable& e, adjust_pos type)
 	adjust(pos, type);
 }
 
-void Motion_actor::move(float delta)
+void motion_actor::move(float delta)
 {
 	const auto& v=get_vector();
 	displace_box(v.x * delta, v.y * delta);

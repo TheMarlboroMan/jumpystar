@@ -3,7 +3,7 @@
 
 DIR_O=./objects/
 DIR_CLASS=./class/
-DIR_CLASES_APP=./class/app/
+DIR_APP=./class/app/
 DIR_CONTROLLERS_IMPL=./class/controllers_impl/
 
 ################################################################################
@@ -35,13 +35,23 @@ $(DIR_O_DFW)fw_state_driver_interface.o \
 ################################################################################
 # App dependencies.
 
-DEP_CLASES_APP=\
-$(DIR_O)kernel_config.o\
-$(DIR_O)app_config.o\
-
-DEP_CONTROLADORES=\
+DEP_CONTROLLERS=\
 $(DIR_O)state_driver.o \
 $(DIR_O)game_controller.o \
+$(DIR_O)kernel_config.o \
+$(DIR_O)app_config.o \
+
+DEP_APP=\
+$(DIR_O)player.o \
+$(DIR_O)world.o \
+$(DIR_O)platform.o \
+$(DIR_O)actor.o \
+$(DIR_O)motion_actor.o \
+$(DIR_O)motionable.o \
+$(DIR_O)spatiable.o \
+$(DIR_O)game_object.o \
+$(DIR_O)draw_struct.o \
+
 
 ################################################################################
 #Controllers and implementation...
@@ -73,59 +83,54 @@ $(DIR_CONTROLLERS_IMPL)app_config.cpp
 
 $(DIR_O)player.o:\
 $(DIR_O)motion_actor.o \
-$(DIR_O)drawable.o \
-$(DIR_CLASES_APP)player.h\
-$(DIR_CLASES_APP)player.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)player.cpp -o $(DIR_O)player.o
+$(DIR_APP)drawable.h \
+$(DIR_APP)player.h\
+$(DIR_APP)player.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player.cpp -o $(DIR_O)player.o
 
 $(DIR_O)world.o:\
 $(DIR_O)platform.o \
-$(DIR_CLASES_APP)world.h\
-$(DIR_CLASES_APP)world.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)world.cpp -o $(DIR_O)world.o
+$(DIR_APP)world.h\
+$(DIR_APP)world.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)world.cpp -o $(DIR_O)world.o
 
 $(DIR_O)platform.o:\
 $(DIR_O)actor.o \
 $(DIR_O)game_object.o \
-$(DIR_O)drawable.o \
-$(DIR_CLASES_APP)platform.h\
-$(DIR_CLASES_APP)platform.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)platform.cpp -o $(DIR_O)platform.o
+$(DIR_APP)drawable.h \
+$(DIR_APP)platform.h\
+$(DIR_APP)platform.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)platform.cpp -o $(DIR_O)platform.o
 
 $(DIR_O)actor.o:\
 $(DIR_O)spatiable.o \
-$(DIR_CLASES_APP)actor.h\
-$(DIR_CLASES_APP)actor.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)actor.cpp -o $(DIR_O)actor.o
+$(DIR_APP)actor.h\
+$(DIR_APP)actor.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)actor.cpp -o $(DIR_O)actor.o
 
 $(DIR_O)motion_actor.o:\
 $(DIR_O)actor.o \
 $(DIR_O)motionable.o \
-$(DIR_CLASES_APP)motion_actor.h\
-$(DIR_CLASES_APP)motion_actor.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)motion_actor.cpp -o $(DIR_O)motion_actor.o
+$(DIR_APP)motion_actor.h\
+$(DIR_APP)motion_actor.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)motion_actor.cpp -o $(DIR_O)motion_actor.o
 
 $(DIR_O)motionable.o:\
-$(DIR_CLASES_APP)motionable.h\
-$(DIR_CLASES_APP)motionable.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)motionable.cpp -o $(DIR_O)motionable.o
+$(DIR_APP)motionable.h\
+$(DIR_APP)motionable.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)motionable.cpp -o $(DIR_O)motionable.o
 
 $(DIR_O)spatiable.o:\
-$(DIR_CLASES_APP)spatiable.h\
-$(DIR_CLASES_APP)spatiable.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)spatiable.cpp -o $(DIR_O)spatiable.o
-
-$(DIR_O)drawable.o:\
-$(DIR_CLASES_APP)drawable.h\
-$(DIR_CLASES_APP)drawable.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)drawable.cpp -o $(DIR_O)drawable.o
+$(DIR_APP)spatiable.h\
+$(DIR_APP)spatiable.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)spatiable.cpp -o $(DIR_O)spatiable.o
 
 $(DIR_O)game_object.o:\
-$(DIR_CLASES_APP)game_object.h\
-$(DIR_CLASES_APP)game_object.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)game_object.cpp -o $(DIR_O)game_object.o
+$(DIR_APP)game_object.h\
+$(DIR_APP)game_object.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)game_object.cpp -o $(DIR_O)game_object.o
 
 $(DIR_O)draw_struct.o:\
-$(DIR_CLASES_APP)draw_struct.h\
-$(DIR_CLASES_APP)draw_struct.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_CLASES_APP)draw_struct.cpp -o $(DIR_O)draw_struct.o
+$(DIR_APP)draw_struct.h\
+$(DIR_APP)draw_struct.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)draw_struct.cpp -o $(DIR_O)draw_struct.o
