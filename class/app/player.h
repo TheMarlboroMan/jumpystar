@@ -27,7 +27,7 @@ class player:
 	//Motion actor
 
 	//TODO: Check this, see if it works ok.
-	virtual float 	get_weight() const {return cancel_jump && get_vector_y() < 0.f ? 1200.f : 600.f;}
+	virtual float 	get_weight() const {return cancel_jump && get_vector().y < 0.f ? 1200.f : 600.f;}
 	virtual float 	get_max_fall_speed() const {return 600.f;}
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos);
 

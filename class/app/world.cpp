@@ -1,11 +1,14 @@
 #include "world.h"
+
 #include <class/number_generator.h>
+
+#include "definitions.h"
 
 using namespace app_game;
 
 world::world()
 	:moving(false), distance(0.f), partial(0.f), 
-	camera_movement(0), next_platform_diff(50)
+	camera_movement(0), world_threshold(0)
 {
 
 }
@@ -40,16 +43,20 @@ void world::do_turn(float delta)
 	
 }
 
+/* At the beginning, generates the world with a large platform on the floor
+and upwards to a fixed position, the equivalent of a whole screen up.
+*/
 void world::init()
 {
-	float y=480.f;
+	const float y=480.f;
+	
 	platforms.push_back({0.f,y,400});
+	generate_new_world_threshold();
 
 	do
 	{
-		create_new_platform(y);
-		y-=50.f;
-	}while(y >= 0.f);
+		generate_new_world();
+	}while(world_threshold >= -480.f);
 }
 
 void world::reset()
@@ -70,8 +77,8 @@ negative.
 
 bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) const
 {
-	const float 	cam_height=500.f;
-	const float bottom_limit=distance-cam_height-s.get_spatiable_h()-extra;
+	const float 	cam_height=500.f,
+			bottom_limit=distance-cam_height-s.get_spatiable_h()-extra;
 
 	//Measure from the bottom of the object since it's negated.
 	return bottom_limit > -s.get_spatiable_ey();
@@ -83,41 +90,45 @@ void world::delete_discarded_objects()
 	platforms.erase(it, std::end(platforms));
 }
 
-void world::generate_new_world()
+/* Evaluates if the screen is near enough the world threshold. Distance is a positive
+value while the threshold is negative.*/
+
+bool world::is_create_new() const
 {
-	//Measure the distance from the top of the last platform to climbed 
-	//distance. This assumes that platforms are created bottom-top.
-
-	const auto& last_platform=platforms.back();
-	const int difference=distance-(-last_platform.get_spatiable_y());
-
-	if(difference >= next_platform_diff)
-	{
-		tools::int_generator next_diff_gen(1, 3);
-		next_platform_diff=next_diff_gen()*30;
-		create_new_platform(-(std::round(distance)+10.f));
-
-		//TODO: Take into account the previous position.
-
-		//TODO: Generate bonus on the platform.
-
-		//TODO: Generate obstacles in the previous position.
-	}
+	const int val=-(distance+app::definitions::distance_threshold);
+	return val < world_threshold;
 }
 
-//TODO: Account for last platform's position to generate the width and max
-//distance.
+void world::generate_new_world_threshold()
+{
+	tools::int_generator next_diff_gen(1 , 3);
+	world_threshold=platforms.back().get_spatiable_y()-(next_diff_gen()*app::definitions::unit);
+}
+
+void world::generate_new_world()
+{
+	create_new_platform(world_threshold);
+	generate_new_world_threshold();
+
+	//TODO: Generate bonus on the platform.
+
+	//TODO: Generate obstacles in the previous position.
+}
+
 void world::create_new_platform(float y)
 {
 	//First get the width.
-	tools::int_generator width_generator(3, 10);
-	int w=width_generator()*20;
+	tools::int_generator width_generator(1, 5);
+	int w=width_generator()*app::definitions::unit;
+
+	//TODO: Account for the position of the previous platform.
+	//TODO: Come up with some algorithm for this.
 
 	//Now the position...
-	tools::int_generator position_generator(20, 400-20-w);
+	tools::int_generator position_generator(0, 9);
 
 	//Now we place it.
-	platforms.push_back({(float)position_generator(),y,w});
+	platforms.push_back({(float)position_generator()*app::definitions::unit,y,w});
 }
 
 std::vector<app_interfaces::spatiable const *> world::get_collidables() const

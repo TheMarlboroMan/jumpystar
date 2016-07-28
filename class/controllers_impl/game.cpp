@@ -165,7 +165,10 @@ void game_controller::do_world_turn(float delta)
 	if(world.is_moving())
 	{
 		world.do_turn(delta);
-		world.generate_new_world();
+		if(world.is_create_new())
+		{
+			world.generate_new_world();
+		}
 		world.delete_discarded_objects();
 		camera.move_by(0, -world.get_camera_movement());
 	}
