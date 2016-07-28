@@ -7,7 +7,7 @@
 using namespace app_game;
 
 world::world()
-	:moving(false), distance(0.f), partial(0.f), 
+	:moving(false), distance(0.f), partial(0.f), speed(20.f),
 	camera_movement(0), world_threshold(0)
 {
 
@@ -18,7 +18,8 @@ void world::do_turn(float delta)
 	//Considering the camera moves in integer values, we
 	//will fake it a bit.
 
-	float dist=delta*20.f;
+	float dist=delta*speed;
+	speed+=delta;
 
 	distance+=dist;
 	partial+=dist;
@@ -63,6 +64,7 @@ void world::reset()
 {
 	distance=0.f;
 	partial=0.f;
+	speed=0.f;
 	platforms.clear();
 	moving=false;
 }

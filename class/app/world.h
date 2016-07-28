@@ -34,7 +34,7 @@ class world
 
 	std::vector<app_game::platform>	platforms;
 	bool				moving;
-	float				distance, partial;
+	float				distance, partial, speed;
 	int				camera_movement, world_threshold;
 };
 
