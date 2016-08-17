@@ -134,6 +134,9 @@ void world::create_new_platform(float y)
 	float 	min_x=app::definitions::min_x_platform_position, 
 		max_x=app::definitions::max_x_platform_position-w;
 
+	//TODO: Perhaps we should favour the edges instead of the centered positions.
+	//The inverse normal (gauss) distribution would work but that's trash on windows.
+
 	//If there's a platform the range is recalculated near its edges.
 	if(platforms.size() > 1) //The baseline platform does not count for this!.
 	{		
