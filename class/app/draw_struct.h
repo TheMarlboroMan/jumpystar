@@ -39,7 +39,7 @@ struct draw_struct
 	void							set_color(ldv::rgba_color);
 	void 							set_rotation_center(float x, float y);
 	void 							set_rotation(float v) {rep->set_rotation(v);}
-	void							set_external(ldv::representation * rep) {set_external(*rep);}
+	void							set_external(ldv::representation * prep) {set_external(*prep);}
 	void							set_external(ldv::representation&);
 
 	///////////////////

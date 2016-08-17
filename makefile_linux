@@ -1,16 +1,21 @@
 #Definiciones.
 
-#OPTIMIZACION=-O3
-SIMBOLOS_DEBUG=-g
-FLAGS_BASE=-Wno-deprecated -Wall -ansi -pedantic -std=c++11
+#DISABLE_ASSERT=-DNDEBUG=1;
+#OPTIMIZATION=-O3
+DEBUG=-g
 
-CFLAGS=-c $(SIMBOLOS_DEBUG) $(OPTIMIZACION) $(FLAGS_BASE)
-CFLAGS_TARGET_FINAL=$(SIMBOLOS_DEBUG) $(OPTIMIZACION) $(FLAGS_BASE)
+#These are either old or plain stupid :P.
+#OTHER_WARNING_FLAGS=-Wno-deprecated -Wfloat-equal
+WARNING_FLAGS=-Wall -Wextra -Wundef -Wcast-align -Wwrite-strings -Wlogical-op -Wmissing-declarations -Wredundant-decls -Wshadow -Woverloaded-virtual
+
+FLAGS_BASE=$(WARNING_FLAGS) $(OTHER_WARNING_FLAGS) $(DISABLE_ASSERT) -ansi -pedantic -std=c++11
+CFLAGS=-c $(DEBUG) $(OPTIMIZATION) $(FLAGS_BASE)
+CFLAGS_TARGET_FINAL=$(DEBUG) $(OPTIMIZATION) $(FLAGS_BASE)
 CC=g++
 EJECUTABLE=a.out
 LIMPIAR=rm objects/*; rmdir objects; rm $(EJECUTABLE);
 
-DIR_HOME=/home/dani/programacion/
+DIR_HOME=/home/dani/programacion/c++/
 DIR_LIBDAN2=$(DIR_HOME)libdansdl2
 DIR_DFW=$(DIR_HOME)dfw/
 DIR_O_DFW=$(DIR_HOME)dfw/objects/
@@ -23,3 +28,4 @@ INCLUDES=-I $(DIR_LIBDAN2) -I $(DIR_TOOLS) -I $(DIR_DFW)
 LIBRERIAS=
 
 include makefile_common
+

@@ -46,7 +46,7 @@ void state_driver::register_controllers(dfw::kernel& kernel)
 	register_controller(t_states::state_game, *c_game);
 }
 
-void state_driver::prepare_state(int next, int current)
+void state_driver::prepare_state(int next, int /*current*/)
 {
 	switch(next)
 	{
@@ -55,7 +55,7 @@ void state_driver::prepare_state(int next, int current)
 	}
 }
 
-void state_driver::common_input(dfw::input& input, float delta)
+void state_driver::common_input(dfw::input& input, float /*delta*/)
 {
 	if(input().is_event_joystick_connected())
 	{
@@ -64,7 +64,7 @@ void state_driver::common_input(dfw::input& input, float delta)
 	}
 }
 
-void state_driver::common_step(float delta)
+void state_driver::common_step(float /*delta*/)
 {
 
 }

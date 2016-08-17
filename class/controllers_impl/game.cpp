@@ -9,8 +9,8 @@
 
 using namespace app;
 
-game_controller::game_controller(ldt::log& log, ldv::resource_manager& vm, tools::ttf_manager& ttf_man)
-	:log(log),
+game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tools::ttf_manager& ttf_man)
+	:log(plog),
 	camera({0,0,400,500},{0,0}),
 	fps_text(ttf_man.get("akashi", 16), ldv::rgba8(0,0,0,255), ""),
 	world(),
@@ -20,7 +20,7 @@ game_controller::game_controller(ldt::log& log, ldv::resource_manager& vm, tools
 	reset();
 }
 
-void game_controller::preloop(dfw::input& input, float delta, int fps)
+void game_controller::preloop(dfw::input& /*input*/, float /*delta*/, int fps)
 {
 	fps_text.set_text(compat::to_string(fps));
 }
@@ -38,7 +38,7 @@ void game_controller::loop(dfw::input& input, float delta)
 	do_player_collisions(player_instance);
 }
 
-void game_controller::postloop(dfw::input& input, float delta, int fps)
+void game_controller::postloop(dfw::input& /*input*/, float /*delta*/, int /*fps*/)
 {
 
 }
@@ -118,7 +118,7 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 
 app_game::player_input game_controller::get_user_input(const dfw::input& input)
 {
-	app_game::player_input pi{0, false, false};
+	app_game::player_input pi{0, 0, false, false};
 	if(input.is_input_pressed(input_app::left)) pi.x=-1;
 	else if(input.is_input_pressed(input_app::right)) pi.x=1;
 

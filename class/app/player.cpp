@@ -10,7 +10,7 @@ player::player()
 
 }
 
-void player::adjust_callback(float position, motion_actor::adjust_pos apos)
+void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 {
 	switch(apos)
 	{

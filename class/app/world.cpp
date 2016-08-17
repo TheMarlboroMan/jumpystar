@@ -1,5 +1,7 @@
 #include "world.h"
 
+#include <cassert>
+
 #include <class/number_generator.h>
 
 #include "definitions.h"
@@ -60,6 +62,22 @@ void world::init()
 	}while(world_threshold >= -480.f);
 }
 
+void world::generate_new_world_threshold()
+{
+	tools::int_generator next_diff_gen(1 , 3);
+	world_threshold=platforms.back().get_spatiable_y()-(next_diff_gen()*app::definitions::unit);
+}
+
+void world::generate_new_world()
+{
+	create_new_platform(world_threshold);
+	generate_new_world_threshold();
+
+	//TODO: Generate bonus on the platform.
+
+	//TODO: Generate obstacles in the previous position.
+}
+
 void world::reset()
 {
 	distance=0.f;
@@ -101,36 +119,42 @@ bool world::is_create_new() const
 	return val < world_threshold;
 }
 
-void world::generate_new_world_threshold()
-{
-	tools::int_generator next_diff_gen(1 , 3);
-	world_threshold=platforms.back().get_spatiable_y()-(next_diff_gen()*app::definitions::unit);
-}
-
-void world::generate_new_world()
-{
-	create_new_platform(world_threshold);
-	generate_new_world_threshold();
-
-	//TODO: Generate bonus on the platform.
-
-	//TODO: Generate obstacles in the previous position.
-}
+/** Platforms can exist between the horizontal world positions 0 and 
+screen_w /definitions::unit. There is a maximum fixed distance between two 
+platforms that should be roughly the horizontal distance the player can jump.
+*/
 
 void world::create_new_platform(float y)
 {
 	//First get the width.
-	tools::int_generator width_generator(1, 5);
-	int w=width_generator()*app::definitions::unit;
+	tools::int_generator width_generator(app::definitions::min_w_platform, app::definitions::max_w_platform);
+	int w=width_generator();
 
-	//TODO: Account for the position of the previous platform.
-	//TODO: Come up with some algorithm for this.
+	//Basic minimum and maximum range of horizontal position.
+	float 	min_x=app::definitions::min_x_platform_position, 
+		max_x=app::definitions::max_x_platform_position-w;
 
-	//Now the position...
-	tools::int_generator position_generator(0, 9);
+	//If there's a platform the range is recalculated near its edges.
+	if(platforms.size() > 1) //The baseline platform does not count for this!.
+	{		
+		auto	last_platform=platforms.back();
+		float 	left=(last_platform.get_spatiable_x() / app::definitions::unit),
+			right=(last_platform.get_spatiable_ex() / app::definitions::unit);
 
-	//Now we place it.
-	platforms.push_back({(float)position_generator()*app::definitions::unit,y,w});
+		min_x=left-app::definitions::max_w_platform_gap;
+		max_x=right+app::definitions::max_w_platform_gap-w;
+	}
+
+	//Account for the platform witdh at the rightmost side.
+	assert(max_x >= min_x);
+
+	//Clip to limits...
+	if(min_x < app::definitions::min_x_platform_position) min_x=app::definitions::min_x_platform_position;
+	if(max_x > app::definitions::max_x_platform_position) max_x=app::definitions::max_x_platform_position;
+
+	//Generate and place.
+	tools::int_generator position_generator(min_x, max_x);
+	platforms.push_back({(float)position_generator()*app::definitions::unit,y,w*app::definitions::unit});
 }
 
 std::vector<app_interfaces::spatiable const *> world::get_collidables() const
