@@ -2,9 +2,9 @@
 
 #include <cassert>
 
-#include <class/number_generator.h>
+//#include <class/number_generator.h>
 
-#include "definitions.h"
+//#include "definitions.h"
 
 using namespace app_game;
 
@@ -72,9 +72,7 @@ void world::generate_new_world()
 {
 	create_new_platform(world_threshold);
 	generate_new_world_threshold();
-
-	//TODO: Generate bonus on the platform.
-
+	evaluate_new_bonus();
 	//TODO: Generate obstacles in the previous position.
 }
 
@@ -106,8 +104,8 @@ bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) c
 
 void world::delete_discarded_objects()
 {
-	auto it=std::remove_if(std::begin(platforms), std::end(platforms), [](const app_game::platform& p) {return p.is_delete();});
-	platforms.erase(it, std::end(platforms));
+	delete_helper(platforms);
+	delete_helper(bonus);
 }
 
 /* Evaluates if the screen is near enough the world threshold. Distance is a positive
@@ -141,8 +139,8 @@ void world::create_new_platform(float y)
 	if(platforms.size() > 1) //The baseline platform does not count for this!.
 	{		
 		auto	last_platform=platforms.back();
-		float 	left=(last_platform.get_spatiable_x() / app::definitions::unit),
-			right=(last_platform.get_spatiable_ex() / app::definitions::unit);
+		float 	left=app::world_to_grid(last_platform.get_spatiable_x()),
+			right=app::world_to_grid(last_platform.get_spatiable_ex());
 
 		min_x=left-app::definitions::max_w_platform_gap;
 		max_x=right+app::definitions::max_w_platform_gap-w;
@@ -167,9 +165,64 @@ std::vector<app_interfaces::spatiable const *> world::get_collidables() const
 	return res;
 }
 
+/** Evaluates wheter or not to create a bonus over a newly created platform. 
+The rules are as follows:
+
+- No bonus can exist on the world's lowest platform.
+- The wider the last platform, the more possibilities a bonus appears.
+- Bonus change grows as more platforms are created and resets when a bonus is created.
+*/
+
+void world::evaluate_new_bonus()
+{
+	if(platforms.size()==1)
+	{
+		return;
+	}
+
+	bonus_data.chance+=app::world_to_grid(platforms.back().get_spatiable_w());
+
+	if(bonus_data.generator() <= bonus_data.chance)
+	{
+		bonus_data.reset_chance();
+		create_new_bonus();
+	}
+}
+
+/** By default the new bonus is created on the 0,0 position and then is placed
+alongside the horizontal length of the last platform, on its top.
+*/
+
+void world::create_new_bonus()
+{
+	app_game::bonus b;
+
+	auto	last_platform=platforms.back();
+	float 	left=last_platform.get_spatiable_x(),
+		right=last_platform.get_spatiable_ex()-b.get_spatiable_w();
+
+	tools::int_generator x_generator(left, right);
+	float x=x_generator();
+	float y=last_platform.get_spatiable_y()-b.get_spatiable_h()-app::definitions::bonus_units_above_ground;
+
+	b.set_position(x, y);
+	bonus.push_back(b);
+}
+
 std::vector<app_interfaces::drawable const *> world::get_drawables() const
 {
 	std::vector<app_interfaces::drawable const *> res;
 	for(const auto &p : platforms) res.push_back(&p);
+	for(const auto &p : bonus) res.push_back(&p);
+	return res;
+}
+
+//TODO: app_game::bonus would be replaced but some interface... In any other case
+//we could just return the vector by reference and be done.
+
+std::vector<app_game::bonus *> world::get_pickables()
+{
+	std::vector<app_game::bonus *> res;
+	for(auto &p : bonus) res.push_back(&p);
 	return res;
 }

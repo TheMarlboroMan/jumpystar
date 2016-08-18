@@ -144,11 +144,21 @@ void game_controller::do_player_collisions(app_game::player& pl)
 		pl.adjust(400.f, app_game::motion_actor::adjust_pos::right);
 	}
 
-	//world.
-	//TODO: Better something like "world, get collidables".
-	for(const auto& c : world.get_collidables())
+	//pickups
+	for(auto& i : world.get_pickables())
 	{
-		const auto& p=*c;
+		auto& p=*i;
+		if(pl.is_colliding_with(p))
+		{
+			//TODO: Add score or whatever.
+			p.set_delete(true);
+		}
+	}
+
+	//world.
+	for(const auto& i : world.get_collidables())
+	{
+		const auto& p=*i;
 
 		if(pl.is_colliding_with(p))
 		{
@@ -169,9 +179,12 @@ void game_controller::do_world_turn(float delta)
 		{
 			world.generate_new_world();
 		}
-		world.delete_discarded_objects();
 		camera.move_by(0, -world.get_camera_movement());
 	}
+
+	//There may be bonuses to pick and stuff to delete even if the world
+	//is still.
+	world.delete_discarded_objects();
 }
 
 void game_controller::reset()
