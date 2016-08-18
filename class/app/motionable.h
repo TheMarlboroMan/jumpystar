@@ -29,8 +29,8 @@ class motionable
 	const t_vector&			 	get_vector() const {return vector;}
 	t_vector		 		get_vector() {return vector;}
 
-	float 					get_vector_x() {return vector.x;}
-	float 					get_vector_y() {return vector.y;}
+	float 					get_vector_x() const {return vector.x;}
+	float 					get_vector_y() const {return vector.y;}
 
 	void 					do_gravity(float delta, float=1.0f);
 

@@ -168,29 +168,35 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			}
 		}
 	}
+
+	//enemies
+	for(auto& i : world.get_enemies())
+	{
+		auto& e=*i;
+
+		if(pl.is_colliding_with(e) && pl.is_vulnerable())
+		{
+			//The order is important as the player will be propelled in the inverse x direction.
+			e.collide_with_player();
+			pl.collide_with_enemy(e);
+		}
+	}
 }
 
 void game_controller::do_world_turn(float delta)
 {
+	world.do_turn(delta);
+
 	if(world.is_moving())
 	{
-		world.do_turn(delta);
-		if(world.is_create_new())
-		{
-			world.generate_new_world();
-		}
 		camera.move_by(0, -world.get_camera_movement());
 	}
-
-	//There may be bonuses to pick and stuff to delete even if the world
-	//is still.
-	world.delete_discarded_objects();
 }
 
 void game_controller::reset()
 {
 	world.reset();
 	world.init();
-	player_instance.set_position(20.f, 400.f);
+	player_instance.reset();
 	camera.go_to({0,0});
 }

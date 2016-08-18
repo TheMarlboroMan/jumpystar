@@ -44,6 +44,8 @@ $(DIR_O)app_config.o \
 DEP_APP=\
 $(DIR_O)player.o \
 $(DIR_O)world.o \
+$(DIR_O)bonus.o \
+$(DIR_O)patrolling_enemy.o \
 $(DIR_O)platform.o \
 $(DIR_O)actor.o \
 $(DIR_O)motion_actor.o \
@@ -51,7 +53,6 @@ $(DIR_O)motionable.o \
 $(DIR_O)spatiable.o \
 $(DIR_O)game_object.o \
 $(DIR_O)draw_struct.o \
-$(DIR_O)bonus.o \
 
 
 ################################################################################
@@ -92,9 +93,15 @@ $(DIR_APP)player.cpp
 $(DIR_O)world.o:\
 $(DIR_O)platform.o \
 $(DIR_O)bonus.o \
+$(DIR_O)patrolling_enemy.o \
 $(DIR_APP)world.h\
 $(DIR_APP)world.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)world.cpp -o $(DIR_O)world.o
+
+$(DIR_O)patrolling_enemy.o:\
+$(DIR_APP)patrolling_enemy.h\
+$(DIR_APP)patrolling_enemy.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)patrolling_enemy.cpp -o $(DIR_O)patrolling_enemy.o
 
 $(DIR_O)bonus.o:\
 $(DIR_O)actor.o \

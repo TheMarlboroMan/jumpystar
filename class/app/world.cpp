@@ -10,40 +10,63 @@ using namespace app_game;
 
 world::world()
 	:moving(false), distance(0.f), partial(0.f), speed(20.f),
-	camera_movement(0), world_threshold(0)
+	camera_movement(0), world_threshold(0),
+	bonus_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage),
+	//TODO: Use other values..
+	enemy_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage)
 {
 
 }
 
 void world::do_turn(float delta)
 {
-	//Considering the camera moves in integer values, we
-	//will fake it a bit.
+	//TODO: Will still do their turn... We should delete them now: just in case.
+	for(auto& e : enemies) 
+		if(is_outside_bounds(e, 32.f)) 
+			e.set_delete(true);
+	for(auto& b : bonus)
+		if(is_outside_bounds(b, 32.f))
+			b.set_delete(true);
 
-	float dist=delta*speed;
-	speed+=delta;
+	for(auto& e: enemies) e.do_turn(delta);
 
-	distance+=dist;
-	partial+=dist;
-
-	if(partial > 1.f)
+	if(moving)
 	{
-		float mov=0.f;
-		partial=std::modf(partial, &mov);
-		camera_movement=mov;
-	}
-	else 
-	{
-		camera_movement=0;
+		//Considering the camera moves in integer values, we
+		//will fake it a bit.
+
+		float dist=delta*speed;
+		speed+=delta;
+
+		distance+=dist;
+		partial+=dist;
+
+		if(partial > 1.f)
+		{
+			float mov=0.f;
+			partial=std::modf(partial, &mov);
+			camera_movement=mov;
+		}
+		else 
+		{
+			camera_movement=0;
+		}
+
+		//Now, let's see what platforms are out of bounds... There's a 
+		//slight margin that allows for the world to persist outside the screen
+		//for a bit.
+		for(auto& p : platforms) p.set_delete(is_outside_bounds(p, 32.f));
+
+		//And maybe create some other platforms...
+		if(is_create_new())
+		{
+			generate_new_world();
+		}
 	}
 
-	//Now, let's see what platforms are out of bounds... There's a 
-	//slight margin that allows for the world to persist outside the screen
-	//for a bit.
-	for(auto& p : platforms) p.set_delete(is_outside_bounds(p, 32.f));
-
-	//And maybe create some other platforms...
-	
+	//There may be bonuses to pick and stuff to delete even if the world
+	//is still.
+	delete_discarded_objects();
 }
 
 /* At the beginning, generates the world with a large platform on the floor
@@ -73,7 +96,7 @@ void world::generate_new_world()
 	create_new_platform(world_threshold);
 	generate_new_world_threshold();
 	evaluate_new_bonus();
-	//TODO: Generate obstacles in the previous position.
+	evaluate_new_enemy();
 }
 
 void world::reset()
@@ -180,11 +203,10 @@ void world::evaluate_new_bonus()
 		return;
 	}
 
-	bonus_data.chance+=app::world_to_grid(platforms.back().get_spatiable_w());
-
-	if(bonus_data.generator() <= bonus_data.chance)
+	bonus_chance_calculator.increment(app::world_to_grid(platforms.back().get_spatiable_w()));
+	if(bonus_chance_calculator.evaluate())
 	{
-		bonus_data.reset_chance();
+		bonus_chance_calculator.reset();
 		create_new_bonus();
 	}
 }
@@ -209,11 +231,61 @@ void world::create_new_bonus()
 	bonus.push_back(b);
 }
 
+/** By default the new enemy is placed on 0,0 and later is placed at the center
+top of the last platform, facing the direction set on its constructor.
+*/
+
+void world::create_new_enemy()
+{
+	auto	last_platform=platforms.back();
+	float 	left=last_platform.get_spatiable_x(),
+
+
+	//TODO: This doesn't seem right... What about the enemy's width?. It should account for something!.
+		right=last_platform.get_spatiable_ex();
+
+
+
+	app_game::patrolling_enemy e{left, right};
+
+	float x=right-( (right-left) / 2);
+	float y=last_platform.get_spatiable_y()-e.get_spatiable_h();
+
+	e.set_position(x, y);
+	enemies.push_back(e);
+}
+
+/** Evaluates if an enemy is to be created on top of last platform according to
+* these rules...
+* - No enemies should appear before a certain height is reached.
+* - As with bonus generators, there's a chance that increases as platforms are
+* created.
+*/
+
+void world::evaluate_new_enemy()
+{
+	auto last_platform=platforms.back();
+
+	//TODO: Change this...
+	if(platforms.size()==1 || app::world_to_grid(last_platform.get_spatiable_w()) <= 2)
+	{
+		return;
+	}
+
+	enemy_chance_calculator.increment(app::world_to_grid(last_platform.get_spatiable_w()));
+	if(enemy_chance_calculator.evaluate())
+	{
+		enemy_chance_calculator.reset();
+		create_new_enemy();
+	}	
+}
+
 std::vector<app_interfaces::drawable const *> world::get_drawables() const
 {
 	std::vector<app_interfaces::drawable const *> res;
 	for(const auto &p : platforms) res.push_back(&p);
 	for(const auto &p : bonus) res.push_back(&p);
+	for(const auto &p : enemies) res.push_back(&p);
 	return res;
 }
 
@@ -224,5 +296,15 @@ std::vector<app_game::bonus *> world::get_pickables()
 {
 	std::vector<app_game::bonus *> res;
 	for(auto &p : bonus) res.push_back(&p);
+	return res;
+}
+
+//TODO: app_game::bonus would be replaced but some interface... In any other case
+//we could just return the vector by reference and be done.
+
+std::vector<app_game::patrolling_enemy *> world::get_enemies()
+{
+	std::vector<app_game::patrolling_enemy *> res;
+	for(auto &p : enemies) res.push_back(&p);
 	return res;
 }

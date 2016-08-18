@@ -22,6 +22,9 @@ class player:
 	void		turn(float delta);
 	void		set_falling();
 	bool		can_fall() const {return state==states::ground;}
+	bool		is_vulnerable() const {return state!=states::stunned;}
+	void 		collide_with_enemy(const motion_actor&);
+	void		reset();
 
 	////////////////////
 	//Motion actor
@@ -41,13 +44,14 @@ class player:
 
 	private:
 
-	enum class states{ground, air};
+	enum class states{ground, air, stunned};
 
 	t_box			previous_position;
-	states			state;
+	states			state, wakestate;
 	player_input		p_input;
 	int			remaining_jumps;
 	bool			cancel_jump;
+	float			stunned_time;
 	
 
 };

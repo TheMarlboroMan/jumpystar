@@ -5,9 +5,20 @@ using namespace app_game;
 player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
-	state(states::air), remaining_jumps(2), cancel_jump(false)
+	state(states::air), wakestate(states::air), remaining_jumps(2), cancel_jump(false)
 {
 
+}
+
+//TODO: What if we just copy a new player over??? and set the position in the constructor?
+void player::reset()
+{
+	set_position(20.f, 400.f);
+	previous_position=get_box(); 
+	state=states::air;
+	wakestate=states::air;
+	remaining_jumps=2;
+	cancel_jump=false;
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -21,7 +32,18 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 			if(state!=states::ground)
 			{
 				set_vector(get_vector_x()/2.f, axis::x);
-				state=states::ground;
+
+				//TODO: This seems weird here, disjointed from the rest.
+				if(state!=states::stunned) 
+				{
+					state=states::ground;
+				}
+				else
+				{
+					//Set the state for when we next wake.
+					wakestate=states::ground;
+				}
+
 				remaining_jumps=2;
 			}
 		break;
@@ -44,7 +66,14 @@ void player::transform_draw_struct(draw_struct& b)const
 {
 	b.set_type(draw_struct::types::box);
 
-	auto color=state==states::ground ? ldv::rgba8(0,0,160, 255) : ldv::rgba8(0,160,0,255);
+	auto color=ldv::rgba8(0,0,160,255);
+
+	switch(state)
+	{
+		case states::ground: break;
+		case states::air: color=ldv::rgba8(0,160,0,255); break;
+		case states::stunned: color=ldv::rgba8(255,0,0,255); break;
+	}
 
 	b.set_color(color);
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
@@ -52,53 +81,64 @@ void player::transform_draw_struct(draw_struct& b)const
 
 void player::turn(float delta)
 {
-
 	const float ACELERACION_HORIZONTAL_SEGUNDO=200.f; //300.f;
 	const float MAXIMA_VELOCIDAD_HORIZONTAL=150.f; //250.f;
 
-	//We did this before and worked nice in Winter.
-	//Frenada o aceleración.
-	if(p_input.x)
+	if(state==states::stunned)
 	{
-		float v=get_vector_x();
-		//Controlar el "contravolante...".
-		float extra=(p_input.x > 0 && v > 0.0f) 
-			|| (p_input.x < 0 && v < 0.0f) 
-			? 1.0f : 2.5f; 
-
-		v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * p_input.x;
-		if(v > MAXIMA_VELOCIDAD_HORIZONTAL) v=MAXIMA_VELOCIDAD_HORIZONTAL;
-		else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
-
-		set_vector(v, axis::x);
-
-//TODO: Set direction
-//		if(p_input.x < 0) direccion=App_Definiciones::direcciones::izquierda;
-//		else direccion=App_Definiciones::direcciones::derecha;
+		stunned_time+=delta;
+		//TODO: Gimme my constants.
+		if(stunned_time >= 1.f)
+		{
+			stunned_time=0.f;
+			state=wakestate;
+		}
 	}
 	else
 	{
-		float v=abs(get_vector_x());
-		v-=(delta * ACELERACION_HORIZONTAL_SEGUNDO);
-		if(v < 0.0) v=0;
-			//Aproximarse al cero.
-		float vr=get_vector_x();
-		if(vr > 0.0) set_vector(v, axis::x);
-		else if(vr < 0.0) set_vector(-v, axis::x);
-	}
+		//We did this before and worked nice in Winter.
+		//Frenada o aceleración.
+		if(p_input.x)
+		{
+			float v=get_vector_x();
+			//Controlar el "contravolante...".
+			float extra=(p_input.x > 0 && v > 0.0f) 
+				|| (p_input.x < 0 && v < 0.0f) 
+				? 1.0f : 2.5f; 
 
-	if(p_input.jump && remaining_jumps)
-	{
-		//TODO: Current speed downwards should count.
-		set_vector(-300.f, axis::y);
-		state=states::air;
-		--remaining_jumps;
-		cancel_jump=false;
+			v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * p_input.x;
+			if(v > MAXIMA_VELOCIDAD_HORIZONTAL) v=MAXIMA_VELOCIDAD_HORIZONTAL;
+			else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
+
+			set_vector(v, axis::x);
+		}
+		else
+		{
+			float v=abs(get_vector_x());
+			v-=(delta * ACELERACION_HORIZONTAL_SEGUNDO);
+			if(v < 0.0) v=0;
+				//Aproximarse al cero.
+			float vr=get_vector_x();
+			if(vr > 0.0) set_vector(v, axis::x);
+			else if(vr < 0.0) set_vector(-v, axis::x);
+		}
+
+		if(p_input.jump && remaining_jumps)
+		{
+			//TODO: Current speed downwards should count.
+			set_vector(-300.f, axis::y);
+			state=states::air;
+			--remaining_jumps;
+			cancel_jump=false;
+		}
 	}
 
 	switch(state)
 	{
 		case states::ground:
+
+		break;
+		case states::stunned:
 
 		break;
 		case states::air:
@@ -120,4 +160,14 @@ void player::set_falling()
 {
 	state=states::air;
 	remaining_jumps=0;
+}
+
+void player::collide_with_enemy(const motion_actor& e)
+{
+	state=states::stunned;
+
+	//By default we'll wake on air, as this will send us flying.
+	//In case the player touches ground, wakestate will change.
+	wakestate=states::air;
+	set_vector({-e.get_vector_x(), -100.f});
 }

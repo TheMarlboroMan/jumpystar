@@ -3,6 +3,7 @@
 
 #include "platform.h"
 #include "bonus.h"
+#include "patrolling_enemy.h"
 
 #include <class/number_generator.h>
 
@@ -17,6 +18,7 @@ class world
 
 			world();
 
+	std::vector<app_game::patrolling_enemy *> 	get_enemies();
 	std::vector<app_game::bonus *> 			get_pickables();
 	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
@@ -24,12 +26,8 @@ class world
 	int		get_camera_movement() const {return camera_movement;}
 	bool		is_moving() const {return moving;}
 	bool		is_outside_bounds(const app_interfaces::spatiable&, float=0.f) const;
-	bool		is_create_new() const;
 
 	void		set_moving(bool v) {moving=v;}
-
-	void		generate_new_world();
-	void		delete_discarded_objects();
 
 	void		do_turn(float delta);
 	void 		init();
@@ -37,11 +35,18 @@ class world
 
 	private:
 
+	bool				is_create_new() const;
 	void				create_new_platform(float y);
 	void				create_new_bonus();
+	void				create_new_enemy();
+	void				generate_new_world();
 	void				generate_new_world_threshold();
 	void				evaluate_new_bonus();
+	void				evaluate_new_enemy();
+	void				delete_discarded_objects();
 
+
+	std::vector<app_game::patrolling_enemy>	enemies;
 	std::vector<app_game::platform>	platforms;
 	std::vector<app_game::bonus>	bonus;
 
@@ -49,16 +54,23 @@ class world
 	float				distance, partial, speed;
 	int				camera_movement, world_threshold;
 
-	struct s_bonus_data{
-		int			chance;
-		tools::int_generator 	generator;
-		void			reset_chance() {chance=app::definitions::base_bonus_chance;}
+	class s_chance_data{
+		public:
 
-		s_bonus_data()
-			:chance{app::definitions::base_bonus_chance},
-			generator{app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage}
-		{}
-	}				bonus_data;
+		s_chance_data(int pc, int pinit, int pend)
+			:chance{pc}, initial(pc), generator{pinit, pend}
+		{};
+
+		bool			evaluate() {return chance <= generator();}
+		void			reset() {chance=initial;}
+		void			increment(int v) {chance+=v;}
+
+		private:
+
+		int			chance,
+					initial;
+		tools::int_generator	generator;
+	}				bonus_chance_calculator, enemy_chance_calculator;
 };
 
 template<typename T>
