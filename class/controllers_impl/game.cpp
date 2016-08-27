@@ -176,6 +176,8 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			if(p.is_under(pl.get_previous_position()))
 			{
 				//Only one trap can be set per tic.
+
+//TODO: Maybe can't trap after double jump...
 				if(pl.can_set_trap() && !trap_set)
 				{
 					trap_set=true;
@@ -195,10 +197,15 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 		if(pl.is_colliding_with(e))
 		{
-			if(e.can_be_jumped_on() && pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			if(e.is_trapped())
+			{
+				//TODO: Set on friendly maybe?
+				e.set_delete(true);
+			}			
+			else if(e.can_be_jumped_on() && pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
 			{
 				e.get_jumped_on();
-				//TODO: Bounce player???.
+				pl.bounce_on_enemy();
 			}
 			else if(pl.is_vulnerable())
 			{

@@ -18,6 +18,7 @@ class parabol_enemy:
 	void			do_turn(float);
 	void			collide_with_player();
 	void			get_jumped_on();
+	void			get_trapped();
 	bool			can_be_trapped() const {return false;}
 	bool			can_be_jumped_on() const {return false;}
 

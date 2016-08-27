@@ -171,12 +171,20 @@ void player::collide_with_harm_actor(const motion_actor& e)
 	wakestate=states::air;
 
 	//Guard against things like getting hit by a projectile mid air and landing into an enemy.
+	//Pushes the player far to the left.
 	if(abs(get_vector_x() < min_vector_hit_guard))
 	{
-		set_vector({-60.f, -100.f});
+		set_vector({-200.f, -100.f});
 	}
 	else
 	{
 		set_vector({-e.get_vector_x(), -100.f});
 	}
+}
+
+void player::bounce_on_enemy()
+{
+	state=states::air;
+	remaining_jumps=1;
+	set_vector(-150.f, axis::y);
 }

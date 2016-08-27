@@ -273,10 +273,10 @@ void world::create_new_enemy()
 	enum class types {patrolling, parabol, flying, parabol_shooter};
 	
 	std::vector<types> t;
-	if(distance > 20.f) t.push_back(types::patrolling);
-	if(distance > 100.f) t.push_back(types::flying);
-	if(distance > 300.f) t.push_back(types::parabol_shooter);
-	if(distance > 300.f) t.push_back(types::parabol);
+	if(true || distance > 20.f) t.push_back(types::patrolling);
+	if(true || distance > 100.f) t.push_back(types::flying);
+	if(true || distance > 300.f) t.push_back(types::parabol_shooter);
+	if(true || distance > 300.f) t.push_back(types::parabol);
 
 	tools::int_generator gen(0, t.size()-1);
 
@@ -402,6 +402,7 @@ void world::trigger_player_traps()
 
 		if(w <= max_trap_box_width)
 		{
+std::cout<<"NICE SIZE!!!"<<std::endl;
 			app_interfaces::spatiable::t_box box{x, y, w, h};
 
 			for(auto& i : enemies)
@@ -409,12 +410,13 @@ void world::trigger_player_traps()
 				auto& e=*i;
 				if(e.can_be_trapped() && e.is_colliding_with(box) )
 				{
-					e.set_delete(true);
+					e.get_trapped();
 					break;
 				}
 			}
 	
 			for(auto &t : player_traps) t.set_delete(true);
 		}
+		else std::cout<<"TOO BIG!!"<<std::endl;
 	}
 }

@@ -19,6 +19,7 @@ class patrolling_enemy:
 	void			do_turn(float);
 	void			collide_with_player();
 	void			get_jumped_on();
+	void			get_trapped();
 	bool			can_be_trapped() const {return true;}
 	bool			can_be_jumped_on() const {return true;}
 
@@ -40,8 +41,6 @@ class patrolling_enemy:
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos) {}
 
 	private:
-
-	void			force_turnaround();
 
 	float			limit_left, limit_right;
 

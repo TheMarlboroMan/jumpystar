@@ -25,13 +25,15 @@ class enemy:
 {
 	public:
 
-	//TODO: add states as regular, trapped, stunned...
-
 				enemy(int w, int h);
 
-	virtual void		do_turn(float delta)=0;
+	bool			is_stunned() const {return state==states::stunned;}
+	bool			is_trapped() const {return state==states::trapped;}
+
+	virtual void		do_turn(float delta);
 	virtual void		collide_with_player()=0;
 	virtual void		get_jumped_on()=0;
+	virtual void		get_trapped()=0;
 	virtual bool		can_be_trapped() const=0;
 	virtual bool		can_be_jumped_on() const=0;
 
@@ -49,6 +51,20 @@ class enemy:
 	virtual float 	get_weight() const=0;
 	virtual float 	get_max_fall_speed() const=0;
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos)=0;
+
+	protected:
+
+	enum class states {regular, trapped, stunned}	state;
+
+	states			get_state() const {return state;}
+	void			stun(float sp) {state_period=sp; state=states::stunned;}
+	void			trap(float sp) {state_period=sp; state=states::trapped;}
+	void			force_turnaround();
+	void 			limit_sideways_patrol(float, float);
+
+	private:
+	
+	float			state_period;
 };
 
 }

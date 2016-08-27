@@ -23,31 +23,15 @@ flying_enemy::flying_enemy(float pleft, float pright, float vertical_pos)
 
 void flying_enemy::do_turn(float delta)
 {
-	period+=delta;
+	enemy::do_turn(delta);
 
+	if(get_state()!=states::regular) return;
+
+	period+=delta;
 	set_vector(sin(period*period_multiplier)*y_vector_multiplier, axis::y);
 
 	move(delta);
-
-	//TODO: Unify this code in the base class.
-
-	auto vx=get_vector_x();
-	if(vx < 0.f)
-	{
-		if(get_spatiable_x() <= limit_left)
-		{
-			force_turnaround();
-			set_box_x(limit_left);
-		}
-	}
-	else if(vx > 0.f)
-	{
-		if(get_spatiable_ex() >= limit_right)
-		{
-			force_turnaround();
-			set_box_x(limit_right-get_spatiable_w());
-		}
-	}
+	limit_sideways_patrol(limit_left, limit_right);
 }
 
 void flying_enemy::transform_draw_struct(draw_struct& b)const
@@ -62,13 +46,13 @@ void flying_enemy::collide_with_player()
 	//DO NOTHING.
 }
 
-//TODO: This goes in the base class.
-void flying_enemy::force_turnaround()
-{
-	set_vector(-get_vector().x, axis::x);
-}
-
 void flying_enemy::get_jumped_on()
 {
-	set_delete(true);
+	//Can't happen, sorry.
 }
+
+void flying_enemy::get_trapped()
+{
+	//Can't happen.
+}
+

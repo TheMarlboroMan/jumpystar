@@ -31,7 +31,9 @@ struct definitions
 			max_bonus_percentage=100,
 	
 	//The bonus are lifted from the ground by this value.
-			bonus_units_above_ground=4;
+			bonus_units_above_ground=4,
+			default_enemy_stun_time=2,
+			default_enemy_trap_time=3;
 
 	static const float default_gravity;
 	//Enough force to reach the middle of the screen, more or less.

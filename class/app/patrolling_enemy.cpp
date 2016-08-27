@@ -1,5 +1,7 @@
 #include "patrolling_enemy.h"
 
+#include "definitions.h"
+
 using namespace app_game;
 
 patrolling_enemy::patrolling_enemy(float pleft, float pright, float pbottom)
@@ -16,31 +18,22 @@ patrolling_enemy::patrolling_enemy(float pleft, float pright, float pbottom)
 
 void patrolling_enemy::do_turn(float delta)
 {
-	move(delta);
+	enemy::do_turn(delta);
 
-	auto vx=get_vector_x();
-	if(vx < 0.f)
-	{
-		if(get_spatiable_x() <= limit_left)
-		{
-			force_turnaround();
-			set_box_x(limit_left);
-		}
-	}
-	else if(vx > 0.f)
-	{
-		if(get_spatiable_ex() >= limit_right)
-		{
-			force_turnaround();
-			set_box_x(limit_right-get_spatiable_w());
-		}
-	}
+	if(get_state()!=states::regular) return;
+
+	move(delta);
+	limit_sideways_patrol(limit_left, limit_right);
 }
 
 void patrolling_enemy::transform_draw_struct(draw_struct& b)const
 {
+	auto color=ldv::rgba8(255,0,0, 255);
+	if(is_stunned()) color=ldv::rgba8(0,255,0, 255);
+	else if(is_trapped()) color=ldv::rgba8(0,0,255, 255);
+
 	b.set_type(draw_struct::types::box);
-	b.set_color(ldv::rgba8(255,0,0, 255));
+	b.set_color(color);
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
@@ -49,12 +42,13 @@ void patrolling_enemy::collide_with_player()
 	force_turnaround();
 }
 
-void patrolling_enemy::force_turnaround()
-{
-	set_vector(-get_vector().x, axis::x);
-}
-
 void patrolling_enemy::get_jumped_on()
 {
-	set_delete(true);
+	stun(app::definitions::default_enemy_stun_time);
 }
+
+void patrolling_enemy::get_trapped()
+{
+	trap(app::definitions::default_enemy_trap_time);
+}
+

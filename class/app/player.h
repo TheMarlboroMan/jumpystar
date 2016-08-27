@@ -26,6 +26,7 @@ class player:
 	bool		is_vulnerable() const {return state!=states::stunned;}
 	void 		collide_with_harm_actor(const motion_actor&);
 	void		reset();
+	void		bounce_on_enemy();
 
 	////////////////////
 	//Motion actor

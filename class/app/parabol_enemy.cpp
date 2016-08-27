@@ -20,6 +20,10 @@ parabol_enemy::parabol_enemy(t_point target_pos, float below_position)
 
 void parabol_enemy::do_turn(float delta)
 {
+	enemy::do_turn(delta);
+
+	if(get_state()!=states::regular) return;
+
 	move(delta);
 	do_gravity(delta, app::definitions::default_gravity);
 }
@@ -38,5 +42,10 @@ void parabol_enemy::collide_with_player()
 
 void parabol_enemy::get_jumped_on()
 {
-	set_delete(true);
+	//Can't happen.
+}
+
+void parabol_enemy::get_trapped()
+{
+	//Can't happen.
 }
