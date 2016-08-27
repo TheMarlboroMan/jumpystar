@@ -162,12 +162,21 @@ void player::set_falling()
 	remaining_jumps=0;
 }
 
-void player::collide_with_enemy(const motion_actor& e)
+void player::collide_with_harm_actor(const motion_actor& e)
 {
 	state=states::stunned;
 
 	//By default we'll wake on air, as this will send us flying.
 	//In case the player touches ground, wakestate will change.
 	wakestate=states::air;
-	set_vector({-e.get_vector_x(), -100.f});
+
+	//Guard against things like getting hit by a projectile mid air and landing into an enemy.
+	if(abs(get_vector_x() < min_vector_hit_guard))
+	{
+		set_vector({-60.f, -100.f});
+	}
+	else
+	{
+		set_vector({-e.get_vector_x(), -100.f});
+	}
 }

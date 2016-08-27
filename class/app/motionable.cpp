@@ -2,8 +2,8 @@
 
 using namespace app_interfaces;
 
-motionable::motionable()
-	:vector(0.0, 0.0)
+motionable::motionable(t_vector v)
+	:vector(v)
 {
 
 }

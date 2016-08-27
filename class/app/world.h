@@ -3,7 +3,8 @@
 
 #include "platform.h"
 #include "bonus.h"
-#include "patrolling_enemy.h"
+#include "projectile.h"
+#include "enemy.h"
 
 #include <class/number_generator.h>
 
@@ -16,14 +17,16 @@ class world
 {
 	public:
 
-			world();
+			world(const app_interfaces::spatiable&);
 
-	std::vector<app_game::patrolling_enemy *> 	get_enemies();
-	std::vector<app_game::bonus *> 			get_pickables();
+	std::vector<std::unique_ptr<enemy>>& 		get_enemies() {return enemies;}
+	std::vector<projectile>& 			get_projectiles() {return projectiles;}
+	std::vector<bonus *> 				get_pickables();
 	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 
 	int		get_camera_movement() const {return camera_movement;}
+	int		get_distance() const {return distance;} //TODO: Remove if unused.
 	bool		is_moving() const {return moving;}
 	bool		is_outside_bounds(const app_interfaces::spatiable&, float=0.f) const;
 
@@ -33,12 +36,15 @@ class world
 	void 		init();
 	void 		reset(); 
 
+	void				create_new_enemy();
+
 	private:
 
 	bool				is_create_new() const;
 	void				create_new_platform(float y);
 	void				create_new_bonus();
-	void				create_new_enemy();
+	void				create_projectiles();
+
 	void				generate_new_world();
 	void				generate_new_world_threshold();
 	void				evaluate_new_bonus();
@@ -46,9 +52,12 @@ class world
 	void				delete_discarded_objects();
 
 
-	std::vector<app_game::patrolling_enemy>	enemies;
-	std::vector<app_game::platform>	platforms;
-	std::vector<app_game::bonus>	bonus;
+	std::vector<std::unique_ptr<app_game::enemy>>	enemies;
+	std::vector<platform>			platforms;
+	std::vector<bonus>			bonuses;
+	std::vector<projectile_def>		projectile_definitions;
+	std::vector<projectile>			projectiles;
+	const app_interfaces::spatiable&		player_position;
 
 	bool				moving;
 	float				distance, partial, speed;
@@ -77,6 +86,13 @@ template<typename T>
 void delete_helper(std::vector<T>& container)
 {
 	auto it=std::remove_if(std::begin(container), std::end(container), [](const T& p) {return p.is_delete();});
+	container.erase(it, std::end(container));
+}
+
+template<typename T>
+void delete_helper_ptr(std::vector<T>& container)
+{
+	auto it=std::remove_if(std::begin(container), std::end(container), [](const T& p) {return p->is_delete();});
 	container.erase(it, std::end(container));
 }
 

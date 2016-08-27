@@ -12,11 +12,13 @@ using namespace app;
 game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tools::ttf_manager& ttf_man)
 	:log(plog),
 	camera({0,0,400,500},{0,0}),
-	fps_text(ttf_man.get("akashi", 16), ldv::rgba8(0,0,0,255), ""),
-	world(),
+	fps_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
+	distance_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
+	world(player_instance),
 	draw_struct(vm)
 {
 	fps_text.go_to(12, 12);
+	distance_text.go_to(12, 30);
 	reset();
 }
 
@@ -62,11 +64,14 @@ void game_controller::draw(ldv::screen& screen)
 		draw_struct.rep->draw(screen, camera);
 	}
 
+
 	//TODO: Fix the above bug...
 	ldv::box_representation caja{ldv::box_representation::type::fill, {0,0,6,6}, ldv::rgba8(255,0,0,128)};
 	caja.draw(screen);
 
 	fps_text.draw(screen);
+	distance_text.set_text(std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y()));
+	distance_text.draw(screen);
 }
 
 void  game_controller::awake()
@@ -106,7 +111,7 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	
 	pl.get_input(pi);
 	pl.turn(delta);
-	pl.do_gravity(delta);
+	pl.do_gravity(delta, app::definitions::default_gravity);
 	pl.update_previos_position();
 	pl.move(delta);
 
@@ -127,6 +132,11 @@ app_game::player_input game_controller::get_user_input(const dfw::input& input)
 
 	if(input.is_input_down(input_app::jump)) pi.jump=true;
 	if(input.is_input_pressed(input_app::jump)) pi.jump_press=true;
+
+	if(input.is_input_down(input_app::down))
+	{
+		world.create_new_enemy();
+	}
 
 	return pi;
 }
@@ -174,11 +184,31 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	{
 		auto& e=*i;
 
-		if(pl.is_colliding_with(e) && pl.is_vulnerable())
+		if(pl.is_colliding_with(e))
 		{
-			//The order is important as the player will be propelled in the inverse x direction.
-			e.collide_with_player();
-			pl.collide_with_enemy(e);
+			if(pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			{
+				e.get_jumped_on();
+				//TODO: Bounce player???.
+			}
+			else if(pl.is_vulnerable())
+			{
+				//The order is important as the player will be propelled in the inverse x direction.
+				e.collide_with_player();
+				pl.collide_with_harm_actor(e);
+			}
+		}
+	}
+
+	//projectiles...
+	for(auto& i : world.get_projectiles())
+	{
+		auto& p=i;
+
+		if(pl.is_colliding_with(p) && pl.is_vulnerable())
+		{
+			p.collide_with_player();
+			pl.collide_with_harm_actor(p);
 		}
 	}
 }

@@ -2,14 +2,20 @@
 
 #include <cassert>
 
+#include "patrolling_enemy.h"
+#include "parabol_enemy.h"
+#include "parabol_shooter_enemy.h"
+#include "flying_enemy.h"
+
 //#include <class/number_generator.h>
 
 //#include "definitions.h"
 
 using namespace app_game;
 
-world::world()
-	:moving(false), distance(0.f), partial(0.f), speed(20.f),
+world::world(const app_interfaces::spatiable& ppos)
+	:player_position(ppos), 
+	moving(false), distance(0.f), partial(0.f), speed(20.f),
 	camera_movement(0), world_threshold(0),
 	bonus_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage),
 	//TODO: Use other values..
@@ -20,15 +26,25 @@ world::world()
 
 void world::do_turn(float delta)
 {
-	//TODO: Will still do their turn... We should delete them now: just in case.
 	for(auto& e : enemies) 
-		if(is_outside_bounds(e, 32.f)) 
-			e.set_delete(true);
-	for(auto& b : bonus)
+		if(is_outside_bounds(*e, 32.f)) 
+			e->set_delete(true);
+
+	for(auto& b : bonuses)
 		if(is_outside_bounds(b, 32.f))
 			b.set_delete(true);
 
-	for(auto& e: enemies) e.do_turn(delta);
+	for(auto& p : projectiles)
+		if(is_outside_bounds(p, 32.f))
+			p.set_delete(true);
+
+	delete_discarded_objects();
+
+	for(auto& e: enemies) e->do_turn(delta);
+	for(auto& p: projectiles) p.do_turn(delta);
+
+	//If someone shot, turn the definitions into real projectiles.
+	if(projectile_definitions.size()) create_projectiles();
 
 	if(moving)
 	{
@@ -105,6 +121,10 @@ void world::reset()
 	partial=0.f;
 	speed=0.f;
 	platforms.clear();
+	enemies.clear();
+	bonuses.clear();
+	projectiles.clear();
+	projectile_definitions.clear();
 	moving=false;
 }
 
@@ -128,7 +148,9 @@ bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) c
 void world::delete_discarded_objects()
 {
 	delete_helper(platforms);
-	delete_helper(bonus);
+	delete_helper(bonuses);
+	delete_helper(projectiles);
+	delete_helper_ptr(enemies);
 }
 
 /* Evaluates if the screen is near enough the world threshold. Distance is a positive
@@ -217,7 +239,7 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	app_game::bonus b;
+	bonus b;
 
 	auto	last_platform=platforms.back();
 	float 	left=last_platform.get_spatiable_x(),
@@ -228,31 +250,50 @@ void world::create_new_bonus()
 	float y=last_platform.get_spatiable_y()-b.get_spatiable_h()-app::definitions::bonus_units_above_ground;
 
 	b.set_position(x, y);
-	bonus.push_back(b);
+	bonuses.push_back(b);
 }
 
-/** By default the new enemy is placed on 0,0 and later is placed at the center
+/** By default the new patrolling enemy is placed on 0,0 and later is placed at the center
 top of the last platform, facing the direction set on its constructor.
 */
 
 void world::create_new_enemy()
 {
-	auto	last_platform=platforms.back();
-	float 	left=last_platform.get_spatiable_x(),
+	enum class types {patrolling, parabol, flying, parabol_shooter};
+	
+	std::vector<types> t;
+	if(distance > 20.f) t.push_back(types::patrolling);
+	if(distance > 100.f) t.push_back(types::flying);
+	if(distance > 300.f) t.push_back(types::parabol_shooter);
+	if(distance > 300.f) t.push_back(types::parabol);
 
+	tools::int_generator gen(0, t.size()-1);
 
-	//TODO: This doesn't seem right... What about the enemy's width?. It should account for something!.
-		right=last_platform.get_spatiable_ex();
+	std::unique_ptr<enemy> e{nullptr};
+	const auto&	last_platform=platforms.back();
 
+	if(t.size()) switch(t[gen()])
+//	switch(types::parabol_shooter)
+	{
+		case types::patrolling:
+		{
+			float 	left=last_platform.get_spatiable_x(),
+				right=last_platform.get_spatiable_ex();
+			e.reset(new patrolling_enemy{left, right, last_platform.get_spatiable_y()});
+		}
+		break;
+		case types::parabol:
+			e.reset(new parabol_enemy(player_position.get_spatiable_position(), app::definitions::playground_height-distance));
+		break;
+		case types::flying:
+			e.reset(new flying_enemy{0.f, app::definitions::playground_width, last_platform.get_spatiable_y()});
+		break;
+		case types::parabol_shooter:
+			e.reset(new parabol_shooter_enemy(projectile_definitions, player_position, last_platform));
+		break;
+	}
 
-
-	app_game::patrolling_enemy e{left, right};
-
-	float x=right-( (right-left) / 2);
-	float y=last_platform.get_spatiable_y()-e.get_spatiable_h();
-
-	e.set_position(x, y);
-	enemies.push_back(e);
+	if(e.get()) enemies.push_back(std::move(e));
 }
 
 /** Evaluates if an enemy is to be created on top of last platform according to
@@ -284,27 +325,24 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 {
 	std::vector<app_interfaces::drawable const *> res;
 	for(const auto &p : platforms) res.push_back(&p);
-	for(const auto &p : bonus) res.push_back(&p);
-	for(const auto &p : enemies) res.push_back(&p);
+	for(const auto &p : bonuses) res.push_back(&p);
+	for(const auto &p : enemies) res.push_back(p.get());
+	for(const auto &p : projectiles) res.push_back(&p);
 	return res;
 }
 
 //TODO: app_game::bonus would be replaced but some interface... In any other case
 //we could just return the vector by reference and be done.
 
-std::vector<app_game::bonus *> world::get_pickables()
+std::vector<bonus *> world::get_pickables()
 {
 	std::vector<app_game::bonus *> res;
-	for(auto &p : bonus) res.push_back(&p);
+	for(auto &p : bonuses) res.push_back(&p);
 	return res;
 }
 
-//TODO: app_game::bonus would be replaced but some interface... In any other case
-//we could just return the vector by reference and be done.
-
-std::vector<app_game::patrolling_enemy *> world::get_enemies()
+void world::create_projectiles()
 {
-	std::vector<app_game::patrolling_enemy *> res;
-	for(auto &p : enemies) res.push_back(&p);
-	return res;
+	for(const auto& pd : projectile_definitions) projectiles.push_back({pd.origin, pd.direction});
+	projectile_definitions.clear();
 }

@@ -1,17 +1,17 @@
-#ifndef PATROLLING_ENEMY_H
-#define PATROLLING_ENEMY_H
+#ifndef PARABOL_SHOOTER_ENEMY_H
+#define PARABOL_SHOOTER_ENEMY_H
 
 #include "enemy.h"
 
 namespace app_game
 {
 
-class patrolling_enemy:
+class parabol_shooter_enemy:
 	public enemy
 {
 	public:
 
-				patrolling_enemy(float, float, float);
+				parabol_shooter_enemy(std::vector<projectile_def>&, const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 
 	//////////////////////
 	//Enemy
@@ -31,20 +31,21 @@ class patrolling_enemy:
 	////////////////////
 	//Motion actor
 
-	//TODO: Are these really part of the motion actor????. Should we try again?.
-
 	virtual float 	get_weight() const {return 0.f;}
 	virtual float 	get_max_fall_speed() const {return 0.f;}
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos) {}
 
 	private:
 
-	void			force_turnaround();
-
-	float			limit_left, limit_right;
+	std::vector<projectile_def>&		projectiles;
+	const app_interfaces::spatiable&	player_target;
+	float					period;
 
 	static const int	fixed_w=20,
-				fixed_h=30;
+				fixed_h=30,
+				min_time=1500,
+				max_time=3000,
+				max_shooting_distance=300;
 };
 
 }

@@ -7,6 +7,9 @@
 //Declaración del log de aplicación en espacio global.
 ldt::log LOG;
 
+//TODO: THIS SUCKS GIANT BALLS!!!!!!.
+const float app::definitions::default_gravity=1.f;
+
 int main(int argc, char ** argv)
 {
 	using namespace app;

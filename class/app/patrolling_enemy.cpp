@@ -2,14 +2,16 @@
 
 using namespace app_game;
 
-patrolling_enemy::patrolling_enemy(float pleft, float pright)
-	:motion_actor(0.f, 0.f, fixed_w, fixed_h),
-	game_object(),
+patrolling_enemy::patrolling_enemy(float pleft, float pright, float pbottom)
+	:enemy(fixed_w, fixed_h),
 	limit_left(pleft), limit_right(pright)
-
 {
 	//TODO: Perhaps they could come in different speeds :).
 	set_vector({-100.f, 0.f});
+
+	float x=pright-( (pright-pleft) / 2);
+	float y=pbottom-get_spatiable_h();
+	set_position(x, y);
 }
 
 void patrolling_enemy::do_turn(float delta)
@@ -49,12 +51,10 @@ void patrolling_enemy::collide_with_player()
 
 void patrolling_enemy::force_turnaround()
 {
-	if(get_vector_x() <= 0.f)
-	{
-		set_vector(100.f, axis::x);
-	}
-	else
-	{
-		set_vector(-100.f, axis::x);
-	}
+	set_vector(-get_vector().x, axis::x);
+}
+
+void patrolling_enemy::get_jumped_on()
+{
+	set_delete(true);
 }

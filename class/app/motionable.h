@@ -23,8 +23,8 @@ class motionable
 	// Interface pública.
 	public:
 
-	motionable();
-	virtual ~motionable();
+						motionable(t_vector={0.f, 0.f});
+	virtual 				~motionable();
 
 	const t_vector&			 	get_vector() const {return vector;}
 	t_vector		 		get_vector() {return vector;}

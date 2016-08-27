@@ -48,10 +48,11 @@ class game_controller:
 	ldt::log&				log;
 
 	ldv::camera				camera;
-	ldv::ttf_representation			fps_text;
+	ldv::ttf_representation			fps_text,
+						distance_text;
+	app_game::player			player_instance;
 	app_game::world				world;
 	app_game::draw_struct			draw_struct;
-	app_game::player			player_instance;
 };
 
 }

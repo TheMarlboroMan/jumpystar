@@ -7,6 +7,33 @@ DIR_APP=./class/app/
 DIR_CONTROLLERS_IMPL=./class/controllers_impl/
 
 ################################################################################
+# App dependencies.
+
+DEP_CONTROLLERS=\
+$(DIR_O)state_driver.o \
+$(DIR_O)game_controller.o \
+$(DIR_O)kernel_config.o \
+$(DIR_O)app_config.o \
+
+DEP_APP=\
+$(DIR_O)player.o \
+$(DIR_O)world.o \
+$(DIR_O)bonus.o \
+$(DIR_O)enemy.o \
+$(DIR_O)projectile.o \
+$(DIR_O)flying_enemy.o \
+$(DIR_O)parabol_enemy.o \
+$(DIR_O)parabol_shooter_enemy.o \
+$(DIR_O)patrolling_enemy.o \
+$(DIR_O)platform.o \
+$(DIR_O)actor.o \
+$(DIR_O)motion_actor.o \
+$(DIR_O)motionable.o \
+$(DIR_O)spatiable.o \
+$(DIR_O)game_object.o \
+$(DIR_O)draw_struct.o \
+
+################################################################################
 #External dependencies...
 
 DEP_TOOLS=\
@@ -31,29 +58,6 @@ $(DIR_O_DFW)fw_base_config.o \
 $(DIR_O_DFW)fw_kernel.o \
 $(DIR_O_DFW)fw_resource_loader.o \
 $(DIR_O_DFW)fw_state_driver_interface.o \
-
-################################################################################
-# App dependencies.
-
-DEP_CONTROLLERS=\
-$(DIR_O)state_driver.o \
-$(DIR_O)game_controller.o \
-$(DIR_O)kernel_config.o \
-$(DIR_O)app_config.o \
-
-DEP_APP=\
-$(DIR_O)player.o \
-$(DIR_O)world.o \
-$(DIR_O)bonus.o \
-$(DIR_O)patrolling_enemy.o \
-$(DIR_O)platform.o \
-$(DIR_O)actor.o \
-$(DIR_O)motion_actor.o \
-$(DIR_O)motionable.o \
-$(DIR_O)spatiable.o \
-$(DIR_O)game_object.o \
-$(DIR_O)draw_struct.o \
-
 
 ################################################################################
 #Controllers and implementation...
@@ -93,15 +97,54 @@ $(DIR_APP)player.cpp
 $(DIR_O)world.o:\
 $(DIR_O)platform.o \
 $(DIR_O)bonus.o \
+$(DIR_O)projectile.o \
 $(DIR_O)patrolling_enemy.o \
+$(DIR_O)flying_enemy.o \
+$(DIR_O)parabol_enemy.o \
+$(DIR_O)parabol_shooter_enemy.o \
 $(DIR_APP)world.h\
 $(DIR_APP)world.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)world.cpp -o $(DIR_O)world.o
 
+$(DIR_O)projectile.o:\
+$(DIR_O)motion_actor.o\
+$(DIR_O)game_object.o\
+$(DIR_APP)drawable.h \
+$(DIR_APP)projectile.h\
+$(DIR_APP)projectile.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)projectile.cpp -o $(DIR_O)projectile.o
+
+$(DIR_O)parabol_shooter_enemy.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)parabol_shooter_enemy.h\
+$(DIR_APP)parabol_shooter_enemy.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)parabol_shooter_enemy.cpp -o $(DIR_O)parabol_shooter_enemy.o
+
+$(DIR_O)flying_enemy.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)flying_enemy.h\
+$(DIR_APP)flying_enemy.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)flying_enemy.cpp -o $(DIR_O)flying_enemy.o
+
+$(DIR_O)parabol_enemy.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)parabol_enemy.h\
+$(DIR_APP)parabol_enemy.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)parabol_enemy.cpp -o $(DIR_O)parabol_enemy.o
+
 $(DIR_O)patrolling_enemy.o:\
+$(DIR_O)enemy.o\
 $(DIR_APP)patrolling_enemy.h\
 $(DIR_APP)patrolling_enemy.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)patrolling_enemy.cpp -o $(DIR_O)patrolling_enemy.o
+
+$(DIR_O)enemy.o:\
+$(DIR_O)motion_actor.o\
+$(DIR_O)game_object.o\
+$(DIR_APP)drawable.h \
+$(DIR_APP)enemy.h\
+$(DIR_APP)enemy.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy.cpp -o $(DIR_O)enemy.o
 
 $(DIR_O)bonus.o:\
 $(DIR_O)actor.o \

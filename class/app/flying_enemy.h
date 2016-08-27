@@ -1,17 +1,17 @@
-#ifndef PATROLLING_ENEMY_H
-#define PATROLLING_ENEMY_H
+#ifndef FLYING_ENEMY_H
+#define FLYING_ENEMY_H
 
 #include "enemy.h"
 
 namespace app_game
 {
 
-class patrolling_enemy:
+class flying_enemy:
 	public enemy
 {
 	public:
 
-				patrolling_enemy(float, float, float);
+				flying_enemy(float, float, float);
 
 	//////////////////////
 	//Enemy
@@ -41,10 +41,13 @@ class patrolling_enemy:
 
 	void			force_turnaround();
 
-	float			limit_left, limit_right;
+	float			limit_left, limit_right, period;
 
-	static const int	fixed_w=20,
-				fixed_h=30;
+	static const int	fixed_w=30,
+				fixed_h=10,
+				vertical_sway=30;
+	static const float	period_multiplier,
+				y_vector_multiplier;
 };
 
 }

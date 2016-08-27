@@ -23,7 +23,7 @@ class player:
 	void		set_falling();
 	bool		can_fall() const {return state==states::ground;}
 	bool		is_vulnerable() const {return state!=states::stunned;}
-	void 		collide_with_enemy(const motion_actor&);
+	void 		collide_with_harm_actor(const motion_actor&);
 	void		reset();
 
 	////////////////////
@@ -53,6 +53,8 @@ class player:
 	bool			cancel_jump;
 	float			stunned_time;
 	
+	//If the vector x is less than this and the player is hit, a larger vector is recieved.
+	static const int	min_vector_hit_guard=30;
 
 };
 
