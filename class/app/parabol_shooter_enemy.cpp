@@ -71,3 +71,8 @@ void parabol_shooter_enemy::get_trapped()
 	trap(app::definitions::default_enemy_trap_time);
 }
 
+void parabol_shooter_enemy::be_friendly(player_effects& pe)
+{
+	pe.add_score(50);
+	set_delete(true);
+}

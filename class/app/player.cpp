@@ -196,7 +196,7 @@ void player::bounce_on_enemy()
 
 void player::recieve_effects(player_effects pe)
 {
-	if(pe.effects & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
+	if(pe.get_effects() & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
 }
 
 void player::add_special(player_effects::specials sp)

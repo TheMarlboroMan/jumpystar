@@ -59,3 +59,7 @@ void flying_enemy::get_trapped()
 	//Can't happen.
 }
 
+void flying_enemy::be_friendly(player_effects&)
+{
+	//Can't happen.
+}

@@ -22,6 +22,7 @@ class parabol_shooter_enemy:
 	void			get_trapped();
 	bool			can_be_trapped() const {return true;}
 	bool			can_be_jumped_on() const {return true;}
+	void			be_friendly(player_effects&);
 
 	//////////////////////
 	//Drawable.

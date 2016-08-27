@@ -161,6 +161,7 @@ $(DIR_O)bonus.o:\
 $(DIR_O)actor.o \
 $(DIR_O)game_object.o \
 $(DIR_APP)drawable.h \
+$(DIR_APP)player_effects.h\
 $(DIR_APP)bonus.h\
 $(DIR_APP)bonus.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus.cpp -o $(DIR_O)bonus.o

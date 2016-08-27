@@ -22,6 +22,7 @@ class flying_enemy:
 	void			get_trapped();
 	bool			can_be_trapped() const {return false;}
 	bool			can_be_jumped_on() const {return false;}
+	void			be_friendly(player_effects&);
 
 	//////////////////////
 	//Drawable.

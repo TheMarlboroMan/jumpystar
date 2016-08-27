@@ -4,6 +4,7 @@
 #include "motion_actor.h"
 #include "drawable.h"
 #include "game_object.h"
+#include "player_effects.h"
 
 namespace app_game
 {
@@ -34,6 +35,7 @@ class enemy:
 	virtual void		collide_with_player()=0;
 	virtual void		get_jumped_on()=0;
 	virtual void		get_trapped()=0;
+	virtual void		be_friendly(player_effects&)=0;
 	virtual bool		can_be_trapped() const=0;
 	virtual bool		can_be_jumped_on() const=0;
 

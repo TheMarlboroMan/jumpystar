@@ -184,13 +184,9 @@ void game_controller::do_player_collisions(app_game::player& pl)
 		auto& p=*i;
 		if(pl.is_colliding_with(p))
 		{
-			//TODO: Add score or whatever.
-			pe.score+=30;
-			pe.effects=pe.effects | app_game::player_effects::triple_jump;			
-			p.set_delete(true);
+			p.get_picked_up(pe);
 		}
 	}
-	pl.recieve_effects(pe);
 
 	//world.
 	bool trap_set=false;
@@ -227,7 +223,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			if(e.is_trapped())
 			{
 				//TODO: Set on friendly maybe?
-				e.set_delete(true);
+				e.be_friendly(pe);
 			}
 			else if(e.can_be_jumped_on() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
 			{
@@ -258,6 +254,8 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			pl.collide_with_harm_actor(p);
 		}
 	}
+
+	pl.recieve_effects(pe);
 }
 
 void game_controller::do_world_turn(float delta)

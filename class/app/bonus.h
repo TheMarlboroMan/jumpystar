@@ -4,6 +4,7 @@
 #include "actor.h"
 #include "drawable.h"
 #include "game_object.h"
+#include "player_effects.h"
 
 namespace app_game
 {
@@ -16,6 +17,7 @@ class bonus:
 	public:
 
 				bonus();
+	void			get_picked_up(player_effects&);
 
 	private:
 
