@@ -4,6 +4,7 @@
 #include "motion_actor.h"
 #include "drawable.h"
 #include "player_input.h"
+#include "player_effects.h"
 
 namespace app_game
 {
@@ -22,7 +23,11 @@ class player:
 	void		turn(float delta);
 	void		set_falling();
 	bool		can_fall() const {return state==states::ground;}
-	bool		can_set_trap() const {return state==states::air;}
+	const std::vector<player_effects::specials>& get_specials() const {return specials;}
+	void		recieve_effects(player_effects);
+
+	//Player can't set traps after double jump or when falling from an edge.
+	bool		can_set_trap() const {return state==states::air && remaining_jumps;}
 	bool		is_vulnerable() const {return state!=states::stunned;}
 	void 		collide_with_harm_actor(const motion_actor&);
 	void		reset();
@@ -40,9 +45,9 @@ class player:
 	//Drawable
 
 	virtual int 	get_draw_order() const {return 50;}
-	virtual int	get_draw_cycle() const {return 0;}
-	virtual void 	transform_draw_struct(draw_struct&)const;
-	virtual bool	is_draw_delete() const {return false;}
+	virtual void 	transform_draw_struct(draw_control&) const;
+	void		add_special(player_effects::specials);
+	void		pop_special();
 
 	private:
 
@@ -54,9 +59,11 @@ class player:
 	int			remaining_jumps;
 	bool			cancel_jump;
 	float			stunned_time;
+	std::vector<player_effects::specials>	specials;
 	
 	//If the vector x is less than this and the player is hit, a larger vector is recieved.
-	static const int	min_vector_hit_guard=30;
+	static const int	min_vector_hit_guard=30,
+				max_specials=3;
 
 };
 

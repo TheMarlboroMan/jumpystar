@@ -8,6 +8,7 @@ draw_struct::draw_struct(ldv::resource_manager& v_m)
 	rep_group({0,0}, true),
 	rep_points(ldv::rgba8(0,0,0,255)),
 	rep_box(ldv::box_representation::type::fill, {0,0,0,0}, ldv::rgba8(0,0,0,255)),
+	rep_line(0,0,0,0, ldv::rgba8(0,0,0,255)),
 	rep(&rep_bmp),
 	type(types::bitmap),
 	visible(true)
@@ -24,6 +25,7 @@ void draw_struct::set_color(ldv::rgba_color c)
 {
 	rep_points.set_rgba(c);
 	rep_box.set_rgba(c);
+	rep_line.set_rgba(c);
 }
 
 void draw_struct::set_type(types t)
@@ -48,6 +50,10 @@ void draw_struct::set_type(types t)
 
 		case types::box:
 			rep=&rep_box;
+		break;
+
+		case types::line:
+			rep=&rep_line;
 		break;
 
 		case types::external:
@@ -77,13 +83,9 @@ void draw_struct::set_blend(ldv::representation::blends v)
 
 void draw_struct::insert_in_group(ldv::representation * r) 
 {
-	switch(type)
+	if(type==types::group)
 	{
-		case types::bitmap:
-		case types::points:
-		case types::box:
-		case types::external: break;
-		case types::group: rep_group.insert(r); break;
+		rep_group.insert(r);
 	}
 }
 

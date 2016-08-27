@@ -5,9 +5,9 @@ using namespace app_game;
 player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
-	state(states::air), wakestate(states::air), remaining_jumps(2), cancel_jump(false)
+	state(states::air), wakestate(states::air), remaining_jumps(0), cancel_jump(false)
 {
-
+	reset();
 }
 
 //TODO: What if we just copy a new player over??? and set the position in the constructor?
@@ -17,8 +17,10 @@ void player::reset()
 	previous_position=get_box(); 
 	state=states::air;
 	wakestate=states::air;
-	remaining_jumps=2;
+	remaining_jumps=0; //This is so a trap won't spawn when the game starts.
 	cancel_jump=false;
+	specials.clear();
+	for(int i=0; i<max_specials; i++) specials.push_back(player_effects::specials::none);
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -62,8 +64,11 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 	}
 }
 
-void player::transform_draw_struct(draw_struct& b)const
+void player::transform_draw_struct(draw_control& dc)const
 {
+	dc.set(1);
+	auto& b=dc[0];
+
 	b.set_type(draw_struct::types::box);
 
 	auto color=ldv::rgba8(0,0,160,255);
@@ -187,4 +192,23 @@ void player::bounce_on_enemy()
 	state=states::air;
 	remaining_jumps=1;
 	set_vector(-150.f, axis::y);
+}
+
+void player::recieve_effects(player_effects pe)
+{
+	if(pe.effects & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
+}
+
+void player::add_special(player_effects::specials sp)
+{
+	std::swap(specials[2], specials[1]);
+	std::swap(specials[1], specials[0]);
+	specials[0]=sp;
+}
+
+void player::pop_special()
+{
+	std::swap(specials[1], specials[0]);
+	std::swap(specials[2], specials[1]);
+	specials[2]=player_effects::specials::none;
 }

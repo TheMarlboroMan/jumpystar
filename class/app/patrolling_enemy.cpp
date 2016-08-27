@@ -26,8 +26,11 @@ void patrolling_enemy::do_turn(float delta)
 	limit_sideways_patrol(limit_left, limit_right);
 }
 
-void patrolling_enemy::transform_draw_struct(draw_struct& b)const
+void patrolling_enemy::transform_draw_struct(draw_control& dc)const
 {
+	dc.set(1);
+	auto &b=dc[0];
+
 	auto color=ldv::rgba8(255,0,0, 255);
 	if(is_stunned()) color=ldv::rgba8(0,255,0, 255);
 	else if(is_trapped()) color=ldv::rgba8(0,0,255, 255);

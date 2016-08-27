@@ -1,5 +1,8 @@
 #include "game.h"
 
+//std
+#include <cassert>
+
 //tools
 #include <templates/compatibility_patches.h>
 
@@ -15,7 +18,7 @@ game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tool
 	fps_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
 	distance_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
 	world(player_instance),
-	draw_struct(vm)
+	draw_ctrl(vm)
 {
 	fps_text.go_to(12, 12);
 	distance_text.go_to(12, 30);
@@ -59,18 +62,38 @@ void game_controller::draw(ldv::screen& screen)
 
 	//TODO: Weirdest bug... Render just one thing and it fucks up.
 	for(const auto& d : drawables)
-	{
-		d->transform_draw_struct(draw_struct);
-		draw_struct.rep->draw(screen, camera);
-	}
+	{	
+		d->transform_draw_struct(draw_ctrl);
+		const auto& dd=draw_ctrl.get_data();
 
+		for(size_t i=0; i < dd.current_count; i++) 
+		{
+			assert(dd.structs.size() > i);
+			dd.structs[i].rep->draw(screen, camera);
+		}
+
+		draw_ctrl.reset();
+	}
 
 	//TODO: Fix the above bug...
 	ldv::box_representation caja{ldv::box_representation::type::fill, {0,0,6,6}, ldv::rgba8(255,0,0,128)};
 	caja.draw(screen);
 
 	fps_text.draw(screen);
-	distance_text.set_text(std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y()));
+
+	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+"\n";
+	
+	for(const auto& s: player_instance.get_specials())
+	{
+		switch(s)
+		{
+			case app_game::player_effects::specials::none: 		distance_txt+="[0]";break;
+			case app_game::player_effects::specials::triple_jump:	distance_txt+="[3]";break;
+		}	
+	}
+	
+
+	distance_text.set_text(distance_txt);
 	distance_text.draw(screen);
 }
 
@@ -155,15 +178,19 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//pickups
+	app_game::player_effects pe;
 	for(auto& i : world.get_pickables())
 	{
 		auto& p=*i;
 		if(pl.is_colliding_with(p))
 		{
 			//TODO: Add score or whatever.
+			pe.score+=30;
+			pe.effects=pe.effects | app_game::player_effects::triple_jump;			
 			p.set_delete(true);
 		}
 	}
+	pl.recieve_effects(pe);
 
 	//world.
 	bool trap_set=false;
@@ -176,8 +203,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			if(p.is_under(pl.get_previous_position()))
 			{
 				//Only one trap can be set per tic.
-
-//TODO: Maybe can't trap after double jump...
 				if(pl.can_set_trap() && !trap_set)
 				{
 					trap_set=true;
@@ -191,21 +216,27 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//enemies
+	bool player_falling=pl.get_vector().y > 0.f;
 	for(auto& i : world.get_enemies())
 	{
 		auto& e=*i;
 
 		if(pl.is_colliding_with(e))
 		{
+			//TODO: Review these conditions.
 			if(e.is_trapped())
 			{
 				//TODO: Set on friendly maybe?
 				e.set_delete(true);
-			}			
-			else if(e.can_be_jumped_on() && pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			}
+			else if(e.can_be_jumped_on() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
 			{
 				e.get_jumped_on();
 				pl.bounce_on_enemy();
+			}
+			else if(e.is_stunned() && player_falling && e.is_under(pl.get_previous_position()))
+			{
+				e.get_jumped_on();
 			}
 			else if(pl.is_vulnerable())
 			{

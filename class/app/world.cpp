@@ -202,9 +202,6 @@ void world::create_new_platform(float y)
 		max_x=right+app::definitions::max_w_platform_gap-w;
 	}
 
-	//Account for the platform witdh at the rightmost side.
-	assert(max_x >= min_x);
-
 	//Clip to limits...
 	if(min_x < app::definitions::min_x_platform_position) min_x=app::definitions::min_x_platform_position;
 	if(max_x > app::definitions::max_x_platform_position) max_x=app::definitions::max_x_platform_position;
@@ -212,6 +209,9 @@ void world::create_new_platform(float y)
 	//Generate and place.
 	tools::int_generator position_generator(min_x, max_x);
 	platforms.push_back({(float)position_generator()*app::definitions::unit,y,w*app::definitions::unit});
+
+	//TODO Fix this bug.
+	//assert(platforms.back().get_spatiable_ex() <= app::definitions::playground_width);
 }
 
 std::vector<app_interfaces::spatiable const *> world::get_collidables() const
@@ -397,13 +397,12 @@ void world::trigger_player_traps()
 			right=player_traps.back();
 		float 	x=left.get_spatiable_x(),
 			y=left.get_spatiable_y();
-		unsigned int 	w=right.get_spatiable_ex()-x;
-		unsigned int 	h=left.get_spatiable_h();
+		int 	w=right.get_spatiable_ex()-x,
+			h=left.get_spatiable_h();
 
-		if(w <= max_trap_box_width)
+		if(w <= player_trap::get_max_width())
 		{
-std::cout<<"NICE SIZE!!!"<<std::endl;
-			app_interfaces::spatiable::t_box box{x, y, w, h};
+			app_interfaces::spatiable::t_box box{x, y, (unsigned int)w, (unsigned int)h};
 
 			for(auto& i : enemies)
 			{
@@ -417,6 +416,5 @@ std::cout<<"NICE SIZE!!!"<<std::endl;
 	
 			for(auto &t : player_traps) t.set_delete(true);
 		}
-		else std::cout<<"TOO BIG!!"<<std::endl;
 	}
 }

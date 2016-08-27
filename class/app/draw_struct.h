@@ -16,6 +16,7 @@ struct draw_struct
 		group,
 		points,
 		box,
+		line,
 		external
 	};
 
@@ -53,6 +54,11 @@ struct draw_struct
 	void 							insert_point(ldv::point p) {rep_points.insert(p);}
 
 	////////////////////
+	//Métodos para manipular la representación de líneas.
+
+	void 							set_line(ldv::point p1, ldv::point p2) {rep_line.set_points(p1.x, p1.y, p2.x, p2.y);}
+
+	////////////////////
 	//Métodos para manipular la representación de caja.
 
 	void 							set_location_box(ldv::rect p) {rep_box.set_location(p);}
@@ -76,6 +82,7 @@ struct draw_struct
 	ldv::group_representation 			rep_group;
 	ldv::point_representation 			rep_points;
 	ldv::box_representation 			rep_box;
+	ldv::line_representation 			rep_line;
 	ldv::representation * 				rep;
 	types 						type;
 	bool 						visible;

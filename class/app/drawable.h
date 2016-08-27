@@ -2,7 +2,7 @@
 #define DRAWABLE_INTERFACE_H
 
 #include <libDan2.h>
-#include "draw_struct.h"
+#include "draw_control.h"
 
 namespace app_interfaces
 {
@@ -12,13 +12,8 @@ class drawable
 	public:
 
 	virtual 		~drawable() {}
-	virtual int		get_draw_order()const=0;
-	virtual int		get_draw_cycle()const=0;
-	virtual void 		transform_draw_struct(app_game::draw_struct &b)const=0;
-	//TODO: Is this really neccesary????
-	virtual bool		is_draw_delete()const=0;
-
-
+	virtual int		get_draw_order() const=0;
+	virtual void 		transform_draw_struct(app_game::draw_control&) const=0;
 };
 
 class drawable_order

@@ -59,7 +59,6 @@ class world
 
 	
 	static const size_t		max_player_traps=2;
-	static const unsigned int	max_trap_box_width=2*app::definitions::unit;
 
 	std::vector<std::unique_ptr<app_game::enemy>>	enemies;
 	std::vector<platform>			platforms;

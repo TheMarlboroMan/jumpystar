@@ -32,6 +32,7 @@ $(DIR_O)motion_actor.o \
 $(DIR_O)motionable.o \
 $(DIR_O)spatiable.o \
 $(DIR_O)game_object.o \
+$(DIR_O)draw_control.o \
 $(DIR_O)draw_struct.o \
 
 ################################################################################
@@ -91,6 +92,7 @@ $(DIR_CONTROLLERS_IMPL)app_config.cpp
 $(DIR_O)player.o:\
 $(DIR_O)motion_actor.o \
 $(DIR_APP)drawable.h \
+$(DIR_APP)player_effects.h\
 $(DIR_APP)player.h\
 $(DIR_APP)player.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player.cpp -o $(DIR_O)player.o
@@ -198,6 +200,12 @@ $(DIR_O)game_object.o:\
 $(DIR_APP)game_object.h\
 $(DIR_APP)game_object.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)game_object.cpp -o $(DIR_O)game_object.o
+
+$(DIR_O)draw_control.o:\
+$(DIR_O)draw_struct.o\
+$(DIR_APP)draw_control.h\
+$(DIR_APP)draw_control.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)draw_control.cpp -o $(DIR_O)draw_control.o
 
 $(DIR_O)draw_struct.o:\
 $(DIR_APP)draw_struct.h\

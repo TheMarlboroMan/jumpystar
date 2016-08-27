@@ -23,10 +23,8 @@ class projectile:
 	//////////////////////
 	//Drawable.
 
-	virtual int		get_draw_order()const {return 40;}
-	virtual int		get_draw_cycle()const {return 1;}
-	virtual void 		transform_draw_struct(app_game::draw_struct &b)const;
-	virtual bool		is_draw_delete()const {return false;}
+	virtual int		get_draw_order() const {return 40;}
+	virtual void 		transform_draw_struct(draw_control&) const;
 
 	////////////////////
 	//Motion actor

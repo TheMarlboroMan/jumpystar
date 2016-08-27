@@ -42,8 +42,11 @@ void parabol_shooter_enemy::do_turn(float delta)
 	}
 }
 
-void parabol_shooter_enemy::transform_draw_struct(draw_struct& b)const
+void parabol_shooter_enemy::transform_draw_struct(draw_control& dc)const
 {
+	dc.set(1);
+	auto &b=dc[0];
+
 	auto color=ldv::rgba8(255,0,0, 255);
 	if(is_stunned()) color=ldv::rgba8(0,255,0, 255);
 	else if(is_trapped()) color=ldv::rgba8(0,0,255, 255);

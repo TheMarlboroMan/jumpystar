@@ -40,10 +40,8 @@ class enemy:
 	//////////////////////
 	//Drawable.
 
-	virtual int		get_draw_order()const=0;
-	virtual int		get_draw_cycle()const=0;
-	virtual void 		transform_draw_struct(app_game::draw_struct &b)const=0;
-	virtual bool		is_draw_delete()const=0;
+	virtual int		get_draw_order() const=0;
+	virtual void 		transform_draw_struct(draw_control&) const=0;
 
 	////////////////////
 	//Motion actor
