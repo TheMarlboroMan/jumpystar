@@ -25,7 +25,8 @@ class spatiable
 
 	public:
 
-	typedef ldt::box<float, unsigned int> t_box;
+	typedef ldt::box<float, unsigned int> 	t_box;
+	typedef ldt::point_2d<float> 		t_point;
 	enum t{T_X=1, T_Y=2};
 
 	///////////////////////////////
@@ -48,7 +49,7 @@ class spatiable
 	float 				get_spatiable_ey() const {return get_spatiable_y() + get_spatiable_h();}
 	unsigned int 			get_spatiable_w() const {return get_box().w;}
 	unsigned int 			get_spatiable_h() const {return get_box().h;}
-	ldt::point_2d<float> 		get_spatiable_position() const {return get_box().origin;}
+	t_point		 		get_spatiable_position() const {return get_box().origin;}
 
 	ldt::vector_2d_screen<float>	screen_vector_for(const spatiable& e) const {return screen_vector_for(*this, e);}
 	ldt::vector_2d_screen<float>	screen_vector_for(const spatiable& a, const spatiable& b) const;

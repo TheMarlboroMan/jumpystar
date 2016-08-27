@@ -22,6 +22,7 @@ class player:
 	void		turn(float delta);
 	void		set_falling();
 	bool		can_fall() const {return state==states::ground;}
+	bool		can_set_trap() const {return state==states::air;}
 	bool		is_vulnerable() const {return state!=states::stunned;}
 	void 		collide_with_harm_actor(const motion_actor&);
 	void		reset();

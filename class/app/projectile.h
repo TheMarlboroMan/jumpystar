@@ -15,7 +15,7 @@ class projectile:
 {
 	public:
 
-				projectile(ldt::point_2d<float>, t_vector);
+				projectile(t_point, t_vector);
 
 	virtual void		do_turn(float delta);
 	virtual void		collide_with_player();

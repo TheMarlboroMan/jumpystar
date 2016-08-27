@@ -4,7 +4,7 @@
 
 using namespace app_game;
 
-projectile::projectile(ldt::point_2d<float> pos, t_vector vec)
+projectile::projectile(t_point pos, t_vector vec)
 	:motion_actor(pos.x, pos.y, w, h, vec),
 	game_object()
 {

@@ -17,6 +17,7 @@ $(DIR_O)app_config.o \
 
 DEP_APP=\
 $(DIR_O)player.o \
+$(DIR_O)player_trap.o \
 $(DIR_O)world.o \
 $(DIR_O)bonus.o \
 $(DIR_O)enemy.o \
@@ -105,6 +106,14 @@ $(DIR_O)parabol_shooter_enemy.o \
 $(DIR_APP)world.h\
 $(DIR_APP)world.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)world.cpp -o $(DIR_O)world.o
+
+$(DIR_O)player_trap.o:\
+$(DIR_O)actor.o\
+$(DIR_O)game_object.o\
+$(DIR_APP)drawable.h \
+$(DIR_APP)player_trap.h\
+$(DIR_APP)player_trap.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player_trap.cpp -o $(DIR_O)player_trap.o
 
 $(DIR_O)projectile.o:\
 $(DIR_O)motion_actor.o\

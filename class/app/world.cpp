@@ -26,6 +26,8 @@ world::world(const app_interfaces::spatiable& ppos)
 
 void world::do_turn(float delta)
 {
+	//Evaluate possible deletions... traps are not discarded this way!.
+
 	for(auto& e : enemies) 
 		if(is_outside_bounds(*e, 32.f)) 
 			e->set_delete(true);
@@ -38,8 +40,15 @@ void world::do_turn(float delta)
 		if(is_outside_bounds(p, 32.f))
 			p.set_delete(true);
 
+	
+	if(player_traps.size()==max_player_traps)
+	{
+		trigger_player_traps();
+	}
+
 	delete_discarded_objects();
 
+	for(auto& t : player_traps) t.do_turn(delta);
 	for(auto& e: enemies) e->do_turn(delta);
 	for(auto& p: projectiles) p.do_turn(delta);
 
@@ -125,6 +134,7 @@ void world::reset()
 	bonuses.clear();
 	projectiles.clear();
 	projectile_definitions.clear();
+	player_traps.clear();
 	moving=false;
 }
 
@@ -150,6 +160,7 @@ void world::delete_discarded_objects()
 	delete_helper(platforms);
 	delete_helper(bonuses);
 	delete_helper(projectiles);
+	delete_helper(player_traps);
 	delete_helper_ptr(enemies);
 }
 
@@ -328,6 +339,7 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	for(const auto &p : bonuses) res.push_back(&p);
 	for(const auto &p : enemies) res.push_back(p.get());
 	for(const auto &p : projectiles) res.push_back(&p);
+	for(const auto &p : player_traps) res.push_back(&p);
 	return res;
 }
 
@@ -345,4 +357,64 @@ void world::create_projectiles()
 {
 	for(const auto& pd : projectile_definitions) projectiles.push_back({pd.origin, pd.direction});
 	projectile_definitions.clear();
+}
+
+/** Only two traps can be set at once. When there's more than two, the second
+replaces the first and a new one is set on its place.
+*/
+
+void world::set_player_trap(const app_interfaces::spatiable& player, const app_interfaces::spatiable& platform)
+{
+	if(player_traps.size() < max_player_traps)
+	{
+		//Y position will be transformed by the heart itself.
+		player_traps.push_back({{player.get_spatiable_cx(), platform.get_spatiable_y()}});
+	}
+	else
+	{
+		std::swap(player_traps[0], player_traps[1]);
+		player_traps.back().reset({player.get_spatiable_cx(), platform.get_spatiable_y()});
+	}
+}
+
+/** In order to trigger traps, they both have to be at the same Y level and
+form a box with a width smaller than N value.
+The first enemy inside the box is affected.
+*/
+
+void world::trigger_player_traps()
+{
+	if(player_traps.front().get_spatiable_y()==player_traps.back().get_spatiable_y())
+	{
+		//Sort the traps, leftmost first.
+		auto cmp=[](const app_interfaces::spatiable& a, const app_interfaces::spatiable& b) -> bool
+		{
+			return a.get_spatiable_x() < b.get_spatiable_x();
+		};
+		std::sort(std::begin(player_traps), std::end(player_traps), cmp);
+
+		auto 	left=player_traps.front(),
+			right=player_traps.back();
+		float 	x=left.get_spatiable_x(),
+			y=left.get_spatiable_y();
+		unsigned int 	w=right.get_spatiable_ex()-x;
+		unsigned int 	h=left.get_spatiable_h();
+
+		if(w <= max_trap_box_width)
+		{
+			app_interfaces::spatiable::t_box box{x, y, w, h};
+
+			for(auto& i : enemies)
+			{
+				auto& e=*i;
+				if(e.can_be_trapped() && e.is_colliding_with(box) )
+				{
+					e.set_delete(true);
+					break;
+				}
+			}
+	
+			for(auto &t : player_traps) t.set_delete(true);
+		}
+	}
 }

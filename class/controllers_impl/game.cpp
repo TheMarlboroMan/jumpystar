@@ -166,6 +166,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//world.
+	bool trap_set=false;
 	for(const auto& i : world.get_collidables())
 	{
 		const auto& p=*i;
@@ -174,7 +175,15 @@ void game_controller::do_player_collisions(app_game::player& pl)
 		{
 			if(p.is_under(pl.get_previous_position()))
 			{
+				//Only one trap can be set per tic.
+				if(pl.can_set_trap() && !trap_set)
+				{
+					trap_set=true;
+					world.set_player_trap(pl, p); //Cute hearts :D.
+				}
+
 				pl.adjust(p, app_game::motion_actor::adjust_pos::bottom);
+
 			}
 		}
 	}
@@ -186,7 +195,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 		if(pl.is_colliding_with(e))
 		{
-			if(pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			if(e.can_be_jumped_on() && pl.get_vector().y > 0.f && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
 			{
 				e.get_jumped_on();
 				//TODO: Bounce player???.

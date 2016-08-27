@@ -11,13 +11,15 @@ class parabol_enemy:
 {
 	public:
 
-				parabol_enemy(ldt::point_2d<float>, float);
+				parabol_enemy(t_point, float);
 
 	//////////////////////
 	//Enemy.
 	void			do_turn(float);
 	void			collide_with_player();
 	void			get_jumped_on();
+	bool			can_be_trapped() const {return false;}
+	bool			can_be_jumped_on() const {return false;}
 
 	//////////////////////
 	//Drawable.

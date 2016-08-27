@@ -1,13 +1,17 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+//std...
+
+//tools
+#include <class/number_generator.h>
+
+//locals
 #include "platform.h"
 #include "bonus.h"
 #include "projectile.h"
 #include "enemy.h"
-
-#include <class/number_generator.h>
-
+#include "player_trap.h"
 #include "definitions.h"
 
 namespace app_game
@@ -31,6 +35,7 @@ class world
 	bool		is_outside_bounds(const app_interfaces::spatiable&, float=0.f) const;
 
 	void		set_moving(bool v) {moving=v;}
+	void		set_player_trap(const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 
 	void		do_turn(float delta);
 	void 		init();
@@ -50,18 +55,26 @@ class world
 	void				evaluate_new_bonus();
 	void				evaluate_new_enemy();
 	void				delete_discarded_objects();
+	void				trigger_player_traps();
 
+	
+	static const size_t		max_player_traps=2;
+	static const unsigned int	max_trap_box_width=2*app::definitions::unit;
 
 	std::vector<std::unique_ptr<app_game::enemy>>	enemies;
 	std::vector<platform>			platforms;
 	std::vector<bonus>			bonuses;
 	std::vector<projectile_def>		projectile_definitions;
 	std::vector<projectile>			projectiles;
+	std::vector<player_trap>		player_traps;
+
 	const app_interfaces::spatiable&		player_position;
 
 	bool				moving;
 	float				distance, partial, speed;
 	int				camera_movement, world_threshold;
+
+	
 
 	class s_chance_data{
 		public:

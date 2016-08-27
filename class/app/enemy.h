@@ -13,7 +13,7 @@ namespace app_game
 class projectile_def
 {
 	public:
-	ldt::point_2d<float>				origin;
+	app_interfaces::spatiable::t_point		origin;
 	app_interfaces::motionable::t_vector		direction;
 	enum class types {curve}			type;
 };
@@ -25,11 +25,15 @@ class enemy:
 {
 	public:
 
+	//TODO: add states as regular, trapped, stunned...
+
 				enemy(int w, int h);
 
 	virtual void		do_turn(float delta)=0;
 	virtual void		collide_with_player()=0;
 	virtual void		get_jumped_on()=0;
+	virtual bool		can_be_trapped() const=0;
+	virtual bool		can_be_jumped_on() const=0;
 
 	//////////////////////
 	//Drawable.
@@ -41,8 +45,6 @@ class enemy:
 
 	////////////////////
 	//Motion actor
-
-	//TODO: Are these really part of the motion actor????. Should we try again?.
 
 	virtual float 	get_weight() const=0;
 	virtual float 	get_max_fall_speed() const=0;

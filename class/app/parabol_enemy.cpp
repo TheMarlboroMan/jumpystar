@@ -8,7 +8,7 @@ using namespace app_game;
 
 const float parabol_enemy::force=350.f;
 
-parabol_enemy::parabol_enemy(ldt::point_2d<float> target_pos, float below_position)
+parabol_enemy::parabol_enemy(t_point target_pos, float below_position)
 	:enemy(fixed_w, fixed_h)
 {
 	tools::int_generator gen(-100, 100);
