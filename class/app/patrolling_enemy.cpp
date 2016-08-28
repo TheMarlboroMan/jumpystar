@@ -20,7 +20,7 @@ void patrolling_enemy::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
-	if(get_state()!=states::regular) return;
+	if(!is_active()) return;
 
 	move(delta);
 	limit_sideways_patrol(limit_left, limit_right);
@@ -31,7 +31,7 @@ void patrolling_enemy::transform_draw_struct(draw_control& dc)const
 	dc.set(1);
 	auto &b=dc[0];
 
-	auto color=ldv::rgba8(255,0,0, 255);
+	auto color=is_friendly() ? ldv::rgba8(255, 102, 255, 255) : ldv::rgba8(255,0,0, 255);
 	if(is_stunned()) color=ldv::rgba8(0,255,0, 255);
 	else if(is_trapped()) color=ldv::rgba8(0,0,255, 255);
 
@@ -58,5 +58,5 @@ void patrolling_enemy::get_trapped()
 void patrolling_enemy::be_friendly(player_effects& pe)
 {
 	pe.add_score(50);
-	set_delete(true);
+	befriend();
 }

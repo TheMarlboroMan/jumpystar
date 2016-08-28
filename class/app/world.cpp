@@ -434,10 +434,9 @@ void world::trigger_player_traps()
 
 void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& limit, player_effects& pe)
 {
-	//TODO: What if they are already friendly????
 	for(auto& e : enemies) 
 	{
-		if(e->is_colliding_with(limit))
+		if(!e->is_friendly() && e->is_colliding_with(limit))
 		{
 			e->be_friendly(pe);
 		}

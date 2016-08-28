@@ -261,7 +261,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			{
 				e.get_jumped_on();
 			}
-			else if(pl.is_vulnerable())
+			else if(!e.is_friendly() && pl.is_vulnerable())
 			{
 				//The order is important as the player will be propelled in the inverse x direction.
 				e.collide_with_player();

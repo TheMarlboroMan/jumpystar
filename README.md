@@ -3,6 +3,11 @@
 Roadmap:
 	- Add bonuses and specials.
 		- Stop scroll for X time.
+		- Temporary invincibility.
+		- Slow down enemies.
+	- Add pause.
+	- Fix bug in which stunned enemies are harmful.
+	- Fix special stacking (or at least, check it).
+	- Add bonus random chance.
 	- Do not shoot from outside screen (or rather, do no add projectiles outside the camera box...).
-	- Add friendly enemies (for real).
-	- When using friendly ability, do not add score for those who are already friendly.
+	- Add score markers.

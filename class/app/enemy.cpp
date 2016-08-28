@@ -15,7 +15,9 @@ void enemy::do_turn(float delta)
 {
 	switch(state)
 	{
-		case states::regular: break;
+		case states::regular:
+		case states::friendly:  
+		break;
 		case states::trapped:
 		case states::stunned:  
 			state_period-=delta;
