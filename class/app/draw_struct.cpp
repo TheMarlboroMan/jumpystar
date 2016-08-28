@@ -9,6 +9,7 @@ draw_struct::draw_struct(ldv::resource_manager& v_m)
 	rep_points(ldv::rgba8(0,0,0,255)),
 	rep_box(ldv::box_representation::type::fill, {0,0,0,0}, ldv::rgba8(0,0,0,255)),
 	rep_line(0,0,0,0, ldv::rgba8(0,0,0,255)),
+	rep_polygon(ldv::polygon_representation::type::fill, {{0,0}, {1,0}, {1,2}}, ldv::rgba8(0,0,0,255)), 
 	rep(&rep_bmp),
 	type(types::bitmap),
 	visible(true)
@@ -26,6 +27,7 @@ void draw_struct::set_color(ldv::rgba_color c)
 	rep_points.set_rgba(c);
 	rep_box.set_rgba(c);
 	rep_line.set_rgba(c);
+	rep_polygon.set_rgba(c);
 }
 
 void draw_struct::set_type(types t)
@@ -54,6 +56,10 @@ void draw_struct::set_type(types t)
 
 		case types::line:
 			rep=&rep_line;
+		break;
+
+		case types::polygon:
+			rep=&rep_polygon;
 		break;
 
 		case types::external:

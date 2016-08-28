@@ -1,11 +1,15 @@
 #include "player.h"
 
+#include <cassert>
+
 using namespace app_game;
 
 player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
-	state(states::air), wakestate(states::air), remaining_jumps(0), cancel_jump(false)
+	state(states::air), wakestate(states::air), remaining_jumps(0), 
+	max_jumps(default_jump_quantity), score(0), signals(0),
+	cancel_jump(false)
 {
 	reset();
 }
@@ -18,9 +22,13 @@ void player::reset()
 	state=states::air;
 	wakestate=states::air;
 	remaining_jumps=0; //This is so a trap won't spawn when the game starts.
+	max_jumps=default_jump_quantity;
+	score=0;
+	signals=0;
 	cancel_jump=false;
 	specials.clear();
-	for(int i=0; i<max_specials; i++) specials.push_back(player_effects::specials::none);
+	specials_period[player_effects::specials::triple_jump]=0.f;
+	specials_period[player_effects::specials::extend_trap]=0.f;
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -46,7 +54,7 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 					wakestate=states::ground;
 				}
 
-				remaining_jumps=2;
+				remaining_jumps=max_jumps;
 			}
 		break;
 		case motion_actor::adjust_pos::top:
@@ -66,11 +74,19 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 
 void player::transform_draw_struct(draw_control& dc)const
 {
-	dc.set(1);
-	auto& b=dc[0];
+	
+	int 	steps=1,
+		curstep=0;
+
+	bool	with_triple_jump=specials_period.at(player_effects::specials::triple_jump),
+		with_extended_trap=specials_period.at(player_effects::specials::extend_trap);
+
+	steps+=with_triple_jump+with_extended_trap;
+
+	dc.set(steps);
+	auto& b=dc[curstep++];
 
 	b.set_type(draw_struct::types::box);
-
 	auto color=ldv::rgba8(0,0,160,255);
 
 	switch(state)
@@ -82,6 +98,34 @@ void player::transform_draw_struct(draw_control& dc)const
 
 	b.set_color(color);
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
+
+	if(with_triple_jump)
+	{
+		auto& jump_indicator=dc[curstep++];
+		jump_indicator.set_color(ldv::rgba8(0, 0, 255, 255));
+		jump_indicator.set_type(draw_struct::types::polygon);
+		jump_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
+		jump_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
+		
+		int x=get_spatiable_x()-5;
+		if(x < 0) x=0;
+
+		jump_indicator.go_to({x, (int)get_spatiable_y()-5});
+	}
+
+	if(with_extended_trap)
+	{
+		auto& extend_trap_indicator=dc[curstep++];
+		extend_trap_indicator.set_color(ldv::rgba8(245, 120, 176, 255));
+		extend_trap_indicator.set_type(draw_struct::types::polygon);
+		extend_trap_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
+		extend_trap_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
+		
+		int x=get_spatiable_x()-5;
+		if(x < 0) x=0;
+
+		extend_trap_indicator.go_to({x, (int)get_spatiable_y()-10});
+	}
 }
 
 void player::turn(float delta)
@@ -101,8 +145,40 @@ void player::turn(float delta)
 	}
 	else
 	{
-		//We did this before and worked nice in Winter.
-		//Frenada o aceleración.
+		//Timers...
+		auto do_specials_timer=[this, delta](player_effects::specials key, float& value)
+		{
+			if(value)
+			{
+				value-=delta;
+				if(value <= 0.f)
+				{
+					value=0.f;
+					switch(key)
+					{
+						case player_effects::specials::triple_jump: 
+							this->max_jumps=2; 
+							if(remaining_jumps > max_jumps) remaining_jumps=max_jumps;
+						break;
+						case player_effects::specials::extend_trap: 
+							this->signals|=s_reset_trap; 
+						break;
+						default: break;
+					}
+				}
+			}
+			
+		};
+		for(auto& sp : specials_period) do_specials_timer(sp.first, sp.second);
+
+		//Specials.
+		if(specials.size())
+		{
+			if(p_input.y < 0) activate_special();
+			else if(p_input.y > 0) remove_special();
+		}
+
+		//Horizontal movement...
 		if(p_input.x)
 		{
 			float v=get_vector_x();
@@ -128,6 +204,7 @@ void player::turn(float delta)
 			else if(vr < 0.0) set_vector(-v, axis::x);
 		}
 
+		//Jumps...
 		if(p_input.jump && remaining_jumps)
 		{
 			//TODO: Current speed downwards should count.
@@ -197,18 +274,42 @@ void player::bounce_on_enemy()
 void player::recieve_effects(player_effects pe)
 {
 	if(pe.get_effects() & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
+	if(pe.get_effects() & player_effects::all_friendly) add_special(player_effects::specials::all_friendly);
+	if(pe.get_effects() & player_effects::extend_trap) add_special(player_effects::specials::extend_trap);
+	score+=pe.get_score();
 }
 
 void player::add_special(player_effects::specials sp)
 {
-	std::swap(specials[2], specials[1]);
-	std::swap(specials[1], specials[0]);
-	specials[0]=sp;
+	specials.insert(std::begin(specials), sp);
+	while(specials.size() > max_specials) specials.pop_back();
 }
 
-void player::pop_special()
+void player::remove_special()
 {
-	std::swap(specials[1], specials[0]);
-	std::swap(specials[2], specials[1]);
-	specials[2]=player_effects::specials::none;
+	assert(specials.size() > 0);
+
+	specials.erase(std::begin(specials));
+}
+
+void player::activate_special()
+{
+	assert(specials.size() > 0);
+
+	switch(specials.front())
+	{
+		case player_effects::specials::triple_jump:
+			max_jumps=extended_jump_quantity;
+			if(remaining_jumps==default_jump_quantity) remaining_jumps=extended_jump_quantity;
+			specials_period[player_effects::specials::triple_jump]=10.f;
+		break;
+		case player_effects::specials::all_friendly:
+			signals|=s_all_friendly;
+		break;
+		case player_effects::specials::extend_trap:
+			signals|=s_extend_trap;
+			specials_period[player_effects::specials::extend_trap]=10.f;
+		break;
+	}
+	remove_special();
 }

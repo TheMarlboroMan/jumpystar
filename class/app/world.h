@@ -8,7 +8,7 @@
 
 //locals
 #include "platform.h"
-#include "bonus.h"
+#include "pickup.h"
 #include "projectile.h"
 #include "enemy.h"
 #include "player_trap.h"
@@ -25,7 +25,7 @@ class world
 
 	std::vector<std::unique_ptr<enemy>>& 		get_enemies() {return enemies;}
 	std::vector<projectile>& 			get_projectiles() {return projectiles;}
-	std::vector<bonus *> 				get_pickables();
+	std::vector<std::unique_ptr<pickup>>&		get_pickups() {return pickups;}
 	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 
@@ -36,6 +36,7 @@ class world
 
 	void		set_moving(bool v) {moving=v;}
 	void		set_player_trap(const app_interfaces::spatiable&, const app_interfaces::spatiable&);
+	void 		trigger_all_friendly_signal(const app_interfaces::spatiable::t_box&, player_effects&);
 
 	void		do_turn(float delta);
 	void 		init();
@@ -60,9 +61,9 @@ class world
 	
 	static const size_t		max_player_traps=2;
 
-	std::vector<std::unique_ptr<app_game::enemy>>	enemies;
+	std::vector<std::unique_ptr<enemy>>	enemies;
 	std::vector<platform>			platforms;
-	std::vector<bonus>			bonuses;
+	std::vector<std::unique_ptr<pickup>>	pickups;
 	std::vector<projectile_def>		projectile_definitions;
 	std::vector<projectile>			projectiles;
 	std::vector<player_trap>		player_traps;

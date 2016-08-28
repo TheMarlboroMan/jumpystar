@@ -2,6 +2,11 @@
 
 #include <cassert>
 
+#include "bonus_score.h"
+#include "bonus_triple_jump.h"
+#include "bonus_all_friendly.h"
+#include "bonus_extend_trap.h"
+
 #include "patrolling_enemy.h"
 #include "parabol_enemy.h"
 #include "parabol_shooter_enemy.h"
@@ -32,9 +37,9 @@ void world::do_turn(float delta)
 		if(is_outside_bounds(*e, 32.f)) 
 			e->set_delete(true);
 
-	for(auto& b : bonuses)
-		if(is_outside_bounds(b, 32.f))
-			b.set_delete(true);
+	for(auto& b : pickups)
+		if(is_outside_bounds(*b, 32.f))
+			b->set_delete(true);
 
 	for(auto& p : projectiles)
 		if(is_outside_bounds(p, 32.f))
@@ -131,7 +136,7 @@ void world::reset()
 	speed=0.f;
 	platforms.clear();
 	enemies.clear();
-	bonuses.clear();
+	pickups.clear();
 	projectiles.clear();
 	projectile_definitions.clear();
 	player_traps.clear();
@@ -158,7 +163,7 @@ bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) c
 void world::delete_discarded_objects()
 {
 	delete_helper(platforms);
-	delete_helper(bonuses);
+	delete_helper_ptr(pickups);
 	delete_helper(projectiles);
 	delete_helper(player_traps);
 	delete_helper_ptr(enemies);
@@ -250,18 +255,35 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	bonus b;
+	enum class types{score, triple_jump, all_friendly, extend_trap};
+
+	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap};
+
+	std::unique_ptr<pickup> b{nullptr};
+
+	tools::int_generator gen(0, t.size()-1);
+
+	if(t.size()) switch(t[gen()])
+	{
+		case types::score:		b.reset(new bonus_score()); break;
+		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
+		case types::all_friendly:	b.reset(new bonus_all_friendly()); break;
+		case types::extend_trap:	b.reset(new bonus_extend_trap()); break;
+	}
 
 	auto	last_platform=platforms.back();
 	float 	left=last_platform.get_spatiable_x(),
-		right=last_platform.get_spatiable_ex()-b.get_spatiable_w();
+		right=last_platform.get_spatiable_ex()-b->get_spatiable_w();
 
 	tools::int_generator x_generator(left, right);
 	float x=x_generator();
-	float y=last_platform.get_spatiable_y()-b.get_spatiable_h()-app::definitions::bonus_units_above_ground;
+	float y=last_platform.get_spatiable_y()-b->get_spatiable_h()-app::definitions::bonus_units_above_ground;
 
-	b.set_position(x, y);
-	bonuses.push_back(b);
+	if(b) 
+	{
+		b->set_position(x, y);
+		pickups.push_back(std::move(b));
+	}
 }
 
 /** By default the new patrolling enemy is placed on 0,0 and later is placed at the center
@@ -273,6 +295,7 @@ void world::create_new_enemy()
 	enum class types {patrolling, parabol, flying, parabol_shooter};
 	
 	std::vector<types> t;
+	//TODO: Rework this values.
 	if(true || distance > 20.f) t.push_back(types::patrolling);
 	if(true || distance > 100.f) t.push_back(types::flying);
 	if(true || distance > 300.f) t.push_back(types::parabol_shooter);
@@ -336,20 +359,10 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 {
 	std::vector<app_interfaces::drawable const *> res;
 	for(const auto &p : platforms) res.push_back(&p);
-	for(const auto &p : bonuses) res.push_back(&p);
+	for(const auto &p : pickups) res.push_back(p.get());
 	for(const auto &p : enemies) res.push_back(p.get());
 	for(const auto &p : projectiles) res.push_back(&p);
 	for(const auto &p : player_traps) res.push_back(&p);
-	return res;
-}
-
-//TODO: app_game::bonus would be replaced but some interface... In any other case
-//we could just return the vector by reference and be done.
-
-std::vector<bonus *> world::get_pickables()
-{
-	std::vector<app_game::bonus *> res;
-	for(auto &p : bonuses) res.push_back(&p);
 	return res;
 }
 
@@ -415,6 +428,18 @@ void world::trigger_player_traps()
 			}
 	
 			for(auto &t : player_traps) t.set_delete(true);
+		}
+	}
+}
+
+void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& limit, player_effects& pe)
+{
+	//TODO: What if they are already friendly????
+	for(auto& e : enemies) 
+	{
+		if(e->is_colliding_with(limit))
+		{
+			e->be_friendly(pe);
 		}
 	}
 }

@@ -10,12 +10,12 @@ class player_effects
 {
 	public:
 	
-	enum class specials{none, triple_jump};
-	static const int triple_jump=1;
+	enum class specials{triple_jump, all_friendly, extend_trap};
+	enum types {triple_jump=1, all_friendly=2, extend_trap=4};
 
 	int		get_score() const {return score;}
 	int		get_effects() const {return effects;}
-	void		add_effect(int s) {effects=effects | s;}
+	void		add_effect(int s) {effects|=s;}
 
 	//Stores different scores for the same tic. 
 	//TODO: In the future we'll need to add a position for the score marker to appear!.

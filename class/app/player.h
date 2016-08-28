@@ -15,6 +15,8 @@ class player:
 {
 	public:
 
+	enum		signals{s_all_friendly=1, s_extend_trap=2, s_reset_trap=4};
+
 			player();
 	void		get_input(player_input pi) {p_input=pi;}
 
@@ -25,6 +27,9 @@ class player:
 	bool		can_fall() const {return state==states::ground;}
 	const std::vector<player_effects::specials>& get_specials() const {return specials;}
 	void		recieve_effects(player_effects);
+	int		get_score() const {return score;}
+	int		get_signals() const {return signals;}
+	void		reset_signals() {signals=0;}
 
 	//Player can't set traps after double jump or when falling from an edge.
 	bool		can_set_trap() const {return state==states::air && remaining_jumps;}
@@ -47,7 +52,8 @@ class player:
 	virtual int 	get_draw_order() const {return 50;}
 	virtual void 	transform_draw_struct(draw_control&) const;
 	void		add_special(player_effects::specials);
-	void		pop_special();
+	void		remove_special();
+	void		activate_special();
 
 	private:
 
@@ -56,14 +62,18 @@ class player:
 	t_box			previous_position;
 	states			state, wakestate;
 	player_input		p_input;
-	int			remaining_jumps;
+	int			remaining_jumps, max_jumps, score, signals;
 	bool			cancel_jump;
 	float			stunned_time;
 	std::vector<player_effects::specials>	specials;
+	std::map<player_effects::specials, float> specials_period;
 	
 	//If the vector x is less than this and the player is hit, a larger vector is recieved.
 	static const int	min_vector_hit_guard=30,
-				max_specials=3;
+				max_specials=3,
+				extended_jump_quantity=3,
+				default_jump_quantity=2;
+				
 
 };
 

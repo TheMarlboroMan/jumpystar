@@ -3,6 +3,7 @@
 
 #include <templates/linear_timed_function.h>
 
+#include "definitions.h"
 #include "actor.h"
 #include "drawable.h"
 #include "game_object.h"
@@ -23,6 +24,10 @@ class player_trap:
 	void			reset(t_point);
 	void			set_max_width(int v) {max_width=v;}
 	static int		get_max_width() {return max_width;}
+	static void		set_width(int v) {max_width=v*app::definitions::unit;}
+
+	static const int	default_width=3,
+				extended_width=4;
 
 	/////////////////
 	//Drawable

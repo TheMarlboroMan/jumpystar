@@ -17,6 +17,7 @@ struct draw_struct
 		points,
 		box,
 		line,
+		polygon,
 		external
 	};
 
@@ -59,6 +60,12 @@ struct draw_struct
 	void 							set_line(ldv::point p1, ldv::point p2) {rep_line.set_points(p1.x, p1.y, p2.x, p2.y);}
 
 	////////////////////
+	//Methods for polygon manipulation...
+	void							set_polygon_fill(ldv::polygon_representation::type f) {rep_polygon.set_filltype(f);}
+	void							set_polygon_points(const std::vector<ldv::point>& p) {rep_polygon.set_points(p);}
+
+
+	////////////////////
 	//Métodos para manipular la representación de caja.
 
 	void 							set_location_box(ldv::rect p) {rep_box.set_location(p);}
@@ -83,6 +90,7 @@ struct draw_struct
 	ldv::point_representation 			rep_points;
 	ldv::box_representation 			rep_box;
 	ldv::line_representation 			rep_line;
+	ldv::polygon_representation 			rep_polygon;
 	ldv::representation * 				rep;
 	types 						type;
 	bool 						visible;

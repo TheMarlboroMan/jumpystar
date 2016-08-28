@@ -15,19 +15,21 @@ using namespace app;
 game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tools::ttf_manager& ttf_man)
 	:log(plog),
 	camera({0,0,400,500},{0,0}),
-	fps_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
+	fps_text(ttf_man.get("ad-mono", 12), ldv::rgba8(0,0,0,255), ""),
 	distance_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
+	hud_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
 	world(player_instance),
 	draw_ctrl(vm)
 {
 	fps_text.go_to(12, 12);
 	distance_text.go_to(12, 30);
+	hud_text.go_to(12, 48);
 	reset();
 }
 
 void game_controller::preloop(dfw::input& /*input*/, float /*delta*/, int fps)
 {
-	fps_text.set_text(compat::to_string(fps));
+	fps_text.set_text(compat::to_string(fps)+"FPS");
 }
 
 void game_controller::loop(dfw::input& input, float delta)
@@ -81,20 +83,24 @@ void game_controller::draw(ldv::screen& screen)
 
 	fps_text.draw(screen);
 
-	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+"\n";
-	
+	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y());
+	distance_text.set_text(distance_txt);
+	distance_text.draw(screen);
+
+	std::string hud_txt=std::to_string(player_instance.get_score())+"\n";
 	for(const auto& s: player_instance.get_specials())
 	{
 		switch(s)
 		{
-			case app_game::player_effects::specials::none: 		distance_txt+="[0]";break;
-			case app_game::player_effects::specials::triple_jump:	distance_txt+="[3]";break;
+			case app_game::player_effects::specials::triple_jump:	hud_txt+="[3]";break;
+			case app_game::player_effects::specials::all_friendly:	hud_txt+="[F]";break;
+			case app_game::player_effects::specials::extend_trap:	hud_txt+="[T]";break;
 		}	
 	}
 	
+	hud_text.set_text(hud_txt);
+	hud_text.draw(screen);
 
-	distance_text.set_text(distance_txt);
-	distance_text.draw(screen);
 }
 
 void  game_controller::awake()
@@ -132,6 +138,7 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 		}
 	}
 	
+	pl.reset_signals();
 	pl.get_input(pi);
 	pl.turn(delta);
 	pl.do_gravity(delta, app::definitions::default_gravity);
@@ -142,6 +149,27 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	{
 		reset();
 	}
+
+	//Signal treatment...
+	int sig=pl.get_signals();
+
+	if(sig & app_game::player::s_all_friendly)
+	{
+		auto cb=camera.get_focus_box();
+		app_game::player_effects pe;
+		world.trigger_all_friendly_signal(app_interfaces::spatiable::t_box(cb.origin.x, cb.origin.y, cb.w, cb.h), pe);
+		pl.recieve_effects(pe);
+	}
+
+	if(sig & app_game::player::s_extend_trap)
+	{
+		app_game::player_trap::set_width(app_game::player_trap::extended_width);
+	}
+
+	if(sig & app_game::player::s_reset_trap)
+	{
+		app_game::player_trap::set_width(app_game::player_trap::default_width);
+	}
 }
 
 app_game::player_input game_controller::get_user_input(const dfw::input& input)
@@ -150,16 +178,16 @@ app_game::player_input game_controller::get_user_input(const dfw::input& input)
 	if(input.is_input_pressed(input_app::left)) pi.x=-1;
 	else if(input.is_input_pressed(input_app::right)) pi.x=1;
 
-	if(input.is_input_pressed(input_app::up)) pi.y=-1;
-	else if(input.is_input_pressed(input_app::down)) pi.y=1;
+	if(input.is_input_down(input_app::up)) pi.y=-1;
+	else if(input.is_input_down(input_app::down)) pi.y=1;
 
 	if(input.is_input_down(input_app::jump)) pi.jump=true;
 	if(input.is_input_pressed(input_app::jump)) pi.jump_press=true;
 
-	if(input.is_input_down(input_app::down))
-	{
-		world.create_new_enemy();
-	}
+//	if(input.is_input_down(input_app::down))
+//	{
+//		world.create_new_enemy();
+//	}
 
 	return pi;
 }
@@ -179,7 +207,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 	//pickups
 	app_game::player_effects pe;
-	for(auto& i : world.get_pickables())
+	for(auto& i : world.get_pickups())
 	{
 		auto& p=*i;
 		if(pl.is_colliding_with(p))
@@ -222,7 +250,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			//TODO: Review these conditions.
 			if(e.is_trapped())
 			{
-				//TODO: Set on friendly maybe?
 				e.be_friendly(pe);
 			}
 			else if(e.can_be_jumped_on() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )

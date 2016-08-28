@@ -1,4 +1,5 @@
 #fuente tamaño	ruta
-akashi	16	data/fonts/akashi.ttf
+#akashi	16	data/fonts/akashi.ttf
 ad-mono	16	data/fonts/ad-mono.ttf
+ad-mono	12	data/fonts/ad-mono.ttf
 

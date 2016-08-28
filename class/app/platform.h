@@ -21,7 +21,7 @@ class platform:
 	//////////////////////
 	//Drawable.
 
-	virtual int		get_draw_order() const {return 30;}
+	virtual int		get_draw_order() const {return 10;}
 	virtual void 		transform_draw_struct(draw_control&) const;
 
 	private:

@@ -1,10 +1,8 @@
 #include "player_trap.h"
 
-#include "definitions.h"
-
 using namespace app_game;
 
-int player_trap::max_width=3*app::definitions::unit;
+int player_trap::max_width=player_trap::default_width*app::definitions::unit;
 
 player_trap::player_trap(t_point pos)
 	:actor(pos.x, pos.y-h, w, h),

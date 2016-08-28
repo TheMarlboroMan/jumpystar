@@ -48,7 +48,8 @@ class game_controller:
 
 	ldv::camera					camera;
 	ldv::ttf_representation				fps_text,
-							distance_text;
+							distance_text,
+							hud_text;
 	app_game::player				player_instance;
 	app_game::world					world;
 	app_game::draw_control				draw_ctrl;
