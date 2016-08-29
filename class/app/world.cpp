@@ -22,7 +22,7 @@ using namespace app_game;
 
 world::world(const app_interfaces::spatiable& ppos)
 	:player_position(ppos), 
-	moving(false), distance(0.f), partial(0.f), speed(20.f), game_speed_multipler(1.f),
+	moving(false), slowdown(false), distance(0.f), partial(0.f), speed(20.f), game_speed_multipler(1.f),
 	camera_movement(0), world_threshold(0),
 	bonus_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage),
 	//TODO: Use other values..
@@ -33,6 +33,28 @@ world::world(const app_interfaces::spatiable& ppos)
 
 void world::do_turn(float delta)
 {
+	if(slowdown_process)
+	{
+		if(slowdown)
+		{
+			game_speed_multipler-=delta / 2.f;
+			if(game_speed_multipler <= 0.5f) 
+			{
+				game_speed_multipler=0.5f;
+				slowdown_process=false;
+			}
+		}
+		else
+		{
+			game_speed_multipler+=delta / 2.f;
+			if(game_speed_multipler > 1.f) 
+			{
+				game_speed_multipler=1.f;
+				slowdown_process=false;
+			}
+		}
+	}
+
 	delta *= game_speed_multipler;
 
 	//Evaluate possible deletions... traps are not discarded this way!.
@@ -138,6 +160,7 @@ void world::reset()
 	distance=0.f;
 	partial=0.f;
 	speed=0.f;
+	game_speed_multipler=1.f;
 	platforms.clear();
 	enemies.clear();
 	pickups.clear();
@@ -436,7 +459,7 @@ void world::trigger_player_traps()
 			for(auto& i : enemies)
 			{
 				auto& e=*i;
-				if(e.can_be_trapped() && e.is_colliding_with(box) )
+				if(e.can_be_trapped() && !e.is_friendly() && e.is_colliding_with(box) )
 				{
 					e.get_trapped();
 					break;
@@ -457,14 +480,4 @@ void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& 
 			e->be_friendly(pe);
 		}
 	}
-}
-
-/** Sets the game speed to half is "true" is passed. If "false" is recieved
-just resets the game speed back to 1.
-*/
-
-void world::trigger_slowdown(bool val)
-{
-	if(val) game_speed_multipler=0.5f;
-	else game_speed_multipler=1.0f;
 }

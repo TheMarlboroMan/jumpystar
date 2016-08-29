@@ -94,7 +94,7 @@ void game_controller::draw(ldv::screen& screen)
 		{
 			case app_game::player_effects::specials::triple_jump:		hud_txt+="[3]";break;
 			case app_game::player_effects::specials::all_friendly:		hud_txt+="[F]";break;
-			case app_game::player_effects::specials::extend_trap:		hud_txt+="[T]";break;
+			case app_game::player_effects::specials::extend_trap:		hud_txt+="[_]";break;
 			case app_game::player_effects::specials::slow_down:		hud_txt+="[S]";break;
 			case app_game::player_effects::specials::invulnerability:	hud_txt+="[*]";break;
 		}	
@@ -264,17 +264,11 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			{
 				e.be_friendly(pe);
 			}
-			//Jump... on...
-			else if(e.can_be_jumped_on() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			else if(e.can_be_jumped_on() && !e.is_friendly() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
 			{
 				e.get_jumped_on();
 				pl.bounce_on_enemy();
 			}
-			//TODO: What the fuck?...
-			//else if(e.is_stunned() && player_falling && e.is_under(pl.get_previous_position()))
-			//{
-			//	e.get_jumped_on();
-			//}
 			else if(e.can_harm() && pl.is_vulnerable())
 			{
 				//The order is important as the player will be propelled in the inverse x direction.

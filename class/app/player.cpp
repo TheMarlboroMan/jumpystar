@@ -284,7 +284,9 @@ void player::bounce_on_enemy()
 {
 	state=states::air;
 	remaining_jumps=1;
-	set_vector(-150.f, axis::y);
+
+	float vel=p_input.jump_press ? -300.f : -150.f;
+	set_vector(vel, axis::y);
 }
 
 void player::recieve_effects(player_effects pe)
