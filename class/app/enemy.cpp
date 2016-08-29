@@ -5,7 +5,7 @@ using namespace app_game;
 enemy::enemy(int w, int h)
 	:motion_actor(0.f, 0.f, w, h),
 	game_object(),
-	state(states::regular),
+	state(states::harmful),
 	state_period(0.f)
 {
 
@@ -15,13 +15,13 @@ void enemy::do_turn(float delta)
 {
 	switch(state)
 	{
-		case states::regular:
+		case states::harmful:
 		case states::friendly:  
 		break;
 		case states::trapped:
 		case states::stunned:  
 			state_period-=delta;
-			if(state_period <= 0.f) state=states::regular;
+			if(state_period <= 0.f) state=states::harmful;
 		break;
 	}
 }

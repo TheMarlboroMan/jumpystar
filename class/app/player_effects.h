@@ -10,8 +10,8 @@ class player_effects
 {
 	public:
 	
-	enum class specials{triple_jump, all_friendly, extend_trap};
-	enum types {triple_jump=1, all_friendly=2, extend_trap=4};
+	enum class specials{triple_jump, all_friendly, extend_trap, slow_down, invulnerability};
+	enum types {triple_jump=1, all_friendly=2, extend_trap=4, slow_down=8, invulnerability=16};
 
 	int		get_score() const {return score;}
 	int		get_effects() const {return effects;}

@@ -31,7 +31,8 @@ class enemy:
 	bool			is_stunned() const {return state==states::stunned;}
 	bool			is_trapped() const {return state==states::trapped;}
 	bool			is_friendly() const {return state==states::friendly;}
-	bool			is_active() const {return state==states::friendly || state==states::regular;}
+	bool			is_active() const {return state==states::friendly || state==states::harmful;}
+	bool			can_harm() const {return state==states::harmful;}
 
 	virtual void		do_turn(float delta);
 	virtual void		collide_with_player()=0;
@@ -56,9 +57,8 @@ class enemy:
 
 	protected:
 
-	enum class states {regular, friendly, trapped, stunned}	state;
+	enum class states {harmful, friendly, trapped, stunned}	state;
 
-	states			get_state() const {return state;}
 	void			stun(float sp) {state_period=sp; state=states::stunned;}
 	void			trap(float sp) {state_period=sp; state=states::trapped;}
 	void			befriend() {state=states::friendly;}

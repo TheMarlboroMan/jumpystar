@@ -22,8 +22,6 @@ void parabol_enemy::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
-	if(get_state()!=states::regular) return;
-
 	move(delta);
 	do_gravity(delta, app::definitions::default_gravity);
 }

@@ -3,7 +3,7 @@
 using namespace app_game;
 
 bonus_all_friendly::bonus_all_friendly():
-	pickup(w, h)
+	pickup()
 {
 
 }

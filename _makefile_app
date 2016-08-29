@@ -21,6 +21,8 @@ $(DIR_O)player_trap.o \
 $(DIR_O)world.o \
 $(DIR_O)pickup.o \
 $(DIR_O)bonus_score.o \
+$(DIR_O)bonus_invulnerability.o \
+$(DIR_O)bonus_slow_down.o \
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_all_friendly.o \
 $(DIR_O)bonus_extend_trap.o\
@@ -163,6 +165,18 @@ $(DIR_APP)drawable.h \
 $(DIR_APP)enemy.h\
 $(DIR_APP)enemy.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy.cpp -o $(DIR_O)enemy.o
+
+$(DIR_O)bonus_invulnerability.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_invulnerability.h\
+$(DIR_APP)bonus_invulnerability.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_invulnerability.cpp -o $(DIR_O)bonus_invulnerability.o
+
+$(DIR_O)bonus_slow_down.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_slow_down.h\
+$(DIR_APP)bonus_slow_down.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_slow_down.cpp -o $(DIR_O)bonus_slow_down.o
 
 $(DIR_O)bonus_triple_jump.o:\
 $(DIR_O)pickup.o \

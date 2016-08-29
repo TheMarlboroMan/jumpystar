@@ -1,17 +1,17 @@
-#ifndef BONUS_SCORE_H
-#define BONUS_SCORE_H
+#ifndef BONUS_SLOW_DOWN_H
+#define BONUS_SLOW_DOWN_H
 
 #include "pickup.h"
 
 namespace app_game
 {
 
-class bonus_score:
+class bonus_slow_down:
 	public pickup
 {
 	public:
 
-				bonus_score();
+				bonus_slow_down();
 	virtual void		get_picked_up(player_effects&);
 
 	private:

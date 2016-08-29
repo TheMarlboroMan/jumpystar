@@ -3,7 +3,7 @@
 using namespace app_game;
 
 bonus_score::bonus_score():
-	pickup(w, h)
+	pickup()
 {
 
 }

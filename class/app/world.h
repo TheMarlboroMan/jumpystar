@@ -37,6 +37,7 @@ class world
 	void		set_moving(bool v) {moving=v;}
 	void		set_player_trap(const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 	void 		trigger_all_friendly_signal(const app_interfaces::spatiable::t_box&, player_effects&);
+	void		trigger_slowdown(bool);
 
 	void		do_turn(float delta);
 	void 		init();
@@ -71,7 +72,7 @@ class world
 	const app_interfaces::spatiable&		player_position;
 
 	bool				moving;
-	float				distance, partial, speed;
+	float				distance, partial, speed, game_speed_multipler;
 	int				camera_movement, world_threshold;
 
 	

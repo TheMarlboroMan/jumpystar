@@ -27,8 +27,11 @@ void player::reset()
 	signals=0;
 	cancel_jump=false;
 	specials.clear();
+
 	specials_period[player_effects::specials::triple_jump]=0.f;
 	specials_period[player_effects::specials::extend_trap]=0.f;
+	specials_period[player_effects::specials::slow_down]=0.f;
+	specials_period[player_effects::specials::invulnerability]=0.f;
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -79,7 +82,8 @@ void player::transform_draw_struct(draw_control& dc)const
 		curstep=0;
 
 	bool	with_triple_jump=specials_period.at(player_effects::specials::triple_jump),
-		with_extended_trap=specials_period.at(player_effects::specials::extend_trap);
+		with_extended_trap=specials_period.at(player_effects::specials::extend_trap),
+		with_invulnerability=specials_period.at(player_effects::specials::invulnerability);
 
 	steps+=with_triple_jump+with_extended_trap;
 
@@ -87,13 +91,16 @@ void player::transform_draw_struct(draw_control& dc)const
 	auto& b=dc[curstep++];
 
 	b.set_type(draw_struct::types::box);
-	auto color=ldv::rgba8(0,0,160,255);
+
+	int alpha=with_invulnerability ? 128 : 255;
+
+	auto color=ldv::rgba8(0,0,160, alpha);
 
 	switch(state)
 	{
 		case states::ground: break;
-		case states::air: color=ldv::rgba8(0,160,0,255); break;
-		case states::stunned: color=ldv::rgba8(255,0,0,255); break;
+		case states::air: color=ldv::rgba8(0,160,0,alpha); break;
+		case states::stunned: color=ldv::rgba8(255,0,0,alpha); break;
 	}
 
 	b.set_color(color);
@@ -163,7 +170,15 @@ void player::turn(float delta)
 						case player_effects::specials::extend_trap: 
 							this->signals|=s_reset_trap; 
 						break;
-						default: break;
+						case player_effects::specials::slow_down: 
+							this->signals|=s_reset_slowdown; 
+						break;
+			
+						//These are cases that won't apply but I prefer to list them
+						//instead of defaulting (in case new effects are added this
+						//will trigger a warning).
+						case player_effects::specials::invulnerability: break;
+						case player_effects::specials::all_friendly: break;
 					}
 				}
 			}
@@ -231,6 +246,7 @@ void player::turn(float delta)
 			//This takes form of a flag so the jump can only be cancelled once...
 			//This affects the weight of the player.
 			//TODO: I don't like the effect it has...
+			//TODO: Try it some other way please, I don't like this!!!!.
 			cancel_jump=cancel_jump || (!p_input.jump_press && vy < 0.f);
 		}
 		break;
@@ -273,9 +289,12 @@ void player::bounce_on_enemy()
 
 void player::recieve_effects(player_effects pe)
 {
+	//TODO: Can we do this in a more idiomatic way?. There's no switch-case for this.
 	if(pe.get_effects() & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
 	if(pe.get_effects() & player_effects::all_friendly) add_special(player_effects::specials::all_friendly);
 	if(pe.get_effects() & player_effects::extend_trap) add_special(player_effects::specials::extend_trap);
+	if(pe.get_effects() & player_effects::slow_down) add_special(player_effects::specials::slow_down);
+	if(pe.get_effects() & player_effects::invulnerability) add_special(player_effects::specials::invulnerability);
 	score+=pe.get_score();
 }
 
@@ -309,6 +328,13 @@ void player::activate_special()
 		case player_effects::specials::extend_trap:
 			signals|=s_extend_trap;
 			specials_period[player_effects::specials::extend_trap]=10.f;
+		break;
+		case player_effects::specials::slow_down:
+			signals|=s_slowdown;
+			specials_period[player_effects::specials::slow_down]=5.f;
+		break;
+		case player_effects::specials::invulnerability:
+			specials_period[player_effects::specials::invulnerability]=5.f;
 		break;
 	}
 	remove_special();

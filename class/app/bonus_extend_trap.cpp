@@ -3,7 +3,7 @@
 using namespace app_game;
 
 bonus_extend_trap::bonus_extend_trap():
-	pickup(w, h)
+	pickup()
 {
 
 }

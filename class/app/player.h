@@ -15,7 +15,7 @@ class player:
 {
 	public:
 
-	enum		signals{s_all_friendly=1, s_extend_trap=2, s_reset_trap=4};
+	enum		signals{s_all_friendly=1, s_extend_trap=2, s_reset_trap=4, s_slowdown=8, s_reset_slowdown=16};
 
 			player();
 	void		get_input(player_input pi) {p_input=pi;}
@@ -33,7 +33,7 @@ class player:
 
 	//Player can't set traps after double jump or when falling from an edge.
 	bool		can_set_trap() const {return state==states::air && remaining_jumps;}
-	bool		is_vulnerable() const {return state!=states::stunned;}
+	bool		is_vulnerable() const {return !specials_period.at(player_effects::specials::invulnerability) && state!=states::stunned;}
 	void 		collide_with_harm_actor(const motion_actor&);
 	void		reset();
 	void		bounce_on_enemy();

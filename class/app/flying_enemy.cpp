@@ -25,8 +25,6 @@ void flying_enemy::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
-	if(get_state()!=states::regular) return;
-
 	period+=delta;
 	set_vector(sin(period*period_multiplier)*y_vector_multiplier, axis::y);
 

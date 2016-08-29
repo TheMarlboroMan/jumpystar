@@ -19,13 +19,9 @@ class bonus_all_friendly:
 	//////////////////////
 	//Drawable.
 
-	virtual int		get_draw_order() const {return 30;}
 	virtual void 		transform_draw_struct(draw_control&) const;
 
 	private:
-
-	static const int	w=20,
-				h=20;
 };
 
 }

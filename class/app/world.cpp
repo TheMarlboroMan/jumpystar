@@ -6,6 +6,8 @@
 #include "bonus_triple_jump.h"
 #include "bonus_all_friendly.h"
 #include "bonus_extend_trap.h"
+#include "bonus_slow_down.h"
+#include "bonus_invulnerability.h"
 
 #include "patrolling_enemy.h"
 #include "parabol_enemy.h"
@@ -20,7 +22,7 @@ using namespace app_game;
 
 world::world(const app_interfaces::spatiable& ppos)
 	:player_position(ppos), 
-	moving(false), distance(0.f), partial(0.f), speed(20.f),
+	moving(false), distance(0.f), partial(0.f), speed(20.f), game_speed_multipler(1.f),
 	camera_movement(0), world_threshold(0),
 	bonus_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage),
 	//TODO: Use other values..
@@ -31,6 +33,8 @@ world::world(const app_interfaces::spatiable& ppos)
 
 void world::do_turn(float delta)
 {
+	delta *= game_speed_multipler;
+
 	//Evaluate possible deletions... traps are not discarded this way!.
 
 	for(auto& e : enemies) 
@@ -255,9 +259,9 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	enum class types{score, triple_jump, all_friendly, extend_trap};
+	enum class types{score, triple_jump, all_friendly, extend_trap, slow_down, invulnerability};
 
-	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap};
+	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap, types::slow_down, types::invulnerability};
 
 	std::unique_ptr<pickup> b{nullptr};
 
@@ -269,7 +273,9 @@ void world::create_new_bonus()
 		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
 		case types::all_friendly:	b.reset(new bonus_all_friendly()); break;
 		case types::extend_trap:	b.reset(new bonus_extend_trap()); break;
-	}
+		case types::slow_down:		b.reset(new bonus_slow_down()); break;
+		case types::invulnerability:	b.reset(new bonus_invulnerability()); break;
+	}	
 
 	auto	last_platform=platforms.back();
 	float 	left=last_platform.get_spatiable_x(),
@@ -366,9 +372,19 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	return res;
 }
 
+/** Projectiles will only be created below the "distance" line.
+*/
+
 void world::create_projectiles()
 {
-	for(const auto& pd : projectile_definitions) projectiles.push_back({pd.origin, pd.direction});
+	for(const auto& pd : projectile_definitions) 
+	{
+		if(abs(pd.origin.y) < distance+app::definitions::playground_height)
+		{
+			projectiles.push_back({pd.origin, pd.direction});
+		}
+	}
+	
 	projectile_definitions.clear();
 }
 
@@ -441,4 +457,14 @@ void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& 
 			e->be_friendly(pe);
 		}
 	}
+}
+
+/** Sets the game speed to half is "true" is passed. If "false" is recieved
+just resets the game speed back to 1.
+*/
+
+void world::trigger_slowdown(bool val)
+{
+	if(val) game_speed_multipler=0.5f;
+	else game_speed_multipler=1.0f;
 }

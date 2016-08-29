@@ -2,7 +2,7 @@
 
 using namespace app_game;
 
-pickup::pickup(int w, int h):
+pickup::pickup():
 	actor(0, 0, w, h),
 	game_object()
 {

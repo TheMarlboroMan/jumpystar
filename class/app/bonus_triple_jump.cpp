@@ -3,7 +3,7 @@
 using namespace app_game;
 
 bonus_triple_jump::bonus_triple_jump():
-	pickup(w, h)
+	pickup()
 {
 
 }

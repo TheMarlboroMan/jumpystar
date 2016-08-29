@@ -16,14 +16,19 @@ class pickup:
 {
 	public:
 
-				pickup(int, int);
+				pickup();
 	virtual void		get_picked_up(player_effects&)=0;
 
 	//////////////////////
 	//Drawable.
 
-	virtual int		get_draw_order() const=0;
+	virtual int		get_draw_order() const {return 30;}
 	virtual void 		transform_draw_struct(draw_control&) const=0;
+
+	private:
+
+	static const int	w=20,
+				h=20;
 };
 
 }
