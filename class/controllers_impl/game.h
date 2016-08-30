@@ -53,6 +53,8 @@ class game_controller:
 	app_game::player				player_instance;
 	app_game::world					world;
 	app_game::draw_control				draw_ctrl;
+
+	bool						paused;
 };
 
 }

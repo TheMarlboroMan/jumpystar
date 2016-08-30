@@ -290,7 +290,8 @@ void world::create_new_bonus()
 
 	tools::int_generator gen(0, t.size()-1);
 
-	if(t.size()) switch(t[gen()])
+//	if(t.size()) switch(t[gen()])
+	switch(types::triple_jump)
 	{
 		case types::score:		b.reset(new bonus_score()); break;
 		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
@@ -402,7 +403,7 @@ void world::create_projectiles()
 {
 	for(const auto& pd : projectile_definitions) 
 	{
-		if(abs(pd.origin.y) < distance+app::definitions::playground_height)
+		if(pd.origin.y > -distance)
 		{
 			projectiles.push_back({pd.origin, pd.direction});
 		}

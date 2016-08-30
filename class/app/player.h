@@ -31,6 +31,7 @@ class player:
 	int		get_signals() const {return signals;}
 	void		reset_signals() {signals=0;}
 
+	bool		can_land_on_enemies() const {return state==states::air && get_vector().y > 0.f;}
 	//Player can't set traps after double jump or when falling from an edge.
 	bool		can_set_trap() const {return state==states::air && remaining_jumps;}
 	bool		is_vulnerable() const {return !specials_period.at(player_effects::specials::invulnerability) && state!=states::stunned;}

@@ -19,7 +19,8 @@ game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tool
 	distance_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
 	hud_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
 	world(player_instance),
-	draw_ctrl(vm)
+	draw_ctrl(vm),
+	paused(false)
 {
 	fps_text.go_to(12, 12);
 	distance_text.go_to(12, 30);
@@ -40,9 +41,14 @@ void game_controller::loop(dfw::input& input, float delta)
 		return;
 	}
 
-	do_world_turn(delta);
-	do_player_turn(delta, player_instance, get_user_input(input));
-	do_player_collisions(player_instance);
+	if(input.is_input_down(input_app::pause)) paused=!paused;
+
+	if(!paused)
+	{
+		do_world_turn(delta);
+		do_player_turn(delta, player_instance, get_user_input(input));
+		do_player_collisions(player_instance);
+	}
 }
 
 void game_controller::postloop(dfw::input& /*input*/, float /*delta*/, int /*fps*/)
@@ -102,6 +108,13 @@ void game_controller::draw(ldv::screen& screen)
 	
 	hud_text.set_text(hud_txt);
 	hud_text.draw(screen);
+
+	if(paused)
+	{
+		ldv::box_representation overlay{ldv::polygon_representation::type::fill, {0,0,screen.get_w(), screen.get_h()}, ldv::rgba8(0, 0, 0, 64)};
+		overlay.set_blend(ldv::representation::blends::alpha);
+		overlay.draw(screen);
+	}
 
 }
 
@@ -252,7 +265,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//enemies
-	bool player_falling=pl.get_vector().y > 0.f;
 	for(auto& i : world.get_enemies())
 	{
 		auto& e=*i;
@@ -264,14 +276,14 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			{
 				e.be_friendly(pe);
 			}
-			else if(e.can_be_jumped_on() && !e.is_friendly() && player_falling && e.is_under(pl.get_previous_position()) && pl.is_vulnerable() )
+			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && !e.is_friendly() && e.is_under(pl.get_previous_position()) )
 			{
 				e.get_jumped_on();
 				pl.bounce_on_enemy();
 			}
 			else if(e.can_harm() && pl.is_vulnerable())
 			{
-				//The order is important as the player will be propelled in the inverse x direction.
+				//The order is important as the player will be propelled in the inverse x direction and the enemy will reverse its direction.
 				e.collide_with_player();
 				pl.collide_with_harm_actor(e);
 			}

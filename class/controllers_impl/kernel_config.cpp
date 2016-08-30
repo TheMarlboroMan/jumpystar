@@ -64,13 +64,15 @@ std::vector<dfw::input_pair> kernel_config::get_input_pairs() const
 		return input_pair::types::keyboard;
 	};
 
-	auto get_user_info=[this](std::map<int, app_config::user_input>& res, int ileft, int iright, int iup, int idown, int ijump)
+	//TODO: This input stuff is hideous!!.
+	auto get_user_info=[this](std::map<int, app_config::user_input>& res, int ileft, int iright, int iup, int idown, int ijump, int ipause)
 	{
 		res[ileft]=config.get_left();
 		res[iright]=config.get_right();
 		res[iup]=config.get_up();
 		res[idown]=config.get_down();
 		res[ijump]=config.get_jump();
+		res[ipause]=config.get_pause();
 	};
 
 	using namespace dfw;
@@ -79,7 +81,7 @@ std::vector<dfw::input_pair> kernel_config::get_input_pairs() const
 
 	std::map<int, app_config::user_input> mapa;
 
-	get_user_info(mapa, input_app::left, input_app::right, input_app::up, input_app::down, input_app::jump);
+	get_user_info(mapa, input_app::left, input_app::right, input_app::up, input_app::down, input_app::jump, input_app::pause);
 
 	for(const auto& p : mapa) res.push_back({type_from_config(p.second.type), p.first, p.second.code, p.second.device});
 

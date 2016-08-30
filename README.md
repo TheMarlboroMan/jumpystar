@@ -4,12 +4,9 @@ A happy, family oriented little platformer.
 
 Bugfix:
 
-	- Check triple jump special, see if you can pick it and jump.
-	- Fix special stacking (or at least, check it).
-	- Do not shoot from outside screen (or rather, do no add projectiles outside the camera box...).
-		- This keeps failing.
-	- is_vulnerable should be different from is_invulnerable: right now we can't stomp on things if we're invulnerable.
-		- better add "can stomp":
+	- Fix platforms on the far right (there's an assert there).
+	- Stunned enemies should block the pass for the player. If not, we can just walk past them and jump again.
+	- Do better jumping.
 
 Do better:
 
@@ -29,12 +26,10 @@ Features:
 		- We need more variety here. Think a while...
 		
 	- Scoring bonus with different points.
-	- Score multiplier bonus.
+	- Specials
+		- Score multiplier bonus.
 	- Game speed: do no make it faster as it's done now.
-	- Speed special, do it gradually.
-		- I think this is already done.
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
-	- Add pause.
 	- Add bonus random chance.
 	- Add score markers (each thing you pick up makes a score decoration appear).
 	- Platform types:

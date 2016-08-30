@@ -13,7 +13,8 @@ up,
 down,
 left,
 right,
-jump
+jump,
+pause
 };
 
 };

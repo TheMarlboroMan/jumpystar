@@ -55,6 +55,7 @@ class app_config:
 	user_input get_up() const 	{return token_from_path_input("up");}
 	user_input get_down() const		{return token_from_path_input("down");}
 	user_input get_jump() const	{return token_from_path_input("jump");}
+	user_input get_pause() const	{return token_from_path_input("pause");}
 
 	void set_w_screen_logical(int p_valor) {set("config:video:window_w_logical", p_valor);}
 	void set_h_screen_logical(int p_valor) {set("config:video:window_h_logical", p_valor);}

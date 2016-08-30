@@ -46,8 +46,7 @@ class parabol_shooter_enemy:
 	static const int	fixed_w=20,
 				fixed_h=30,
 				min_time=1500,
-				max_time=3000,
-				max_shooting_distance=300;
+				max_time=3000;
 };
 
 }
