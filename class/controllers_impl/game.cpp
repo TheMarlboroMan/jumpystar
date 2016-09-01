@@ -93,19 +93,28 @@ void game_controller::draw(ldv::screen& screen)
 	distance_text.set_text(distance_txt);
 	distance_text.draw(screen);
 
-	std::string hud_txt=std::to_string(player_instance.get_score())+"\n";
-	for(const auto& s: player_instance.get_specials())
+	auto draw_special=[](app_game::player_effects::specials s, std::string& txt)
 	{
 		switch(s)
 		{
-			case app_game::player_effects::specials::triple_jump:		hud_txt+="[3]";break;
-			case app_game::player_effects::specials::all_friendly:		hud_txt+="[F]";break;
-			case app_game::player_effects::specials::extend_trap:		hud_txt+="[_]";break;
-			case app_game::player_effects::specials::slow_down:		hud_txt+="[S]";break;
-			case app_game::player_effects::specials::invulnerability:	hud_txt+="[*]";break;
-			case app_game::player_effects::specials::high_jump:		hud_txt+="[J]";break;
-			case app_game::player_effects::specials::score_multiplier:	hud_txt+="[x]";break;
+			case app_game::player_effects::specials::triple_jump:		txt+="[3]";break;
+			case app_game::player_effects::specials::all_friendly:		txt+="[F]";break;
+			case app_game::player_effects::specials::extend_trap:		txt+="[_]";break;
+			case app_game::player_effects::specials::slow_down:		txt+="[S]";break;
+			case app_game::player_effects::specials::invulnerability:	txt+="[*]";break;
+			case app_game::player_effects::specials::high_jump:		txt+="[J]";break;
+			case app_game::player_effects::specials::score_multiplier:	txt+="[x]";break;
 		}	
+	};
+
+	std::string hud_txt=std::to_string(player_instance.get_score())+"\n";
+	for(const auto& s: player_instance.get_specials())
+		draw_special(s, hud_txt);
+
+	if(player_instance.get_specials().size() == 3)
+	{
+		hud_txt+=" => ";
+		draw_special(player_instance.get_next_special(), hud_txt);
 	}
 	
 	hud_text.set_text(hud_txt);

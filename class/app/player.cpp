@@ -9,7 +9,7 @@ player::player()
 	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
 	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
-	cancel_jump(false)
+	cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump)
 {
 	reset();
 }
@@ -34,6 +34,8 @@ void player::reset()
 	specials_period[player_effects::specials::slow_down]=0.f;
 	specials_period[player_effects::specials::invulnerability]=0.f;
 	specials_period[player_effects::specials::score_multiplier]=0.f;
+
+	shuffle_next_special();
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -206,7 +208,7 @@ void player::turn(float delta)
 		if(specials.size())
 		{
 			if(p_input.y < 0) activate_special();
-			else if(p_input.y > 0) remove_special();
+			else if(p_input.y > 0 && specials.size()==max_specials) trade_special();
 		}
 
 		//Horizontal movement...
@@ -373,4 +375,18 @@ void player::activate_special()
 		break;
 	}
 	remove_special();
+}
+
+void player::shuffle_next_special()
+{
+	std::vector<player_effects::specials> sp{player_effects::specials::all_friendly, player_effects::specials::slow_down, player_effects::specials::invulnerability};
+	std::random_shuffle(std::begin(sp), std::end(sp));
+	next_special=sp.front();
+}
+
+void player::trade_special()
+{
+	specials.clear();
+	specials.push_back(next_special);
+	shuffle_next_special();
 }

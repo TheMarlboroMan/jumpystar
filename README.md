@@ -13,8 +13,6 @@ Do better:
 	- Use templates to do the filters below distance.
 	- Perhaps high jump grants a bit of invulnerability while going up?.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
-	- What's the purpose of discarding items?. Is there any reward?
-		- There could be a reward if the best specials are only given when discarding others, for example. A naive implementation could go with a random good special given (shown before) and another replacing it once three items have been discarded. This would only make sense if "discard" is an action that would discard everything. More complicated approaches could be that combinations of weak specials yield better specials, but that could be tricky to manage in game (jumping, avoiding undesirable specials and crafting the neccesary recipes seems like a lot).
 
 Features:
 	- Day - Night cycle for the background: starts at midday, ends at night.
