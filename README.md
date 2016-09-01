@@ -10,6 +10,7 @@ Bugfix:
 
 Do better:
 
+	- Remove unused bonus items: those who can be traded.
 	- Use templates to do the filters below distance.
 	- Perhaps high jump grants a bit of invulnerability while going up?.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
