@@ -4,12 +4,14 @@ A happy, family oriented little platformer.
 
 Bugfix:
 
-	- Fix platforms on the far right (there's an assert there).
+	- Do better cancel jump.
+	- High jump should not be cancelled.
 	- Stunned enemies should block the pass for the player. If not, we can just walk past them and jump again.
-	- Do better jumping.
 
 Do better:
 
+	- Use templates to do the filters below distance.
+	- Perhaps high jump grants a bit of invulnerability while going up?.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
 	- What's the purpose of discarding items?. Is there any reward?
 		- There could be a reward if the best specials are only given when discarding others, for example. A naive implementation could go with a random good special given (shown before) and another replacing it once three items have been discarded. This would only make sense if "discard" is an action that would discard everything. More complicated approaches could be that combinations of weak specials yield better specials, but that could be tricky to manage in game (jumping, avoiding undesirable specials and crafting the neccesary recipes seems like a lot).
@@ -26,8 +28,10 @@ Features:
 		- We need more variety here. Think a while...
 		
 	- Scoring bonus with different points.
-	- Specials
-		- Score multiplier bonus.
+	- Specials: We need more regular specials so there's a point to the best of them.
+
+		- Throwing stuff that stuns enemies.
+
 	- Game speed: do no make it faster as it's done now.
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
 	- Add bonus random chance.

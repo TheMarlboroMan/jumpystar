@@ -1,6 +1,7 @@
 #include "draw_control.h"
 
 #include <stdexcept>
+#include <cassert>
 
 #include <templates/compatibility_patches.h>
 
@@ -22,10 +23,6 @@ void draw_control::set(size_t n)
 
 draw_struct& draw_control::operator[](size_t n)
 {
-	if(data.structs.size() <= n)
-	{
-		throw std::runtime_error("Requested draw_struct outside bounds ("+compat::to_string(n)+" of "+compat::to_string(data.structs.size())+")");
-	}
-	
+	assert(data.structs.size() > n);
 	return data.structs[n];
 }

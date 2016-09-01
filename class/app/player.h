@@ -63,7 +63,7 @@ class player:
 	t_box			previous_position;
 	states			state, wakestate;
 	player_input		p_input;
-	int			remaining_jumps, max_jumps, score, signals;
+	int			remaining_jumps, max_jumps, score, score_multiplier, signals;
 	bool			cancel_jump;
 	float			stunned_time;
 	std::vector<player_effects::specials>	specials;

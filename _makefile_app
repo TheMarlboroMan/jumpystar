@@ -21,11 +21,13 @@ $(DIR_O)player_trap.o \
 $(DIR_O)world.o \
 $(DIR_O)pickup.o \
 $(DIR_O)bonus_score.o \
+$(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_invulnerability.o \
 $(DIR_O)bonus_slow_down.o \
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_all_friendly.o \
 $(DIR_O)bonus_extend_trap.o\
+$(DIR_O)bonus_high_jump.o\
 $(DIR_O)enemy.o \
 $(DIR_O)projectile.o \
 $(DIR_O)flying_enemy.o \
@@ -105,6 +107,8 @@ $(DIR_APP)player.cpp
 
 $(DIR_O)world.o:\
 $(DIR_O)platform.o \
+$(DIR_O)bonus_score_multiplier.o \
+$(DIR_O)bonus_high_jump.o \
 $(DIR_O)bonus_score.o \
 $(DIR_O)bonus_all_friendly.o\
 $(DIR_O)bonus_extend_trap.o\
@@ -165,6 +169,18 @@ $(DIR_APP)drawable.h \
 $(DIR_APP)enemy.h\
 $(DIR_APP)enemy.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy.cpp -o $(DIR_O)enemy.o
+
+$(DIR_O)bonus_score_multiplier.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_score_multiplier.h\
+$(DIR_APP)bonus_score_multiplier.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_score_multiplier.cpp -o $(DIR_O)bonus_score_multiplier.o
+
+$(DIR_O)bonus_high_jump.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_high_jump.h\
+$(DIR_APP)bonus_high_jump.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_high_jump.cpp -o $(DIR_O)bonus_high_jump.o
 
 $(DIR_O)bonus_invulnerability.o:\
 $(DIR_O)pickup.o \

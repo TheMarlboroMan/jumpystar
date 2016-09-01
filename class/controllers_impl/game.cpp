@@ -103,6 +103,8 @@ void game_controller::draw(ldv::screen& screen)
 			case app_game::player_effects::specials::extend_trap:		hud_txt+="[_]";break;
 			case app_game::player_effects::specials::slow_down:		hud_txt+="[S]";break;
 			case app_game::player_effects::specials::invulnerability:	hud_txt+="[*]";break;
+			case app_game::player_effects::specials::high_jump:		hud_txt+="[J]";break;
+			case app_game::player_effects::specials::score_multiplier:	hud_txt+="[x]";break;
 		}	
 	}
 	
@@ -291,9 +293,9 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//projectiles...
-	for(auto& i : world.get_projectiles())
+	for(auto i : world.get_projectiles())
 	{
-		auto& p=i;
+		auto& p=*i;
 
 		if(pl.is_colliding_with(p) && pl.is_vulnerable())
 		{

@@ -8,7 +8,7 @@ player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
 	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
-	max_jumps(default_jump_quantity), score(0), signals(0),
+	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
 	cancel_jump(false)
 {
 	reset();
@@ -24,6 +24,7 @@ void player::reset()
 	remaining_jumps=0; //This is so a trap won't spawn when the game starts.
 	max_jumps=default_jump_quantity;
 	score=0;
+	score_multiplier=1;
 	signals=0;
 	cancel_jump=false;
 	specials.clear();
@@ -32,6 +33,7 @@ void player::reset()
 	specials_period[player_effects::specials::extend_trap]=0.f;
 	specials_period[player_effects::specials::slow_down]=0.f;
 	specials_period[player_effects::specials::invulnerability]=0.f;
+	specials_period[player_effects::specials::score_multiplier]=0.f;
 }
 
 void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
@@ -83,9 +85,10 @@ void player::transform_draw_struct(draw_control& dc)const
 
 	bool	with_triple_jump=specials_period.at(player_effects::specials::triple_jump),
 		with_extended_trap=specials_period.at(player_effects::specials::extend_trap),
-		with_invulnerability=specials_period.at(player_effects::specials::invulnerability);
+		with_invulnerability=specials_period.at(player_effects::specials::invulnerability),
+		with_score_multiplier=specials_period.at(player_effects::specials::score_multiplier);
 
-	steps+=with_triple_jump+with_extended_trap;
+	steps+=with_triple_jump+with_extended_trap+with_score_multiplier;
 
 	dc.set(steps);
 	auto& b=dc[curstep++];
@@ -106,32 +109,41 @@ void player::transform_draw_struct(draw_control& dc)const
 	b.set_color(color);
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 
+	int 	y_indicators=get_spatiable_y(),
+		x_indicators=get_spatiable_x()-5;
+		if(x_indicators < 0) x_indicators=0;
+
 	if(with_triple_jump)
 	{
+		y_indicators-=7;
 		auto& jump_indicator=dc[curstep++];
 		jump_indicator.set_color(ldv::rgba8(0, 0, 255, 255));
 		jump_indicator.set_type(draw_struct::types::polygon);
 		jump_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
 		jump_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
-		
-		int x=get_spatiable_x()-5;
-		if(x < 0) x=0;
-
-		jump_indicator.go_to({x, (int)get_spatiable_y()-5});
+		jump_indicator.go_to({x_indicators, y_indicators});
 	}
 
 	if(with_extended_trap)
 	{
+		y_indicators-=7;
 		auto& extend_trap_indicator=dc[curstep++];
 		extend_trap_indicator.set_color(ldv::rgba8(245, 120, 176, 255));
 		extend_trap_indicator.set_type(draw_struct::types::polygon);
 		extend_trap_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
 		extend_trap_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
-		
-		int x=get_spatiable_x()-5;
-		if(x < 0) x=0;
+		extend_trap_indicator.go_to({x_indicators, y_indicators});
+	}
 
-		extend_trap_indicator.go_to({x, (int)get_spatiable_y()-10});
+	if(with_score_multiplier)
+	{
+		y_indicators-=7;
+		auto& score_multiplier_indicator=dc[curstep++];
+		score_multiplier_indicator.set_color(ldv::rgba8(0, 0, 0, 255));
+		score_multiplier_indicator.set_type(draw_struct::types::polygon);
+		score_multiplier_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
+		score_multiplier_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
+		score_multiplier_indicator.go_to({x_indicators, y_indicators});
 	}
 }
 
@@ -173,12 +185,16 @@ void player::turn(float delta)
 						case player_effects::specials::slow_down: 
 							this->signals|=s_reset_slowdown; 
 						break;
+						case player_effects::specials::score_multiplier: 
+							score_multiplier=1;
+						break;
 			
 						//These are cases that won't apply but I prefer to list them
 						//instead of defaulting (in case new effects are added this
 						//will trigger a warning).
 						case player_effects::specials::invulnerability: break;
 						case player_effects::specials::all_friendly: break;
+						case player_effects::specials::high_jump: break;
 					}
 				}
 			}
@@ -223,6 +239,8 @@ void player::turn(float delta)
 		if(p_input.jump && remaining_jumps)
 		{
 			//TODO: Current speed downwards should count.
+
+			//TODO: This could be another method invoked by high jump too.
 			set_vector(-300.f, axis::y);
 			state=states::air;
 			--remaining_jumps;
@@ -240,6 +258,7 @@ void player::turn(float delta)
 		break;
 		case states::air:
 		{
+			//TODO: This should not work if activating high jump.
 			//Allow for shortening the jump if the button is not pressed.
 			float vy=get_vector_y();
 
@@ -297,7 +316,9 @@ void player::recieve_effects(player_effects pe)
 	if(pe.get_effects() & player_effects::extend_trap) add_special(player_effects::specials::extend_trap);
 	if(pe.get_effects() & player_effects::slow_down) add_special(player_effects::specials::slow_down);
 	if(pe.get_effects() & player_effects::invulnerability) add_special(player_effects::specials::invulnerability);
-	score+=pe.get_score();
+	if(pe.get_effects() & player_effects::high_jump) add_special(player_effects::specials::high_jump);
+	if(pe.get_effects() & player_effects::score_multiplier) add_special(player_effects::specials::score_multiplier);
+	score+=pe.get_score()*score_multiplier;
 }
 
 void player::add_special(player_effects::specials sp)
@@ -319,6 +340,8 @@ void player::activate_special()
 
 	switch(specials.front())
 	{
+		//TODO:Create new method to avoid referencing periods directly and assert that everything is cool.
+
 		case player_effects::specials::triple_jump:
 			max_jumps=extended_jump_quantity;
 			if(remaining_jumps==default_jump_quantity) remaining_jumps=extended_jump_quantity;
@@ -337,6 +360,16 @@ void player::activate_special()
 		break;
 		case player_effects::specials::invulnerability:
 			specials_period[player_effects::specials::invulnerability]=5.f;
+		break;
+		case player_effects::specials::high_jump:
+			set_vector(-500.f, axis::y);
+			remaining_jumps=max_jumps;
+			state=states::air;
+		break;
+		case player_effects::specials::score_multiplier:
+			//TODO: Maybe stack more of them????
+			score_multiplier=2;
+			specials_period[player_effects::specials::score_multiplier]=5.f;
 		break;
 	}
 	remove_special();

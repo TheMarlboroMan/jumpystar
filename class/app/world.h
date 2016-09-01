@@ -23,9 +23,9 @@ class world
 
 			world(const app_interfaces::spatiable&);
 
-	std::vector<std::unique_ptr<enemy>>& 		get_enemies() {return enemies;}
-	std::vector<projectile>& 			get_projectiles() {return projectiles;}
-	std::vector<std::unique_ptr<pickup>>&		get_pickups() {return pickups;}
+	std::vector<enemy *>		 		get_enemies();
+	std::vector<projectile *> 			get_projectiles();
+	std::vector<pickup *>				get_pickups();
 	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 

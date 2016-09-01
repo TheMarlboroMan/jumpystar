@@ -8,6 +8,8 @@
 #include "bonus_extend_trap.h"
 #include "bonus_slow_down.h"
 #include "bonus_invulnerability.h"
+#include "bonus_high_jump.h"
+#include "bonus_score_multiplier.h"
 
 #include "patrolling_enemy.h"
 #include "parabol_enemy.h"
@@ -131,7 +133,6 @@ and upwards to a fixed position, the equivalent of a whole screen up.
 void world::init()
 {
 	const float y=480.f;
-	
 	platforms.push_back({0.f,y,400});
 	generate_new_world_threshold();
 
@@ -220,9 +221,6 @@ void world::create_new_platform(float y)
 	float 	min_x=app::definitions::min_x_platform_position, 
 		max_x=app::definitions::max_x_platform_position-w;
 
-	//TODO: Perhaps we should favour the edges instead of the centered positions.
-	//The inverse normal (gauss) distribution would work but that's trash on windows.
-
 	//If there's a platform the range is recalculated near its edges.
 	if(platforms.size() > 1) //The baseline platform does not count for this!.
 	{		
@@ -232,24 +230,71 @@ void world::create_new_platform(float y)
 
 		min_x=left-app::definitions::max_w_platform_gap;
 		max_x=right+app::definitions::max_w_platform_gap-w;
-	}
 
-	//Clip to limits...
-	if(min_x < app::definitions::min_x_platform_position) min_x=app::definitions::min_x_platform_position;
-	if(max_x > app::definitions::max_x_platform_position) max_x=app::definitions::max_x_platform_position;
+		//Clip to limits...
+		if(min_x < app::definitions::min_x_platform_position) min_x=app::definitions::min_x_platform_position;
+		if(max_x+w > app::definitions::max_x_platform_position) max_x=app::definitions::max_x_platform_position-w;
+	}
 
 	//Generate and place.
 	tools::int_generator position_generator(min_x, max_x);
-	platforms.push_back({(float)position_generator()*app::definitions::unit,y,w*app::definitions::unit});
+	int pos=position_generator();
+	float 	x_pos=pos*app::definitions::unit,
+		w_pos=w*app::definitions::unit;
+
+	platforms.push_back({x_pos,y,(int)w_pos});
 
 	//TODO Fix this bug.
-	//assert(platforms.back().get_spatiable_ex() <= app::definitions::playground_width);
+	assert(platforms.back().get_spatiable_ex() <= app::definitions::playground_width);
+}
+
+//TODO: Filter below the line.
+std::vector<app_interfaces::drawable const *> world::get_drawables() const
+{
+	std::vector<app_interfaces::drawable const *> res;
+	for(const auto &p : platforms) res.push_back(&p);
+	for(const auto &p : pickups) res.push_back(p.get());
+	for(const auto &p : enemies) res.push_back(p.get());
+	for(const auto &p : projectiles) res.push_back(&p);
+	for(const auto &p : player_traps) res.push_back(&p);
+
+	return res;
 }
 
 std::vector<app_interfaces::spatiable const *> world::get_collidables() const
 {
 	std::vector<app_interfaces::spatiable const *> res;
-	for(const auto &p : platforms) res.push_back(&p);
+	for(auto& p : platforms) 
+		if(p.get_spatiable_ey() >= -distance)
+			res.push_back(&p);
+	return res;
+}
+
+std::vector<enemy *> world::get_enemies()
+{
+	std::vector<enemy *> res;
+	for(auto& p : enemies) 
+		if(p->get_spatiable_ey() >= -distance)
+			res.push_back(p.get());
+	return res;
+}
+
+std::vector<projectile *> world::get_projectiles()
+{
+	std::vector<projectile *> res;
+	for(auto& p : projectiles)
+		if(p.get_spatiable_ey() >= -distance)
+			res.push_back(&p);
+	return res;
+}
+
+std::vector<pickup *> world::get_pickups()
+{
+	std::vector<pickup *> res;
+	for(auto& p : pickups) 
+		if(p->get_spatiable_ey() >= -distance)
+			res.push_back(p.get());
+
 	return res;
 }
 
@@ -282,23 +327,31 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	enum class types{score, triple_jump, all_friendly, extend_trap, slow_down, invulnerability};
+	/** Powerful specials: all friendly, slow_down, invulnerability}
+	* Regular specials: triple jump, extended trap}
+	*/
 
-	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap, types::slow_down, types::invulnerability};
+//	enum class types{score, triple_jump, all_friendly, extend_trap, slow_down, invulnerability, high_jump};
+//	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap, types::slow_down, types::invulnerability};
+
+	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier};
+	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier};
 
 	std::unique_ptr<pickup> b{nullptr};
 
 	tools::int_generator gen(0, t.size()-1);
 
-//	if(t.size()) switch(t[gen()])
-	switch(types::triple_jump)
+	if(t.size()) switch(t[gen()])
+//	switch(types::high_jump)
 	{
 		case types::score:		b.reset(new bonus_score()); break;
 		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
-		case types::all_friendly:	b.reset(new bonus_all_friendly()); break;
+//		case types::all_friendly:	b.reset(new bonus_all_friendly()); break;
 		case types::extend_trap:	b.reset(new bonus_extend_trap()); break;
-		case types::slow_down:		b.reset(new bonus_slow_down()); break;
-		case types::invulnerability:	b.reset(new bonus_invulnerability()); break;
+//		case types::slow_down:		b.reset(new bonus_slow_down()); break;
+//		case types::invulnerability:	b.reset(new bonus_invulnerability()); break;
+		case types::high_jump:		b.reset(new bonus_high_jump()); break;
+		case types::score_multiplier:	b.reset(new bonus_score_multiplier()); break;
 	}	
 
 	auto	last_platform=platforms.back();
@@ -383,17 +436,6 @@ void world::evaluate_new_enemy()
 		enemy_chance_calculator.reset();
 		create_new_enemy();
 	}	
-}
-
-std::vector<app_interfaces::drawable const *> world::get_drawables() const
-{
-	std::vector<app_interfaces::drawable const *> res;
-	for(const auto &p : platforms) res.push_back(&p);
-	for(const auto &p : pickups) res.push_back(p.get());
-	for(const auto &p : enemies) res.push_back(p.get());
-	for(const auto &p : projectiles) res.push_back(&p);
-	for(const auto &p : player_traps) res.push_back(&p);
-	return res;
 }
 
 /** Projectiles will only be created below the "distance" line.
