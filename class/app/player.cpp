@@ -9,7 +9,8 @@ player::player()
 	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
 	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
-	cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump)
+	cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump),
+	facing(faces::right)
 {
 	reset();
 }
@@ -202,6 +203,7 @@ void player::turn(float delta)
 						case player_effects::specials::invulnerability: break;
 						case player_effects::specials::all_friendly: break;
 						case player_effects::specials::high_jump: break;
+						case player_effects::specials::projectile: break;
 					}
 				}
 			}
@@ -234,6 +236,9 @@ void player::turn(float delta)
 			else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
 
 			set_vector(v, axis::x);
+
+			//Control facing
+			facing=v > 0.f ? faces::right : faces::left;
 		}
 		else
 		{
@@ -327,6 +332,7 @@ void player::recieve_effects(player_effects pe)
 	if(pe.get_effects() & player_effects::invulnerability) add_special(player_effects::specials::invulnerability);
 	if(pe.get_effects() & player_effects::high_jump) add_special(player_effects::specials::high_jump);
 	if(pe.get_effects() & player_effects::score_multiplier) add_special(player_effects::specials::score_multiplier);
+	if(pe.get_effects() & player_effects::projectile) add_special(player_effects::specials::projectile);
 	score+=pe.get_score()*score_multiplier;
 }
 
@@ -379,6 +385,9 @@ void player::activate_special()
 			//TODO: Maybe stack more of them????
 			score_multiplier=2;
 			set_special_period(player_effects::specials::score_multiplier, 5.f);
+		break;
+		case player_effects::specials::projectile:
+			signals|=s_projectile;
 		break;
 	}
 	remove_special();

@@ -104,6 +104,7 @@ void game_controller::draw(ldv::screen& screen)
 			case app_game::player_effects::specials::invulnerability:	txt+="[*]";break;
 			case app_game::player_effects::specials::high_jump:		txt+="[J]";break;
 			case app_game::player_effects::specials::score_multiplier:	txt+="[x]";break;
+			case app_game::player_effects::specials::projectile:		txt+="[>]";break;
 		}	
 	};
 
@@ -202,6 +203,11 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	if(sig & app_game::player::s_reset_slowdown)
 	{
 		world.trigger_slowdown(false);
+	}
+
+	if(sig & app_game::player::s_projectile)
+	{
+		world.add_player_projectile(pl, pl.get_facing());
 	}
 }
 
@@ -304,7 +310,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 		if(pl.is_colliding_with(p) && pl.is_vulnerable())
 		{
-			p.collide_with_player();
+			p.collide_with_target();
 			pl.collide_with_harm_actor(p);
 		}
 	}

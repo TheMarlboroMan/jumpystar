@@ -15,9 +15,10 @@ class player:
 {
 	public:
 
-	enum		signals{s_all_friendly=1, s_extend_trap=2, s_reset_trap=4, s_slowdown=8, s_reset_slowdown=16};
+	enum				signals{s_all_friendly=1, s_extend_trap=2, s_reset_trap=4, s_slowdown=8, s_reset_slowdown=16, s_projectile=32};
 
 					player();
+	faces				get_facing() const {return facing;}
 	void				get_input(player_input pi) {p_input=pi;}
 	const t_box&			get_previous_position() const {return previous_position;}
 	void				update_previos_position() {previous_position=get_box();}
@@ -70,6 +71,7 @@ class player:
 	bool				cancel_jump;
 	float				stunned_time;
 	player_effects::specials	next_special;
+	faces				facing;
 	std::vector<player_effects::specials>	specials;
 	std::map<player_effects::specials, float> specials_period;
 	

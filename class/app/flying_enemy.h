@@ -20,9 +20,11 @@ class flying_enemy:
 	void			collide_with_player();
 	void			get_jumped_on();
 	void			get_trapped();
+	void			get_hit_by_projectile();
+	void			be_friendly(player_effects&);
 	bool			can_be_trapped() const {return false;}
 	bool			can_be_jumped_on() const {return false;}
-	void			be_friendly(player_effects&);
+	bool			can_be_hit_by_projectile() const {return false;}
 
 	//////////////////////
 	//Drawable.

@@ -35,7 +35,7 @@ void parabol_shooter_enemy::do_turn(float delta)
 
 			t_vector direction{0.f, -100.f};
 			direction.x=player_target.is_left_of(*this) ? -100.f : 100.f;
-			projectiles.push_back({{get_spatiable_cx(), get_spatiable_y()}, direction, projectile_def::types::curve});
+			projectiles.push_back({{get_spatiable_cx(), get_spatiable_y()}, direction, projectile_def::types::parabol, projectile_def::sides::enemy});
 		}
 	}
 }
@@ -74,4 +74,9 @@ void parabol_shooter_enemy::be_friendly(player_effects& pe)
 {
 	pe.add_score(50);
 	befriend();
+}
+
+void parabol_shooter_enemy::get_hit_by_projectile()
+{
+	stun(app::definitions::default_enemy_stun_time);
 }

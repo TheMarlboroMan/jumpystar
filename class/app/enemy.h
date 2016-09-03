@@ -9,16 +9,6 @@
 namespace app_game
 {
 
-//Definition for a projectile... Not all enemies will shoot, but whatever
-//makes it easier.
-class projectile_def
-{
-	public:
-	app_interfaces::spatiable::t_point		origin;
-	app_interfaces::motionable::t_vector		direction;
-	enum class types {curve}			type;
-};
-
 class enemy:
 	public motion_actor, //Let's just assume all are capable of moving.
 	public app_interfaces::drawable,
@@ -36,11 +26,13 @@ class enemy:
 
 	virtual void		do_turn(float delta);
 	virtual void		collide_with_player()=0;
+	virtual void		get_hit_by_projectile()=0;
 	virtual void		get_jumped_on()=0;
 	virtual void		get_trapped()=0;
 	virtual void		be_friendly(player_effects&)=0;
 	virtual bool		can_be_trapped() const=0;
 	virtual bool		can_be_jumped_on() const=0;
+	virtual bool		can_be_hit_by_projectile() const=0;
 
 	//////////////////////
 	//Drawable.

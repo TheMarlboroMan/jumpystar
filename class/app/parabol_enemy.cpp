@@ -55,3 +55,8 @@ void parabol_enemy::be_friendly(player_effects&)
 {
 	//Can't happen.
 }
+
+void parabol_enemy::get_hit_by_projectile()
+{
+
+}

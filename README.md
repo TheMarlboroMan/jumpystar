@@ -10,12 +10,14 @@ Better coding:
 
 Do better:
 
+	- When the player high jumps, the distance of the world moves with it.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
 	- More than one bonus per platform.
 	- More than one enemy per platform.
 
 Features:
+	- More score should be given for enemies trapped without stunning them.
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:
 		- Patrolling with pauses.
@@ -24,12 +26,13 @@ Features:
 		- Patrolling, no jumping on.
 		- Flying, stops and shoots directly at the player.
 		- Descending from a side of the screen, shooting nasty patterns.
+		- Cannon... Shoots at the player directly in an angle and stuff.
 		- We need more variety here. Think a while...
 		
 	- Scoring bonus with different points.
 	- Specials: We need more regular specials so there's a point to the best of them.
 
-		- Throwing stuff that stuns enemies.
+		- More stuff, maybe?
 
 	- Game speed: do no make it faster as it's done now.
 	- Add bonus random chance.

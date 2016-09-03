@@ -61,3 +61,8 @@ void flying_enemy::be_friendly(player_effects&)
 {
 	//Can't happen.
 }
+
+void flying_enemy::get_hit_by_projectile()
+{
+
+}

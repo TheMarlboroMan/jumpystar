@@ -21,11 +21,13 @@ $(DIR_O)player_trap.o \
 $(DIR_O)world.o \
 $(DIR_O)pickup.o \
 $(DIR_O)bonus_score.o \
+$(DIR_O)bonus_projectile.o \
 $(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_high_jump.o\
 $(DIR_O)enemy.o \
+$(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
 $(DIR_O)flying_enemy.o \
 $(DIR_O)parabol_enemy.o \
@@ -107,9 +109,10 @@ $(DIR_O)platform.o \
 $(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_high_jump.o \
 $(DIR_O)bonus_score.o \
+$(DIR_O)bonus_projectile.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_triple_jump.o \
-$(DIR_O)projectile.o \
+$(DIR_O)projectile_parabol.o \
 $(DIR_O)patrolling_enemy.o \
 $(DIR_O)flying_enemy.o \
 $(DIR_O)parabol_enemy.o \
@@ -125,6 +128,12 @@ $(DIR_APP)drawable.h \
 $(DIR_APP)player_trap.h\
 $(DIR_APP)player_trap.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player_trap.cpp -o $(DIR_O)player_trap.o
+
+$(DIR_O)projectile_parabol.o:\
+$(DIR_O)projectile.o\
+$(DIR_APP)projectile_parabol.h\
+$(DIR_APP)projectile_parabol.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)projectile_parabol.cpp -o $(DIR_O)projectile_parabol.o
 
 $(DIR_O)projectile.o:\
 $(DIR_O)motion_actor.o\
@@ -195,6 +204,12 @@ $(DIR_O)pickup.o \
 $(DIR_APP)bonus_score.h\
 $(DIR_APP)bonus_score.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_score.cpp -o $(DIR_O)bonus_score.o
+
+$(DIR_O)bonus_projectile.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_projectile.h\
+$(DIR_APP)bonus_projectile.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_projectile.cpp -o $(DIR_O)bonus_projectile.o
 
 $(DIR_O)pickup.o:\
 $(DIR_O)actor.o \

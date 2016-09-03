@@ -6,8 +6,10 @@
 #include "bonus_triple_jump.h"
 #include "bonus_extend_trap.h"
 #include "bonus_high_jump.h"
+#include "bonus_projectile.h"
 #include "bonus_score_multiplier.h"
 
+#include "projectile_parabol.h"
 #include "patrolling_enemy.h"
 #include "parabol_enemy.h"
 #include "parabol_shooter_enemy.h"
@@ -57,19 +59,10 @@ void world::do_turn(float delta)
 	delta *= game_speed_multipler;
 
 	//Evaluate possible deletions... traps are not discarded this way!.
-
-	for(auto& e : enemies) 
-		if(is_outside_bounds(*e, 32.f)) 
-			e->set_delete(true);
-
-	for(auto& b : pickups)
-		if(is_outside_bounds(*b, 32.f))
-			b->set_delete(true);
-
-	for(auto& p : projectiles)
-		if(is_outside_bounds(p, 32.f))
-			p.set_delete(true);
-
+	check_bounds_helper(enemies);
+	check_bounds_helper(pickups);
+	check_bounds_helper(projectiles);
+	check_bounds_helper(player_projectiles);
 	
 	if(player_traps.size()==max_player_traps)
 	{
@@ -78,9 +71,21 @@ void world::do_turn(float delta)
 
 	delete_discarded_objects();
 
-	for(auto& t : player_traps) t.do_turn(delta);
+	for(auto& t: player_traps) t.do_turn(delta);
 	for(auto& e: enemies) e->do_turn(delta);
-	for(auto& p: projectiles) p.do_turn(delta);
+	for(auto& p: projectiles) p->do_turn(delta);
+	for(auto& p: player_projectiles) 
+	{
+		p->do_turn(delta);
+		for(auto& e : enemies)
+		{
+			if(e->can_be_hit_by_projectile() && p->is_colliding_with(*e))
+			{
+				e->get_hit_by_projectile();
+				p->collide_with_target();
+			}
+		}
+	}
 
 	//If someone shot, turn the definitions into real projectiles.
 	if(projectile_definitions.size()) create_projectiles();
@@ -163,6 +168,7 @@ void world::reset()
 	enemies.clear();
 	pickups.clear();
 	projectiles.clear();
+	player_projectiles.clear();
 	projectile_definitions.clear();
 	player_traps.clear();
 	moving=false;
@@ -189,7 +195,8 @@ void world::delete_discarded_objects()
 {
 	delete_helper(platforms);
 	delete_helper_ptr(pickups);
-	delete_helper(projectiles);
+	delete_helper_ptr(projectiles);
+	delete_helper_ptr(player_projectiles);
 	delete_helper(player_traps);
 	delete_helper_ptr(enemies);
 }
@@ -252,7 +259,8 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	for(const auto &p : platforms) res.push_back(&p);
 	for(const auto &p : pickups) res.push_back(p.get());
 	for(const auto &p : enemies) res.push_back(p.get());
-	for(const auto &p : projectiles) res.push_back(&p);
+	for(const auto &p : projectiles) res.push_back(p.get());
+	for(const auto &p : player_projectiles) res.push_back(p.get());
 	for(const auto &p : player_traps) res.push_back(&p);
 
 	return res;
@@ -280,8 +288,17 @@ std::vector<projectile *> world::get_projectiles()
 {
 	std::vector<projectile *> res;
 	for(auto& p : projectiles)
-		if(p.get_spatiable_ey() >= -distance)
-			res.push_back(&p);
+		if(p->get_spatiable_ey() >= -distance)
+			res.push_back(p.get());
+	return res;
+}
+
+std::vector<projectile *> world::get_player_projectiles()
+{
+	std::vector<projectile *> res;
+	for(auto& p : player_projectiles)
+		if(p->get_spatiable_ey() >= -distance)
+			res.push_back(p.get());
 	return res;
 }
 
@@ -324,8 +341,8 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier};
-	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier};
+	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier, projectile};
+	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier, types::projectile};
 
 	std::unique_ptr<pickup> b{nullptr};
 
@@ -339,6 +356,7 @@ void world::create_new_bonus()
 		case types::extend_trap:	b.reset(new bonus_extend_trap()); break;
 		case types::high_jump:		b.reset(new bonus_high_jump()); break;
 		case types::score_multiplier:	b.reset(new bonus_score_multiplier()); break;
+		case types::projectile:		b.reset(new bonus_projectile()); break;
 	}	
 
 	auto	last_platform=platforms.back();
@@ -367,7 +385,7 @@ void world::create_new_enemy()
 	std::vector<types> t;
 	//TODO: Rework this values.
 	if(true || distance > 20.f) t.push_back(types::patrolling);
-	if(true || distance > 100.f) t.push_back(types::flying);
+	if(distance > 100.f) t.push_back(types::flying);
 	if(true || distance > 300.f) t.push_back(types::parabol_shooter);
 	if(true || distance > 300.f) t.push_back(types::parabol);
 
@@ -434,7 +452,13 @@ void world::create_projectiles()
 	{
 		if(pd.origin.y > -distance)
 		{
-			projectiles.push_back({pd.origin, pd.direction});
+			auto container=pd.side==projectile_def::sides::enemy ? &projectiles : &player_projectiles;
+			switch(pd.type)
+			{
+				case projectile_def::types::parabol:
+					container->push_back(std::unique_ptr<projectile>(new projectile_parabol(pd.origin, pd.direction)));
+				break;
+			}
 		}
 	}
 	
@@ -510,4 +534,13 @@ void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& 
 			e->be_friendly(pe);
 		}
 	}
+}
+
+void world::add_player_projectile(const motion_actor& pl, actor::faces f)
+{
+	projectile_definitions.push_back(
+		{{pl.get_spatiable_cx(), pl.get_spatiable_y()}, 
+		{f==actor::faces::left ? -300.f : 300.f, -50.f}, 
+		projectile_def::types::parabol, 
+		projectile_def::sides::player});
 }

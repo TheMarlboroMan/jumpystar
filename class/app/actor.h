@@ -19,6 +19,8 @@ class actor:
 {
 	public:
 
+	enum class		faces{right, left};
+
 				actor();
 				actor(float x, float y, unsigned int w, unsigned int h);
 

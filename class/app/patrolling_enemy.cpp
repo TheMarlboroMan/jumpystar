@@ -60,3 +60,8 @@ void patrolling_enemy::be_friendly(player_effects& pe)
 	pe.add_score(50);
 	befriend();
 }
+
+void patrolling_enemy::get_hit_by_projectile()
+{
+	stun(app::definitions::default_enemy_stun_time);
+}

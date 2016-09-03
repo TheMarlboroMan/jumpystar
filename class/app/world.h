@@ -9,6 +9,7 @@
 //locals
 #include "platform.h"
 #include "pickup.h"
+#include "projectile_def.h"
 #include "projectile.h"
 #include "enemy.h"
 #include "player_trap.h"
@@ -25,6 +26,7 @@ class world
 
 	std::vector<enemy *>		 		get_enemies();
 	std::vector<projectile *> 			get_projectiles();
+	std::vector<projectile *> 			get_player_projectiles();
 	std::vector<pickup *>				get_pickups();
 	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
@@ -39,6 +41,7 @@ class world
 	void 		trigger_all_friendly_signal(const app_interfaces::spatiable::t_box&, player_effects&);
 	void		trigger_slowdown(bool v) {slowdown=v; slowdown_process=true;}
 
+	void 		add_player_projectile(const motion_actor&, actor::faces);
 	void		do_turn(float delta);
 	void 		init();
 	void 		reset(); 
@@ -58,7 +61,7 @@ class world
 	void				evaluate_new_enemy();
 	void				delete_discarded_objects();
 	void				trigger_player_traps();
-
+	template<typename T> void 	check_bounds_helper(std::vector<T>&);
 	
 	static const size_t		max_player_traps=2;
 
@@ -66,7 +69,8 @@ class world
 	std::vector<platform>			platforms;
 	std::vector<std::unique_ptr<pickup>>	pickups;
 	std::vector<projectile_def>		projectile_definitions;
-	std::vector<projectile>			projectiles;
+	std::vector<std::unique_ptr<projectile>>	projectiles;
+	std::vector<std::unique_ptr<projectile>>	player_projectiles;
 	std::vector<player_trap>		player_traps;
 
 	const app_interfaces::spatiable&		player_position;
@@ -96,6 +100,14 @@ class world
 	}				bonus_chance_calculator, enemy_chance_calculator;
 };
 
+template<typename T> 
+void world::check_bounds_helper(std::vector<T>& container)
+{
+	for(auto& i : container) 
+		if(is_outside_bounds(*i, 32.f))
+			i->set_delete(true);
+}
+
 template<typename T>
 void delete_helper(std::vector<T>& container)
 {
@@ -111,5 +123,4 @@ void delete_helper_ptr(std::vector<T>& container)
 }
 
 }
-
 #endif

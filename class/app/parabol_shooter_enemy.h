@@ -2,6 +2,7 @@
 #define PARABOL_SHOOTER_ENEMY_H
 
 #include "enemy.h"
+#include "projectile_def.h"
 
 namespace app_game
 {
@@ -20,9 +21,11 @@ class parabol_shooter_enemy:
 	void			collide_with_player();
 	void			get_jumped_on();
 	void			get_trapped();
+	void			get_hit_by_projectile();
+	void			be_friendly(player_effects&);
 	bool			can_be_trapped() const {return true;}
 	bool			can_be_jumped_on() const {return !is_stunned() && !is_friendly();}
-	void			be_friendly(player_effects&);
+	bool			can_be_hit_by_projectile() const {return !is_friendly();}
 
 	//////////////////////
 	//Drawable.
