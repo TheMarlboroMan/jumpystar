@@ -22,10 +22,7 @@ $(DIR_O)world.o \
 $(DIR_O)pickup.o \
 $(DIR_O)bonus_score.o \
 $(DIR_O)bonus_score_multiplier.o \
-$(DIR_O)bonus_invulnerability.o \
-$(DIR_O)bonus_slow_down.o \
 $(DIR_O)bonus_triple_jump.o \
-$(DIR_O)bonus_all_friendly.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_high_jump.o\
 $(DIR_O)enemy.o \
@@ -110,7 +107,6 @@ $(DIR_O)platform.o \
 $(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_high_jump.o \
 $(DIR_O)bonus_score.o \
-$(DIR_O)bonus_all_friendly.o\
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)projectile.o \
@@ -182,18 +178,6 @@ $(DIR_APP)bonus_high_jump.h\
 $(DIR_APP)bonus_high_jump.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_high_jump.cpp -o $(DIR_O)bonus_high_jump.o
 
-$(DIR_O)bonus_invulnerability.o:\
-$(DIR_O)pickup.o \
-$(DIR_APP)bonus_invulnerability.h\
-$(DIR_APP)bonus_invulnerability.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_invulnerability.cpp -o $(DIR_O)bonus_invulnerability.o
-
-$(DIR_O)bonus_slow_down.o:\
-$(DIR_O)pickup.o \
-$(DIR_APP)bonus_slow_down.h\
-$(DIR_APP)bonus_slow_down.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_slow_down.cpp -o $(DIR_O)bonus_slow_down.o
-
 $(DIR_O)bonus_triple_jump.o:\
 $(DIR_O)pickup.o \
 $(DIR_APP)bonus_triple_jump.h\
@@ -205,12 +189,6 @@ $(DIR_O)pickup.o \
 $(DIR_APP)bonus_extend_trap.h\
 $(DIR_APP)bonus_extend_trap.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_extend_trap.cpp -o $(DIR_O)bonus_extend_trap.o
-
-$(DIR_O)bonus_all_friendly.o:\
-$(DIR_O)pickup.o \
-$(DIR_APP)bonus_all_friendly.h\
-$(DIR_APP)bonus_all_friendly.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_all_friendly.cpp -o $(DIR_O)bonus_all_friendly.o
 
 $(DIR_O)bonus_score.o:\
 $(DIR_O)pickup.o \

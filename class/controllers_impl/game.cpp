@@ -111,11 +111,8 @@ void game_controller::draw(ldv::screen& screen)
 	for(const auto& s: player_instance.get_specials())
 		draw_special(s, hud_txt);
 
-	if(player_instance.get_specials().size() == 3)
-	{
-		hud_txt+=" => ";
-		draw_special(player_instance.get_next_special(), hud_txt);
-	}
+	hud_txt+=player_instance.get_specials().size() == 3 ? " => " : " == ";
+	draw_special(player_instance.get_next_special(), hud_txt);
 	
 	hud_text.set_text(hud_txt);
 	hud_text.draw(screen);
@@ -282,12 +279,11 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 		if(pl.is_colliding_with(e))
 		{
-			//TODO: Review these conditions.
 			if(e.is_trapped())
 			{
 				e.be_friendly(pe);
 			}
-			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && !e.is_friendly() && e.is_under(pl.get_previous_position()) )
+			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && e.is_under(pl.get_previous_position()) )
 			{
 				e.get_jumped_on();
 				pl.bounce_on_enemy();

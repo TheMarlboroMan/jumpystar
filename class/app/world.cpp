@@ -4,10 +4,7 @@
 
 #include "bonus_score.h"
 #include "bonus_triple_jump.h"
-#include "bonus_all_friendly.h"
 #include "bonus_extend_trap.h"
-#include "bonus_slow_down.h"
-#include "bonus_invulnerability.h"
 #include "bonus_high_jump.h"
 #include "bonus_score_multiplier.h"
 
@@ -327,13 +324,6 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	/** Powerful specials: all friendly, slow_down, invulnerability}
-	* Regular specials: triple jump, extended trap}
-	*/
-
-//	enum class types{score, triple_jump, all_friendly, extend_trap, slow_down, invulnerability, high_jump};
-//	std::vector<types> t{types::score, types::triple_jump, types::all_friendly, types::extend_trap, types::slow_down, types::invulnerability};
-
 	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier};
 	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier};
 
@@ -346,10 +336,7 @@ void world::create_new_bonus()
 	{
 		case types::score:		b.reset(new bonus_score()); break;
 		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
-//		case types::all_friendly:	b.reset(new bonus_all_friendly()); break;
 		case types::extend_trap:	b.reset(new bonus_extend_trap()); break;
-//		case types::slow_down:		b.reset(new bonus_slow_down()); break;
-//		case types::invulnerability:	b.reset(new bonus_invulnerability()); break;
 		case types::high_jump:		b.reset(new bonus_high_jump()); break;
 		case types::score_multiplier:	b.reset(new bonus_score_multiplier()); break;
 	}	

@@ -21,7 +21,7 @@ class patrolling_enemy:
 	void			get_jumped_on();
 	void			get_trapped();
 	bool			can_be_trapped() const {return true;}
-	bool			can_be_jumped_on() const {return true;}
+	bool			can_be_jumped_on() const {return !is_stunned() && !is_friendly();}
 	void			be_friendly(player_effects&);
 
 	//////////////////////

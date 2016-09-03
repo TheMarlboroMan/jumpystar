@@ -34,7 +34,7 @@ class player:
 	bool				can_land_on_enemies() const {return state==states::air && get_vector().y > 0.f;}
 	//Player can't set traps after double jump or when falling from an edge.
 	bool				can_set_trap() const {return state==states::air && remaining_jumps;}
-	bool				is_vulnerable() const {return !specials_period.at(player_effects::specials::invulnerability) && state!=states::stunned;}
+	bool				is_vulnerable() const {return !specials_period.at(player_effects::specials::invulnerability) && !(state==states::stunned || state==states::high_jump);}
 	void 				collide_with_harm_actor(const motion_actor&);
 	void				reset();
 	void				bounce_on_enemy();
@@ -42,8 +42,7 @@ class player:
 	////////////////////
 	//Motion actor
 
-	//TODO: Check this, see if it works ok.
-	virtual float 	get_weight() const {return cancel_jump && get_vector().y < 0.f ? 1200.f : 600.f;}
+	virtual float 	get_weight() const {return 600.f;}
 	virtual float 	get_max_fall_speed() const {return 600.f;}
 	virtual void 	adjust_callback(float, motion_actor::adjust_pos);
 
@@ -60,8 +59,9 @@ class player:
 	void				remove_special();
 	void				activate_special();
 	void				trade_special();
+	void				set_special_period(player_effects::specials, float);
 
-	enum class 			states{ground, air, stunned};
+	enum class 			states{ground, air, high_jump, stunned};
 
 	t_box				previous_position;
 	states				state, wakestate;

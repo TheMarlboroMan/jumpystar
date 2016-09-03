@@ -46,9 +46,12 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 		case motion_actor::adjust_pos::bottom:
 			set_vector(0.f, axis::y);
 			
+			//TODO: If stunned, stop in your tracks
+
 			if(state!=states::ground)
 			{
-				set_vector(get_vector_x()/2.f, axis::x);
+				//This was annoying.
+//				set_vector(get_vector_x()/2.f, axis::x);
 
 				//TODO: This seems weird here, disjointed from the rest.
 				if(state!=states::stunned) 
@@ -59,6 +62,7 @@ void player::adjust_callback(float /*position*/, motion_actor::adjust_pos apos)
 				{
 					//Set the state for when we next wake.
 					wakestate=states::ground;
+					set_vector(get_vector_x()/2.f, axis::x);
 				}
 
 				remaining_jumps=max_jumps;
@@ -105,6 +109,7 @@ void player::transform_draw_struct(draw_control& dc)const
 	{
 		case states::ground: break;
 		case states::air: color=ldv::rgba8(0,160,0,alpha); break;
+		case states::high_jump: color=ldv::rgba8(160,160,0,alpha); break;
 		case states::stunned: color=ldv::rgba8(255,0,0,alpha); break;
 	}
 
@@ -208,7 +213,11 @@ void player::turn(float delta)
 		if(specials.size())
 		{
 			if(p_input.y < 0) activate_special();
-			else if(p_input.y > 0 && specials.size()==max_specials) trade_special();
+			else if(p_input.y > 0)
+			{
+				if(specials.size()==max_specials) trade_special();
+				else if(specials.size() > 0) remove_special();
+			}
 		}
 
 		//Horizontal movement...
@@ -236,40 +245,39 @@ void player::turn(float delta)
 			if(vr > 0.0) set_vector(v, axis::x);
 			else if(vr < 0.0) set_vector(-v, axis::x);
 		}
-
-		//Jumps...
-		if(p_input.jump && remaining_jumps)
-		{
-			//TODO: Current speed downwards should count.
-
-			//TODO: This could be another method invoked by high jump too.
-			set_vector(-300.f, axis::y);
-			state=states::air;
-			--remaining_jumps;
-			cancel_jump=false;
-		}
 	}
 
+	auto do_double_jump=[this]()
+	{
+		//TODO: Current speed downwards should count.
+		//TODO: This could be another method invoked by high jump too.
+		set_vector(-300.f, axis::y);
+		state=states::air;
+		--remaining_jumps;
+		cancel_jump=false;
+	};
+	
 	switch(state)
 	{
 		case states::ground:
-
+			if(p_input.jump && remaining_jumps) do_double_jump();
 		break;
 		case states::stunned:
 
 		break;
 		case states::air:
-		{
-			//TODO: This should not work if activating high jump.
-			//Allow for shortening the jump if the button is not pressed.
-			float vy=get_vector_y();
+			if(p_input.jump && remaining_jumps) do_double_jump();
 
 			//This takes form of a flag so the jump can only be cancelled once...
-			//This affects the weight of the player.
-			//TODO: I don't like the effect it has...
-			//TODO: Try it some other way please, I don't like this!!!!.
-			cancel_jump=cancel_jump || (!p_input.jump_press && vy < 0.f);
-		}
+			cancel_jump=cancel_jump || !p_input.jump_press;
+			if(cancel_jump && get_vector_y() < 0.f)
+			{
+				set_vector(get_vector_y() / 1.3f, axis::y);
+			}
+		break;
+		case states::high_jump:
+			//Revert state to air once peak has been reached.
+			if(get_vector_y() >= 0.f) state=states::air;
 		break;
 	}
 
@@ -289,16 +297,15 @@ void player::collide_with_harm_actor(const motion_actor& e)
 	//In case the player touches ground, wakestate will change.
 	wakestate=states::air;
 
-	//Guard against things like getting hit by a projectile mid air and landing into an enemy.
-	//Pushes the player far to the left.
-	if(abs(get_vector_x() < min_vector_hit_guard))
+	//Player will be pushed according to its own speed, enemy speed or a preset value.
+	struct push
 	{
-		set_vector({-200.f, -100.f});
-	}
-	else
-	{
-		set_vector({-e.get_vector_x(), -100.f});
-	}
+		float val;
+		bool operator<(const push& o) const {return abs(val) < abs(o.val);}
+	};
+
+	auto push_val=std::max({push{-get_vector_x()}, push{-e.get_vector_x()}, push{-100.f}});
+	set_vector({push_val.val, -100.f});
 }
 
 void player::bounce_on_enemy()
@@ -306,7 +313,7 @@ void player::bounce_on_enemy()
 	state=states::air;
 	remaining_jumps=1;
 
-	float vel=p_input.jump_press ? -300.f : -150.f;
+	float vel=p_input.jump_press ? -300.f : -200.f;
 	set_vector(vel, axis::y);
 }
 
@@ -347,34 +354,40 @@ void player::activate_special()
 		case player_effects::specials::triple_jump:
 			max_jumps=extended_jump_quantity;
 			if(remaining_jumps==default_jump_quantity) remaining_jumps=extended_jump_quantity;
-			specials_period[player_effects::specials::triple_jump]=10.f;
+			set_special_period(player_effects::specials::triple_jump, 10.f);
 		break;
 		case player_effects::specials::all_friendly:
 			signals|=s_all_friendly;
 		break;
 		case player_effects::specials::extend_trap:
 			signals|=s_extend_trap;
-			specials_period[player_effects::specials::extend_trap]=10.f;
+			set_special_period(player_effects::specials::extend_trap, 10.f);
 		break;
 		case player_effects::specials::slow_down:
 			signals|=s_slowdown;
-			specials_period[player_effects::specials::slow_down]=5.f;
+			set_special_period(player_effects::specials::slow_down, 5.f);
 		break;
 		case player_effects::specials::invulnerability:
-			specials_period[player_effects::specials::invulnerability]=5.f;
+			set_special_period(player_effects::specials::invulnerability, 5.f);
 		break;
 		case player_effects::specials::high_jump:
 			set_vector(-500.f, axis::y);
 			remaining_jumps=max_jumps;
-			state=states::air;
+			state=states::high_jump;
 		break;
 		case player_effects::specials::score_multiplier:
 			//TODO: Maybe stack more of them????
 			score_multiplier=2;
-			specials_period[player_effects::specials::score_multiplier]=5.f;
+			set_special_period(player_effects::specials::score_multiplier, 5.f);
 		break;
 	}
 	remove_special();
+}
+
+void player::set_special_period(player_effects::specials index, float ptime)
+{
+	assert(specials_period.count(index));
+	specials_period[index]=ptime;
 }
 
 void player::shuffle_next_special()
