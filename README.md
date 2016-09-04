@@ -21,7 +21,7 @@ Features:
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:
 		- Patrolling with pauses.
-		- Patrolling horizontal shooter.
+		- Patrolling horizontal shooter (walks, pauses, shoots, walks...).
 		- Flying, descending after the player.
 		- Patrolling, no jumping on.
 		- Flying, stops and shoots directly at the player.
@@ -29,7 +29,6 @@ Features:
 		- Cannon... Shoots at the player directly in an angle and stuff.
 		- We need more variety here. Think a while...
 		
-	- Scoring bonus with different points.
 	- Specials: We need more regular specials so there's a point to the best of them.
 
 		- More stuff, maybe?
@@ -38,8 +37,11 @@ Features:
 	- Add bonus random chance.
 	- Add score markers (each thing you pick up makes a score decoration appear).
 	- Platform types:
-		- Bouncy platforms.
+		- Bouncy platforms:
+			- Is easy to make the player bounce.
+			- It's hard to make the player jump higher if the jump is timed right.
 		- Completely solid platforms (except for high jump).
+			- These are a bitch to implement as are to be done in separate x and y passes.
 		- Moving platforms (no spawns), horizontal and... vertical?. Maybe even circular motions?
 			- Would involve platform "latching" for the player, with the risk of these latches being deleted.
 		- Other fun features (friction).

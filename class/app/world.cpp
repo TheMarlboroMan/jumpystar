@@ -63,6 +63,7 @@ void world::do_turn(float delta)
 	delta *= game_speed_multipler;
 
 	//Evaluate possible deletions... traps are not discarded this way!.
+	//TODO: A sexier template would get a vector of pointers to these.
 	check_bounds_helper(enemies);
 	check_bounds_helper(pickups);
 	check_bounds_helper(projectiles);
@@ -197,6 +198,7 @@ bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) c
 
 void world::delete_discarded_objects()
 {
+	//TODO: A sexier template would get a vector of pointers to vectors of this stuff.
 	delete_helper_ptr(platforms);
 	delete_helper_ptr(pickups);
 	delete_helper_ptr(projectiles);
@@ -251,6 +253,8 @@ void world::create_new_platform(float y)
 		w_pos=w*app::definitions::unit;
 	
 	//TODO: The types should appear as the game goes on.
+	//TODO: Don't add two dissapearing in a row... Or better, after
+	//a dissapearing or crumbling, add a regular.
 	enum class types{regular, dissapearing, crumbling};
 	std::vector<types> t{types::regular, types::dissapearing, types::crumbling};
 	std::unique_ptr<platform> p{nullptr};
@@ -355,12 +359,13 @@ void world::create_new_bonus()
 	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier, projectile};
 	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier, types::projectile};
 
-	std::unique_ptr<pickup> b{nullptr};
+	if(!t.size()) return;
 
+	std::unique_ptr<pickup> b{nullptr};
 	tools::int_generator gen(0, t.size()-1);
 
-	if(t.size()) switch(t[gen()])
-//	switch(types::high_jump)
+	switch(t[gen()])
+//	switch(types::score)
 	{
 		case types::score:		b.reset(new bonus_score()); break;
 		case types::triple_jump:	b.reset(new bonus_triple_jump()); break;
@@ -398,7 +403,7 @@ bool world::create_new_enemy()
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling);
 	if(distance > 100.f) t.push_back(types::flying);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 300.f) t.push_back(types::parabol_shooter);
-	if(true || distance > 300.f) t.push_back(types::parabol);
+	if(distance > 300.f) t.push_back(types::parabol);
 
 	tools::int_generator gen(0, t.size()-1);
 	std::unique_ptr<enemy> e{nullptr};

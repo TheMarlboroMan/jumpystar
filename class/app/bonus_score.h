@@ -20,6 +20,10 @@ class bonus_score:
 	//Drawable.
 
 	virtual void 		transform_draw_struct(draw_control&) const;
+	
+	private:
+
+	int			score;
 };
 
 }
