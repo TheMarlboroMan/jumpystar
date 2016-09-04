@@ -28,7 +28,7 @@ class world
 	std::vector<projectile *> 			get_projectiles();
 	std::vector<projectile *> 			get_player_projectiles();
 	std::vector<pickup *>				get_pickups();
-	std::vector<platform const *> 			get_platforms() const;
+	std::vector<platform *> 			get_platforms();
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 
 	int		get_camera_movement() const {return camera_movement;}

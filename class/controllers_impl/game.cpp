@@ -251,14 +251,12 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 	//world.
 	bool trap_set=false;
-	for(const auto& i : world.get_platforms())
+	for(auto& i : world.get_platforms())
 	{
-		const auto& p=*i;
+		auto& p=*i;
 
 		if(pl.is_colliding_with(p))
 		{
-			//TODO: Switch every part.
-
 			if(p.is_under(pl.get_previous_position()))
 			{
 				//Only one trap can be set per tic.
@@ -269,6 +267,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 				}
 
 				pl.adjust(p, app_game::motion_actor::adjust_pos::bottom);
+				p.get_jumped_on();
 			}
 		}
 	}

@@ -12,6 +12,7 @@ class platform_regular:
 	public:
 				platform_regular(float, float, int);
 
+	virtual void		get_jumped_on() {}
 	virtual void		do_turn(float) {}
 	virtual bool		can_spawn_ground_based_enemies() const {return true;}
 	virtual bool		can_spawn_bonus() const {return true;}

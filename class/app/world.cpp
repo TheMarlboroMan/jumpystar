@@ -4,6 +4,7 @@
 
 #include "platform_regular.h"
 #include "platform_dissapearing.h"
+#include "platform_crumbling.h"
 
 #include "bonus_score.h"
 #include "bonus_triple_jump.h"
@@ -249,8 +250,9 @@ void world::create_new_platform(float y)
 	float 	x_pos=pos*app::definitions::unit,
 		w_pos=w*app::definitions::unit;
 	
-	enum class types{regular, dissapearing};
-	std::vector<types> t{types::regular, types::dissapearing};
+	//TODO: The types should appear as the game goes on.
+	enum class types{regular, dissapearing, crumbling};
+	std::vector<types> t{types::regular, types::dissapearing, types::crumbling};
 	std::unique_ptr<platform> p{nullptr};
 	tools::int_generator gen(0, t.size()-1);
 
@@ -258,6 +260,7 @@ void world::create_new_platform(float y)
 	{
 		case types::regular:		p.reset(new platform_regular{x_pos,y,(int)w_pos}); break;
 		case types::dissapearing:	p.reset(new platform_dissapearing{x_pos,y,(int)w_pos}); break;
+		case types::crumbling:		p.reset(new platform_crumbling{x_pos,y,(int)w_pos}); break;
 	}
 	assert(p.get());
 	platforms.push_back(std::move(p));
@@ -278,9 +281,9 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	return res;
 }
 
-std::vector<platform const *> world::get_platforms() const
+std::vector<platform *> world::get_platforms()
 {
-	std::vector<platform const *> res;
+	std::vector<platform *> res;
 	for(auto& p : platforms) 
 		if(p->is_collidable() && p->get_spatiable_ey() >= -distance)
 			res.push_back(p.get());

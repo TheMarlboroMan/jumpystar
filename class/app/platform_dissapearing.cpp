@@ -1,13 +1,24 @@
 #include "platform_dissapearing.h"
 
+#include <vector>
+
+#include <class/number_generator.h>
+
 using namespace app_game;
 
 platform_dissapearing::platform_dissapearing(float x, float y , int w)
 	:platform(x, y, w, h), state{states::in}, 
-	period{2.f},
+	period{0.f}, max_period{0.f},
 	ltf(tools::linear_timed_function<float>::from_time(255, 0, 2.f))
 {
+	//Randomize period and initial state.
+	tools::int_generator g(2, 4);
+	max_period=g();
+	period=max_period;
 
+	std::vector<states> vs{states::in, states::trans_out, states::out, states::trans_in};
+	tools::int_generator vg(0, vs.size()-1);
+	state=vs[vg()];
 }
 
 void platform_dissapearing::transform_draw_struct(draw_control& dc)const
@@ -43,7 +54,7 @@ void platform_dissapearing::do_turn(float delta)
 
 	if(period <= 0.f)
 	{
-		period=2.f;
+		period=max_period;
 		switch(state)
 		{
 			case states::in:	

@@ -18,6 +18,7 @@ class platform:
 
 				platform(float, float, int, int);
 
+	virtual void		get_jumped_on()=0;
 	virtual void		do_turn(float)=0;
 	virtual bool		can_spawn_ground_based_enemies() const=0;
 	virtual bool		can_spawn_bonus() const=0;
