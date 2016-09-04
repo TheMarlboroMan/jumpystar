@@ -39,7 +39,6 @@ Features:
 	- Add score markers (each thing you pick up makes a score decoration appear).
 	- Platform types:
 		- Completely solid platforms (except for high jump).
-		- Dissapearing platforms (no spawns)
 		- Moving platforms (no spawns), horizontal and... vertical?. Maybe even circular motions?
 			- Would involve platform "latching" for the player, with the risk of these latches being deleted.
 		- Other fun features (friction).

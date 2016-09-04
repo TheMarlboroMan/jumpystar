@@ -28,7 +28,7 @@ class world
 	std::vector<projectile *> 			get_projectiles();
 	std::vector<projectile *> 			get_player_projectiles();
 	std::vector<pickup *>				get_pickups();
-	std::vector<app_interfaces::spatiable const *> 	get_collidables() const;
+	std::vector<platform const *> 			get_platforms() const;
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 
 	int		get_camera_movement() const {return camera_movement;}
@@ -46,13 +46,12 @@ class world
 	void 		init();
 	void 		reset(); 
 
-	void				create_new_enemy();
-
 	private:
 
 	bool				is_create_new() const;
 	void				create_new_platform(float y);
 	void				create_new_bonus();
+	bool				create_new_enemy();
 	void				create_projectiles();
 
 	void				generate_new_world();
@@ -65,13 +64,13 @@ class world
 	
 	static const size_t		max_player_traps=2;
 
-	std::vector<std::unique_ptr<enemy>>	enemies;
-	std::vector<platform>			platforms;
-	std::vector<std::unique_ptr<pickup>>	pickups;
-	std::vector<projectile_def>		projectile_definitions;
+	std::vector<std::unique_ptr<enemy>>		enemies;
+	std::vector<std::unique_ptr<platform>>		platforms;
+	std::vector<std::unique_ptr<pickup>>		pickups;
 	std::vector<std::unique_ptr<projectile>>	projectiles;
 	std::vector<std::unique_ptr<projectile>>	player_projectiles;
-	std::vector<player_trap>		player_traps;
+	std::vector<projectile_def>			projectile_definitions;
+	std::vector<player_trap>			player_traps;
 
 	const app_interfaces::spatiable&		player_position;
 

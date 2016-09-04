@@ -33,6 +33,8 @@ $(DIR_O)flying_enemy.o \
 $(DIR_O)parabol_enemy.o \
 $(DIR_O)parabol_shooter_enemy.o \
 $(DIR_O)patrolling_enemy.o \
+$(DIR_O)platform_dissapearing.o \
+$(DIR_O)platform_regular.o \
 $(DIR_O)platform.o \
 $(DIR_O)actor.o \
 $(DIR_O)motion_actor.o \
@@ -105,7 +107,8 @@ $(DIR_APP)player.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player.cpp -o $(DIR_O)player.o
 
 $(DIR_O)world.o:\
-$(DIR_O)platform.o \
+$(DIR_O)platform_regular.o \
+$(DIR_O)platform_dissapearing.o \
 $(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_high_jump.o \
 $(DIR_O)bonus_score.o \
@@ -219,6 +222,18 @@ $(DIR_APP)player_effects.h\
 $(DIR_APP)pickup.h\
 $(DIR_APP)pickup.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)pickup.cpp -o $(DIR_O)pickup.o
+
+$(DIR_O)platform_dissapearing.o:\
+$(DIR_O)platform.o \
+$(DIR_APP)platform_dissapearing.h\
+$(DIR_APP)platform_dissapearing.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)platform_dissapearing.cpp -o $(DIR_O)platform_dissapearing.o
+
+$(DIR_O)platform_regular.o:\
+$(DIR_O)platform.o \
+$(DIR_APP)platform_regular.h\
+$(DIR_APP)platform_regular.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)platform_regular.cpp -o $(DIR_O)platform_regular.o
 
 $(DIR_O)platform.o:\
 $(DIR_O)actor.o \

@@ -155,8 +155,8 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	if(pl.can_fall())
 	{
 		const auto below=pl.get_below_position();
-		const auto& co=world.get_collidables();
-		if(std::none_of(std::begin(co), std::end(co), [&below](const app_interfaces::spatiable * s) {return s->is_colliding_with(below);}))
+		const auto& plat=world.get_platforms();
+		if(std::none_of(std::begin(plat), std::end(plat), [&below](const app_interfaces::spatiable * s) {return s->is_colliding_with(below);}))
 		{
 			pl.set_falling();
 		}
@@ -164,6 +164,10 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	
 	pl.reset_signals();
 	pl.get_input(pi);
+
+	//TODO: If we're gonna have different platform models we must separate X and Y collisions,
+	//making this a lot more complicated.
+
 	pl.turn(delta);
 	pl.do_gravity(delta, app::definitions::default_gravity);
 	pl.update_previos_position();
@@ -186,29 +190,19 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	}
 
 	if(sig & app_game::player::s_extend_trap)
-	{
 		app_game::player_trap::set_width(app_game::player_trap::extended_width);
-	}
 
 	if(sig & app_game::player::s_reset_trap)
-	{
 		app_game::player_trap::set_width(app_game::player_trap::default_width);
-	}
 
 	if(sig & app_game::player::s_slowdown)
-	{
 		world.trigger_slowdown(true);
-	}
 
 	if(sig & app_game::player::s_reset_slowdown)
-	{
 		world.trigger_slowdown(false);
-	}
 
 	if(sig & app_game::player::s_projectile)
-	{
 		world.add_player_projectile(pl, pl.get_facing());
-	}
 }
 
 app_game::player_input game_controller::get_user_input(const dfw::input& input)
@@ -257,12 +251,14 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 	//world.
 	bool trap_set=false;
-	for(const auto& i : world.get_collidables())
+	for(const auto& i : world.get_platforms())
 	{
 		const auto& p=*i;
 
 		if(pl.is_colliding_with(p))
 		{
+			//TODO: Switch every part.
+
 			if(p.is_under(pl.get_previous_position()))
 			{
 				//Only one trap can be set per tic.
@@ -273,7 +269,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 				}
 
 				pl.adjust(p, app_game::motion_actor::adjust_pos::bottom);
-
 			}
 		}
 	}

@@ -2,6 +2,9 @@
 
 #include <cassert>
 
+#include "platform_regular.h"
+#include "platform_dissapearing.h"
+
 #include "bonus_score.h"
 #include "bonus_triple_jump.h"
 #include "bonus_extend_trap.h"
@@ -63,15 +66,18 @@ void world::do_turn(float delta)
 	check_bounds_helper(pickups);
 	check_bounds_helper(projectiles);
 	check_bounds_helper(player_projectiles);
+	check_bounds_helper(platforms);
 	
 	if(player_traps.size()==max_player_traps)
 	{
 		trigger_player_traps();
 	}
 
-	delete_discarded_objects();
+//TODO: There's another below, let's see what we need
+//	delete_discarded_objects();
 
 	for(auto& t: player_traps) t.do_turn(delta);
+	for(auto& p: platforms) p->do_turn(delta);
 	for(auto& e: enemies) e->do_turn(delta);
 	for(auto& p: projectiles) p->do_turn(delta);
 	for(auto& p: player_projectiles) 
@@ -112,11 +118,6 @@ void world::do_turn(float delta)
 			camera_movement=0;
 		}
 
-		//Now, let's see what platforms are out of bounds... There's a 
-		//slight margin that allows for the world to persist outside the screen
-		//for a bit.
-		for(auto& p : platforms) p.set_delete(is_outside_bounds(p, 32.f));
-
 		//And maybe create some other platforms...
 		if(is_create_new())
 		{
@@ -135,7 +136,9 @@ and upwards to a fixed position, the equivalent of a whole screen up.
 void world::init()
 {
 	const float y=480.f;
-	platforms.push_back({0.f,y,400});
+
+	//Base platform of the world.
+	platforms.push_back(std::unique_ptr<platform>{new platform_regular(0.f,y,app::definitions::playground_width)});
 	generate_new_world_threshold();
 
 	do
@@ -147,7 +150,7 @@ void world::init()
 void world::generate_new_world_threshold()
 {
 	tools::int_generator next_diff_gen(1 , 3);
-	world_threshold=platforms.back().get_spatiable_y()-(next_diff_gen()*app::definitions::unit);
+	world_threshold=platforms.back()->get_spatiable_y()-(next_diff_gen()*app::definitions::unit);
 }
 
 void world::generate_new_world()
@@ -193,7 +196,7 @@ bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) c
 
 void world::delete_discarded_objects()
 {
-	delete_helper(platforms);
+	delete_helper_ptr(platforms);
 	delete_helper_ptr(pickups);
 	delete_helper_ptr(projectiles);
 	delete_helper_ptr(player_projectiles);
@@ -228,7 +231,7 @@ void world::create_new_platform(float y)
 	//If there's a platform the range is recalculated near its edges.
 	if(platforms.size() > 1) //The baseline platform does not count for this!.
 	{		
-		auto	last_platform=platforms.back();
+		auto&	last_platform=*(platforms.back());
 		float 	left=app::world_to_grid(last_platform.get_spatiable_x()),
 			right=app::world_to_grid(last_platform.get_spatiable_ex());
 
@@ -245,18 +248,27 @@ void world::create_new_platform(float y)
 	int pos=position_generator();
 	float 	x_pos=pos*app::definitions::unit,
 		w_pos=w*app::definitions::unit;
+	
+	enum class types{regular, dissapearing};
+	std::vector<types> t{types::regular, types::dissapearing};
+	std::unique_ptr<platform> p{nullptr};
+	tools::int_generator gen(0, t.size()-1);
 
-	platforms.push_back({x_pos,y,(int)w_pos});
-
-	//TODO Fix this bug.
-	assert(platforms.back().get_spatiable_ex() <= app::definitions::playground_width);
+	switch(t[gen()])
+	{
+		case types::regular:		p.reset(new platform_regular{x_pos,y,(int)w_pos}); break;
+		case types::dissapearing:	p.reset(new platform_dissapearing{x_pos,y,(int)w_pos}); break;
+	}
+	assert(p.get());
+	platforms.push_back(std::move(p));
+	assert(platforms.back()->get_spatiable_ex() <= app::definitions::playground_width);
 }
 
 //TODO: Filter below the line.
 std::vector<app_interfaces::drawable const *> world::get_drawables() const
 {
 	std::vector<app_interfaces::drawable const *> res;
-	for(const auto &p : platforms) res.push_back(&p);
+	for(const auto &p : platforms) res.push_back(p.get());
 	for(const auto &p : pickups) res.push_back(p.get());
 	for(const auto &p : enemies) res.push_back(p.get());
 	for(const auto &p : projectiles) res.push_back(p.get());
@@ -266,12 +278,12 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	return res;
 }
 
-std::vector<app_interfaces::spatiable const *> world::get_collidables() const
+std::vector<platform const *> world::get_platforms() const
 {
-	std::vector<app_interfaces::spatiable const *> res;
+	std::vector<platform const *> res;
 	for(auto& p : platforms) 
-		if(p.get_spatiable_ey() >= -distance)
-			res.push_back(&p);
+		if(p->is_collidable() && p->get_spatiable_ey() >= -distance)
+			res.push_back(p.get());
 	return res;
 }
 
@@ -315,20 +327,16 @@ std::vector<pickup *> world::get_pickups()
 /** Evaluates wheter or not to create a bonus over a newly created platform. 
 The rules are as follows:
 
-- No bonus can exist on the world's lowest platform.
+	//TODO: Do we want to enforce that condition????
+- No bonus can exist on the world's lowest platform. 
 - The wider the last platform, the more possibilities a bonus appears.
 - Bonus change grows as more platforms are created and resets when a bonus is created.
 */
 
 void world::evaluate_new_bonus()
 {
-	if(platforms.size()==1)
-	{
-		return;
-	}
-
-	bonus_chance_calculator.increment(app::world_to_grid(platforms.back().get_spatiable_w()));
-	if(bonus_chance_calculator.evaluate())
+	bonus_chance_calculator.increment(app::world_to_grid(platforms.back()->get_spatiable_w()));
+	if(bonus_chance_calculator.evaluate() && platforms.back()->can_spawn_bonus())
 	{
 		bonus_chance_calculator.reset();
 		create_new_bonus();
@@ -359,7 +367,7 @@ void world::create_new_bonus()
 		case types::projectile:		b.reset(new bonus_projectile()); break;
 	}	
 
-	auto	last_platform=platforms.back();
+	auto&	last_platform=*(platforms.back());
 	float 	left=last_platform.get_spatiable_x(),
 		right=last_platform.get_spatiable_ex()-b->get_spatiable_w();
 
@@ -367,35 +375,34 @@ void world::create_new_bonus()
 	float x=x_generator();
 	float y=last_platform.get_spatiable_y()-b->get_spatiable_h()-app::definitions::bonus_units_above_ground;
 
-	if(b) 
-	{
-		b->set_position(x, y);
-		pickups.push_back(std::move(b));
-	}
+	assert(b.get());
+	b->set_position(x, y);
+	pickups.push_back(std::move(b));
 }
 
 /** By default the new patrolling enemy is placed on 0,0 and later is placed at the center
 top of the last platform, facing the direction set on its constructor.
 */
 
-void world::create_new_enemy()
+bool world::create_new_enemy()
 {
+	const auto&	last_platform=*(platforms.back());
+
 	enum class types {patrolling, parabol, flying, parabol_shooter};
 	
 	std::vector<types> t;
 	//TODO: Rework this values.
-	if(true || distance > 20.f) t.push_back(types::patrolling);
+	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling);
 	if(distance > 100.f) t.push_back(types::flying);
-	if(true || distance > 300.f) t.push_back(types::parabol_shooter);
+	if(last_platform.can_spawn_ground_based_enemies() && distance > 300.f) t.push_back(types::parabol_shooter);
 	if(true || distance > 300.f) t.push_back(types::parabol);
 
 	tools::int_generator gen(0, t.size()-1);
-
 	std::unique_ptr<enemy> e{nullptr};
-	const auto&	last_platform=platforms.back();
 
-	if(t.size()) switch(t[gen()])
-//	switch(types::parabol_shooter)
+	if(!t.size()) return false;
+
+	switch(t[gen()])
 	{
 		case types::patrolling:
 		{
@@ -415,31 +422,26 @@ void world::create_new_enemy()
 		break;
 	}
 
-	if(e.get()) enemies.push_back(std::move(e));
+	assert(e.get());
+	enemies.push_back(std::move(e));
+	return true; 
 }
 
 /** Evaluates if an enemy is to be created on top of last platform according to
 * these rules...
-* - No enemies should appear before a certain height is reached.
+* - No enemies should appear before a certain height is reached. The 
+	"create_new_enemy" function shall enforce that.
 * - As with bonus generators, there's a chance that increases as platforms are
 * created.
 */
 
 void world::evaluate_new_enemy()
 {
-	auto last_platform=platforms.back();
-
-	//TODO: Change this...
-	if(platforms.size()==1 || app::world_to_grid(last_platform.get_spatiable_w()) <= 2)
-	{
-		return;
-	}
-
+	auto& last_platform=*(platforms.back());
 	enemy_chance_calculator.increment(app::world_to_grid(last_platform.get_spatiable_w()));
 	if(enemy_chance_calculator.evaluate())
 	{
-		enemy_chance_calculator.reset();
-		create_new_enemy();
+		if(create_new_enemy()) enemy_chance_calculator.reset();
 	}	
 }
 
@@ -524,6 +526,10 @@ void world::trigger_player_traps()
 		}
 	}
 }
+
+/** All enemies inside the "limit" box (basically the whole screen) are made
+friendly. There's little more to it.
+*/
 
 void world::trigger_all_friendly_signal(const app_interfaces::spatiable::t_box& limit, player_effects& pe)
 {
