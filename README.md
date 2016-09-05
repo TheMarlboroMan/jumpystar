@@ -37,9 +37,6 @@ Features:
 	- Add bonus random chance.
 	- Add score markers (each thing you pick up makes a score decoration appear).
 	- Platform types:
-		- Bouncy platforms:
-			- Is easy to make the player bounce.
-			- It's hard to make the player jump higher if the jump is timed right.
 		- Completely solid platforms (except for high jump).
 			- These are a bitch to implement as are to be done in separate x and y passes.
 		- Moving platforms (no spawns), horizontal and... vertical?. Maybe even circular motions?

@@ -42,6 +42,7 @@ class game_controller:
 	void					do_world_turn(float);
 	void					do_player_turn(float, app_game::player&, app_game::player_input);
 	void 					do_player_collisions(app_game::player&);
+	void 					do_player_signals(app_game::player&);
 	app_game::player_input			get_user_input(const dfw::input&);
 
 	ldt::log&					log;

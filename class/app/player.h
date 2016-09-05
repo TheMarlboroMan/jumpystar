@@ -3,6 +3,7 @@
 
 #include "motion_actor.h"
 #include "drawable.h"
+#include "platform.h"
 #include "player_input.h"
 #include "player_effects.h"
 
@@ -31,6 +32,7 @@ class player:
 	int				get_signals() const {return signals;}
 	void				reset_signals() {signals=0;}
 	player_effects::specials	get_next_special() const {return next_special;}
+	void				land_on_platform(const platform&);
 
 	bool				can_land_on_enemies() const {return state==states::air && get_vector().y > 0.f;}
 	//Player can't set traps after double jump or when falling from an edge.
@@ -55,20 +57,22 @@ class player:
 
 	private:
 
+	enum class 			states{ground, air, high_jump, stunned};
+	enum class			jump_types{regular, high_jump, bounce_platform, bounce_enemy};
+
 	void				shuffle_next_special();
 	void				add_special(player_effects::specials);
 	void				remove_special();
 	void				activate_special();
 	void				trade_special();
 	void				set_special_period(player_effects::specials, float);
-
-	enum class 			states{ground, air, high_jump, stunned};
+	void				do_jump(jump_types);
 
 	t_box				previous_position;
 	states				state, wakestate;
 	player_input			p_input;
 	int				remaining_jumps, max_jumps, score, score_multiplier, signals;
-	bool				cancel_jump;
+	bool				can_cancel_jump, cancel_jump;
 	float				stunned_time;
 	player_effects::specials	next_special;
 	faces				facing;

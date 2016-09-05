@@ -22,6 +22,7 @@ struct definitions
 	//Half a screen height roughly.. Checked against the distance.
 			distance_threshold=550,
 	//Just what it seems.
+			playground_min_x=0,
 			playground_width=400,
 			playground_height=500,
 

@@ -19,6 +19,7 @@ class platform_crumbling:
 	virtual bool		can_spawn_ground_based_enemies() const {return false;}
 	virtual bool		can_spawn_bonus() const {return true;}
 	virtual bool		is_collidable() const {return true;}
+	virtual bool		is_bouncy() const {return false;}
 
 	//////////////////////
 	//Drawable.

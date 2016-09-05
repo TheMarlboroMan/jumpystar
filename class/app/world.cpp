@@ -5,6 +5,7 @@
 #include "platform_regular.h"
 #include "platform_dissapearing.h"
 #include "platform_crumbling.h"
+#include "platform_bouncy.h"
 
 #include "bonus_score.h"
 #include "bonus_triple_jump.h"
@@ -140,7 +141,8 @@ void world::init()
 	const float y=480.f;
 
 	//Base platform of the world.
-	platforms.push_back(std::unique_ptr<platform>{new platform_regular(0.f,y,app::definitions::playground_width)});
+//	platforms.push_back(std::unique_ptr<platform>{new platform_regular(0.f,y,app::definitions::playground_width)});
+	platforms.push_back(std::unique_ptr<platform>{new platform_bouncy(0.f,y,app::definitions::playground_width)});
 	generate_new_world_threshold();
 
 	do
@@ -255,8 +257,8 @@ void world::create_new_platform(float y)
 	//TODO: The types should appear as the game goes on.
 	//TODO: Don't add two dissapearing in a row... Or better, after
 	//a dissapearing or crumbling, add a regular.
-	enum class types{regular, dissapearing, crumbling};
-	std::vector<types> t{types::regular, types::dissapearing, types::crumbling};
+	enum class types{regular, dissapearing, crumbling, bouncy};
+	std::vector<types> t{types::regular, types::dissapearing, types::crumbling, types::bouncy};
 	std::unique_ptr<platform> p{nullptr};
 	tools::int_generator gen(0, t.size()-1);
 
@@ -265,6 +267,7 @@ void world::create_new_platform(float y)
 		case types::regular:		p.reset(new platform_regular{x_pos,y,(int)w_pos}); break;
 		case types::dissapearing:	p.reset(new platform_dissapearing{x_pos,y,(int)w_pos}); break;
 		case types::crumbling:		p.reset(new platform_crumbling{x_pos,y,(int)w_pos}); break;
+		case types::bouncy:		p.reset(new platform_bouncy{x_pos,y,(int)w_pos}); break;
 	}
 	assert(p.get());
 	platforms.push_back(std::move(p));

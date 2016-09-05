@@ -9,7 +9,7 @@ player::player()
 	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
 	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
-	cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump),
+	can_cancel_jump(false), cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump),
 	facing(faces::right)
 {
 	reset();
@@ -27,6 +27,7 @@ void player::reset()
 	score=0;
 	score_multiplier=1;
 	signals=0;
+	can_cancel_jump=false;
 	cancel_jump=false;
 	specials.clear();
 
@@ -252,29 +253,20 @@ void player::turn(float delta)
 		}
 	}
 
-	auto do_double_jump=[this]()
-	{
-		//TODO: Current speed downwards should count.
-		//TODO: This could be another method invoked by high jump too.
-		set_vector(-300.f, axis::y);
-		state=states::air;
-		--remaining_jumps;
-		cancel_jump=false;
-	};
-	
 	switch(state)
 	{
 		case states::ground:
-			if(p_input.jump && remaining_jumps) do_double_jump();
+			if(p_input.jump && remaining_jumps) do_jump(jump_types::regular);
 		break;
 		case states::stunned:
 
 		break;
 		case states::air:
-			if(p_input.jump && remaining_jumps) do_double_jump();
+			if(p_input.jump && remaining_jumps) do_jump(jump_types::regular);
 
 			//This takes form of a flag so the jump can only be cancelled once...
-			cancel_jump=cancel_jump || !p_input.jump_press;
+			cancel_jump=can_cancel_jump && (cancel_jump || !p_input.jump_press);
+
 			if(cancel_jump && get_vector_y() < 0.f)
 			{
 				set_vector(get_vector_y() / 1.3f, axis::y);
@@ -311,15 +303,6 @@ void player::collide_with_harm_actor(const motion_actor& e)
 
 	auto push_val=std::max({push{-get_vector_x()}, push{-e.get_vector_x()}, push{-100.f}});
 	set_vector({push_val.val, -100.f});
-}
-
-void player::bounce_on_enemy()
-{
-	state=states::air;
-	remaining_jumps=1;
-
-	float vel=p_input.jump_press ? -300.f : -200.f;
-	set_vector(vel, axis::y);
 }
 
 void player::recieve_effects(player_effects pe)
@@ -377,9 +360,7 @@ void player::activate_special()
 			set_special_period(player_effects::specials::invulnerability, 5.f);
 		break;
 		case player_effects::specials::high_jump:
-			set_vector(-500.f, axis::y);
-			remaining_jumps=max_jumps;
-			state=states::high_jump;
+			do_jump(jump_types::high_jump);
 		break;
 		case player_effects::specials::score_multiplier:
 			//TODO: Maybe stack more of them????
@@ -411,4 +392,67 @@ void player::trade_special()
 	specials.clear();
 	specials.push_back(next_special);
 	shuffle_next_special();
+}
+
+void player::land_on_platform(const platform& pl)
+{	
+	//TODO: Some constant please.
+	if(pl.is_bouncy() && get_vector_y() > 80.f)
+	{
+		do_jump(jump_types::bounce_platform);
+	}
+	else
+	{
+		adjust(pl, app_game::motion_actor::adjust_pos::bottom);
+	}
+}
+
+void player::bounce_on_enemy()
+{
+	do_jump(jump_types::bounce_enemy);
+}
+
+void player::do_jump(jump_types jt)
+{
+	//Base values, may be modified later.
+	state=jt==jump_types::high_jump ? states::high_jump : states::air;
+	cancel_jump=false;
+	float vel=0.f;
+
+	switch(jt)
+	{
+		case jump_types::regular:
+			can_cancel_jump=true;
+			vel=-300.f;
+			--remaining_jumps;
+		break;
+
+		case jump_types::high_jump:
+			can_cancel_jump=false;
+			vel=-500.f;
+			remaining_jumps=max_jumps;
+		break;
+
+		case jump_types::bounce_platform: //Takes into account downward speed.
+			can_cancel_jump=false;
+
+			vel=p_input.jump_press ? 
+					(-get_vector_y() / 4.f)*5.f : //Fifth fourths of the speed.
+					(-get_vector_y() / 4.f)*3.f; //Three fourths of the speed.
+
+			if(vel)
+			{
+				if(vel < -450.f) vel=-450.f;
+				remaining_jumps=0;
+			}
+		break;
+
+		case jump_types::bounce_enemy:
+			can_cancel_jump=true;
+			remaining_jumps=1;
+			vel=p_input.jump_press ? -300.f : -200.f;
+		break;
+	}
+
+	if(vel) set_vector(vel, axis::y);
 }

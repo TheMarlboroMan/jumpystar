@@ -23,6 +23,7 @@ class platform:
 	virtual bool		can_spawn_ground_based_enemies() const=0;
 	virtual bool		can_spawn_bonus() const=0;
 	virtual bool		is_collidable() const=0;
+	virtual bool		is_bouncy() const=0;
 
 	//////////////////////
 	//Drawable.

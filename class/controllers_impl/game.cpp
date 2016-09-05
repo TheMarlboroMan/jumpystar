@@ -9,6 +9,7 @@
 //local
 #include "input.h"
 #include "../app/player_input.h"
+#include "../app/definitions.h"
 
 using namespace app;
 
@@ -47,6 +48,7 @@ void game_controller::loop(dfw::input& input, float delta)
 	{
 		do_world_turn(delta);
 		do_player_turn(delta, player_instance, get_user_input(input));
+		do_player_signals(player_instance);
 		do_player_collisions(player_instance);
 	}
 }
@@ -173,18 +175,22 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	pl.update_previos_position();
 	pl.move(delta);
 
+	//TODO: This controls whether the player has fallen from the edge.
 	if(world.is_outside_bounds(pl))
 	{
 		reset();
 	}
+}
 
+void game_controller::do_player_signals(app_game::player& pl)
+{
 	//Signal treatment...
 	int sig=pl.get_signals();
 
 	if(sig & app_game::player::s_all_friendly)
 	{
 		auto cb=camera.get_focus_box();
-		app_game::player_effects pe;
+		app_game::player_effects pe; //Player effects are used for score purposes.
 		world.trigger_all_friendly_signal(app_interfaces::spatiable::t_box(cb.origin.x, cb.origin.y, cb.w, cb.h), pe);
 		pl.recieve_effects(pe);
 	}
@@ -227,15 +233,14 @@ app_game::player_input game_controller::get_user_input(const dfw::input& input)
 
 void game_controller::do_player_collisions(app_game::player& pl)
 {
-	//Horizontal limits...
-	//TODO: Add constants.
-	if(pl.get_spatiable_x() < 0.f)
+	//Horizontal world limits...
+	if(pl.get_spatiable_x() < app::definitions::playground_min_x)
 	{
-		pl.adjust(0.f, app_game::motion_actor::adjust_pos::left);
+		pl.adjust(app::definitions::playground_min_x, app_game::motion_actor::adjust_pos::left);
 	}
-	else if(pl.get_spatiable_ex() > 400.f)
+	else if(pl.get_spatiable_ex() > app::definitions::playground_width)
 	{
-		pl.adjust(400.f, app_game::motion_actor::adjust_pos::right);
+		pl.adjust(app::definitions::playground_width, app_game::motion_actor::adjust_pos::right);
 	}
 
 	//pickups
@@ -266,8 +271,10 @@ void game_controller::do_player_collisions(app_game::player& pl)
 					world.set_player_trap(pl, p); //Cute hearts :D.
 				}
 
-				pl.adjust(p, app_game::motion_actor::adjust_pos::bottom);
+				//TODO: I don't think I like this implementation at all... It's not very service-oriented
+				//and is weirdly reciprocating.
 				p.get_jumped_on();
+				pl.land_on_platform(p);
 			}
 		}
 	}
