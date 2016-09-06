@@ -6,6 +6,7 @@ Bugfix:
 
 Better coding:
 
+	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
 	- Use templates to do the filters below distance.
 
 Do better:
@@ -17,10 +18,10 @@ Do better:
 	- More than one enemy per platform.
 
 Features:
+	- Invulnerability after recovering from hit.
 	- More score should be given for enemies trapped without stunning them.
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:
-		- Patrolling with pauses.
 		- Patrolling horizontal shooter (walks, pauses, shoots, walks...).
 		- Flying, descending after the player.
 		- Patrolling, no jumping on.

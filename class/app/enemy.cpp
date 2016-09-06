@@ -31,23 +31,23 @@ void enemy::force_turnaround()
 	set_vector(-get_vector().x, axis::x);
 }
 
-void enemy::limit_sideways_patrol(float limit_left, float limit_right)
+void enemy::limit_sideways_patrol(const enemy_sideways_limit& esl)
 {
 	auto vx=get_vector_x();
 	if(vx < 0.f)
 	{
-		if(get_spatiable_x() <= limit_left)
+		if(get_spatiable_x() <= esl.left)
 		{
 			force_turnaround();
-			set_box_x(limit_left);
+			set_box_x(esl.left);
 		}
 	}
 	else if(vx > 0.f)
 	{
-		if(get_spatiable_ex() >= limit_right)
+		if(get_spatiable_ex() >= esl.right)
 		{
 			force_turnaround();
-			set_box_x(limit_right-get_spatiable_w());
+			set_box_x(esl.right-get_spatiable_w());
 		}
 	}
 }

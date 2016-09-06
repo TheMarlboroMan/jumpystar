@@ -9,6 +9,12 @@
 namespace app_game
 {
 
+class enemy_sideways_limit
+{
+	public:
+	float			left, right;
+};
+
 class enemy:
 	public motion_actor, //Let's just assume all are capable of moving.
 	public app_interfaces::drawable,
@@ -55,7 +61,7 @@ class enemy:
 	void			trap(float sp) {state_period=sp; state=states::trapped;}
 	void			befriend() {state=states::friendly;}
 	void			force_turnaround();
-	void 			limit_sideways_patrol(float, float);
+	void 			limit_sideways_patrol(const enemy_sideways_limit&);
 
 	private:
 	

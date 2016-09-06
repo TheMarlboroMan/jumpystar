@@ -1,30 +1,30 @@
-#ifndef FLYING_ENEMY_H
-#define FLYING_ENEMY_H
+#ifndef ENEMY_FLYING_H
+#define ENEMY_FLYING_H
 
 #include "enemy.h"
 
 namespace app_game
 {
 
-class flying_enemy:
+class enemy_flying:
 	public enemy
 {
 	public:
 
-				flying_enemy(float, float, float);
+				enemy_flying(const enemy_sideways_limit&, float);
 
 	//////////////////////
 	//Enemy
 
-	void			do_turn(float);
-	void			collide_with_player();
-	void			get_jumped_on();
-	void			get_trapped();
-	void			get_hit_by_projectile();
-	void			be_friendly(player_effects&);
-	bool			can_be_trapped() const {return false;}
-	bool			can_be_jumped_on() const {return false;}
-	bool			can_be_hit_by_projectile() const {return false;}
+	virtual void		do_turn(float);
+	virtual void		collide_with_player();
+	virtual void		get_jumped_on();
+	virtual void		get_trapped();
+	virtual void		get_hit_by_projectile();
+	virtual void		be_friendly(player_effects&);
+	virtual bool		can_be_trapped() const {return false;}
+	virtual bool		can_be_jumped_on() const {return false;}
+	virtual bool		can_be_hit_by_projectile() const {return false;}
 
 	//////////////////////
 	//Drawable.
@@ -43,7 +43,8 @@ class flying_enemy:
 
 	private:
 
-	float			limit_left, limit_right, period;
+	enemy_sideways_limit	limits;
+	float			period;
 
 	static const int	fixed_w=30,
 				fixed_h=10,

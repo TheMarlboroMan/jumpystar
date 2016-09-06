@@ -1,4 +1,4 @@
-#include "parabol_enemy.h"
+#include "enemy_flying_parabol.h"
 
 #include <class/number_generator.h>
 
@@ -6,9 +6,9 @@
 
 using namespace app_game;
 
-const float parabol_enemy::force=350.f;
+const float enemy_flying_parabol::force=350.f;
 
-parabol_enemy::parabol_enemy(t_point target_pos, float below_position)
+enemy_flying_parabol::enemy_flying_parabol(t_point target_pos, float below_position)
 	:enemy(fixed_w, fixed_h)
 {
 	tools::int_generator gen(-100, 100);
@@ -18,7 +18,7 @@ parabol_enemy::parabol_enemy(t_point target_pos, float below_position)
 	set_vector(ldt::for_points(get_spatiable_x(), get_spatiable_y(), target_pos.x, target_pos.y)*force);
 }
 
-void parabol_enemy::do_turn(float delta)
+void enemy_flying_parabol::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
@@ -26,7 +26,7 @@ void parabol_enemy::do_turn(float delta)
 	do_gravity(delta, app::definitions::default_gravity);
 }
 
-void parabol_enemy::transform_draw_struct(draw_control& dc)const
+void enemy_flying_parabol::transform_draw_struct(draw_control& dc)const
 {
 	dc.set(1);
 	auto& b=dc[0];
@@ -36,27 +36,27 @@ void parabol_enemy::transform_draw_struct(draw_control& dc)const
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
-void parabol_enemy::collide_with_player()
+void enemy_flying_parabol::collide_with_player()
 {
 	//DO NOTHING...
 }
 
-void parabol_enemy::get_jumped_on()
+void enemy_flying_parabol::get_jumped_on()
 {
 	//Can't happen.
 }
 
-void parabol_enemy::get_trapped()
+void enemy_flying_parabol::get_trapped()
 {
 	//Can't happen.
 }
 
-void parabol_enemy::be_friendly(player_effects&)
+void enemy_flying_parabol::be_friendly(player_effects&)
 {
 	//Can't happen.
 }
 
-void parabol_enemy::get_hit_by_projectile()
+void enemy_flying_parabol::get_hit_by_projectile()
 {
 
 }

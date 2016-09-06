@@ -1,32 +1,34 @@
-#include "patrolling_enemy.h"
+#include "enemy_patrolling.h"
 
 #include "definitions.h"
 
 using namespace app_game;
 
-patrolling_enemy::patrolling_enemy(float pleft, float pright, float pbottom)
+enemy_patrolling::enemy_patrolling(const enemy_sideways_limit& esl, float pbottom)
 	:enemy(fixed_w, fixed_h),
-	limit_left(pleft), limit_right(pright)
+	limits(esl)
 {
 	//TODO: Perhaps they could come in different speeds :).
 	set_vector({-100.f, 0.f});
 
-	float x=pright-( (pright-pleft) / 2);
+	//TODO: This code is repeated... Could directly go into the enemy base class.
+
+	float x=limits.right-( (limits.right-limits.left) / 2);
 	float y=pbottom-get_spatiable_h();
 	set_position(x, y);
 }
 
-void patrolling_enemy::do_turn(float delta)
+void enemy_patrolling::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
 	if(!is_active()) return;
 
 	move(delta);
-	limit_sideways_patrol(limit_left, limit_right);
+	limit_sideways_patrol(limits);
 }
 
-void patrolling_enemy::transform_draw_struct(draw_control& dc)const
+void enemy_patrolling::transform_draw_struct(draw_control& dc)const
 {
 	dc.set(1);
 	auto &b=dc[0];
@@ -40,28 +42,28 @@ void patrolling_enemy::transform_draw_struct(draw_control& dc)const
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
-void patrolling_enemy::collide_with_player()
+void enemy_patrolling::collide_with_player()
 {
 	force_turnaround();
 }
 
-void patrolling_enemy::get_jumped_on()
+void enemy_patrolling::get_jumped_on()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }
 
-void patrolling_enemy::get_trapped()
+void enemy_patrolling::get_trapped()
 {
 	trap(app::definitions::default_enemy_trap_time);
 }
 
-void patrolling_enemy::be_friendly(player_effects& pe)
+void enemy_patrolling::be_friendly(player_effects& pe)
 {
 	pe.add_score(50);
 	befriend();
 }
 
-void patrolling_enemy::get_hit_by_projectile()
+void enemy_patrolling::get_hit_by_projectile()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }

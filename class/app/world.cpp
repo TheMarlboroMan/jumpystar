@@ -15,10 +15,11 @@
 #include "bonus_score_multiplier.h"
 
 #include "projectile_parabol.h"
-#include "patrolling_enemy.h"
-#include "parabol_enemy.h"
-#include "parabol_shooter_enemy.h"
-#include "flying_enemy.h"
+#include "enemy_patrolling.h"
+#include "enemy_patrolling_pause.h"
+#include "enemy_flying_parabol.h"
+#include "enemy_parabol_shooter.h"
+#include "enemy_flying.h"
 
 //#include <class/number_generator.h>
 
@@ -141,8 +142,8 @@ void world::init()
 	const float y=480.f;
 
 	//Base platform of the world.
-//	platforms.push_back(std::unique_ptr<platform>{new platform_regular(0.f,y,app::definitions::playground_width)});
-	platforms.push_back(std::unique_ptr<platform>{new platform_bouncy(0.f,y,app::definitions::playground_width)});
+	platforms.push_back(std::unique_ptr<platform>{new platform_regular(0.f,y,app::definitions::playground_width)});
+//	platforms.push_back(std::unique_ptr<platform>{new platform_bouncy(0.f,y,app::definitions::playground_width)});
 	generate_new_world_threshold();
 
 	do
@@ -262,7 +263,8 @@ void world::create_new_platform(float y)
 	std::unique_ptr<platform> p{nullptr};
 	tools::int_generator gen(0, t.size()-1);
 
-	switch(t[gen()])
+//	switch(t[gen()])
+	switch(types::regular)
 	{
 		case types::regular:		p.reset(new platform_regular{x_pos,y,(int)w_pos}); break;
 		case types::dissapearing:	p.reset(new platform_dissapearing{x_pos,y,(int)w_pos}); break;
@@ -399,11 +401,12 @@ bool world::create_new_enemy()
 {
 	const auto&	last_platform=*(platforms.back());
 
-	enum class types {patrolling, parabol, flying, parabol_shooter};
+	enum class types {patrolling, patrolling_pause, parabol, flying, parabol_shooter};
 	
 	std::vector<types> t;
 	//TODO: Rework this values.
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling);
+	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling_pause);
 	if(distance > 100.f) t.push_back(types::flying);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 300.f) t.push_back(types::parabol_shooter);
 	if(distance > 300.f) t.push_back(types::parabol);
@@ -411,25 +414,27 @@ bool world::create_new_enemy()
 	tools::int_generator gen(0, t.size()-1);
 	std::unique_ptr<enemy> e{nullptr};
 
-	if(!t.size()) return false;
+	float 	left=last_platform.get_spatiable_x(),
+		right=last_platform.get_spatiable_ex();
 
-	switch(t[gen()])
+	//if(!t.size()) return false;
+//	switch(t[gen()])
+	switch(types::patrolling_pause)
 	{
 		case types::patrolling:
-		{
-			float 	left=last_platform.get_spatiable_x(),
-				right=last_platform.get_spatiable_ex();
-			e.reset(new patrolling_enemy{left, right, last_platform.get_spatiable_y()});
-		}
+			e.reset(new enemy_patrolling{{left, right}, last_platform.get_spatiable_y()});
+		break;
+		case types::patrolling_pause:
+			e.reset(new enemy_patrolling_pause{{left, right}, last_platform.get_spatiable_y()});
 		break;
 		case types::parabol:
-			e.reset(new parabol_enemy(player_position.get_spatiable_position(), app::definitions::playground_height-distance));
+			e.reset(new enemy_flying_parabol(player_position.get_spatiable_position(), app::definitions::playground_height-distance));
 		break;
 		case types::flying:
-			e.reset(new flying_enemy{0.f, app::definitions::playground_width, last_platform.get_spatiable_y()});
+			e.reset(new enemy_flying{{0.f, app::definitions::playground_width}, last_platform.get_spatiable_y()});
 		break;
 		case types::parabol_shooter:
-			e.reset(new parabol_shooter_enemy(projectile_definitions, player_position, last_platform));
+			e.reset(new enemy_parabol_shooter(projectile_definitions, player_position, last_platform));
 		break;
 	}
 

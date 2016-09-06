@@ -29,10 +29,11 @@ $(DIR_O)bonus_high_jump.o\
 $(DIR_O)enemy.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
-$(DIR_O)flying_enemy.o \
-$(DIR_O)parabol_enemy.o \
-$(DIR_O)parabol_shooter_enemy.o \
-$(DIR_O)patrolling_enemy.o \
+$(DIR_O)enemy_flying.o \
+$(DIR_O)enemy_flying_parabol.o \
+$(DIR_O)enemy_parabol_shooter.o \
+$(DIR_O)enemy_patrolling.o \
+$(DIR_O)enemy_patrolling_pause.o \
 $(DIR_O)platform_bouncy.o \
 $(DIR_O)platform_crumbling.o \
 $(DIR_O)platform_dissapearing.o \
@@ -120,10 +121,11 @@ $(DIR_O)bonus_projectile.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)projectile_parabol.o \
-$(DIR_O)patrolling_enemy.o \
-$(DIR_O)flying_enemy.o \
-$(DIR_O)parabol_enemy.o \
-$(DIR_O)parabol_shooter_enemy.o \
+$(DIR_O)enemy_patrolling.o \
+$(DIR_O)enemy_patrolling_pause.o \
+$(DIR_O)enemy_flying.o \
+$(DIR_O)enemy_flying_parabol.o \
+$(DIR_O)enemy_parabol_shooter.o \
 $(DIR_APP)world.h\
 $(DIR_APP)world.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)world.cpp -o $(DIR_O)world.o
@@ -150,29 +152,35 @@ $(DIR_APP)projectile.h\
 $(DIR_APP)projectile.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)projectile.cpp -o $(DIR_O)projectile.o
 
-$(DIR_O)parabol_shooter_enemy.o:\
+$(DIR_O)enemy_parabol_shooter.o:\
 $(DIR_O)enemy.o\
-$(DIR_APP)parabol_shooter_enemy.h\
-$(DIR_APP)parabol_shooter_enemy.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)parabol_shooter_enemy.cpp -o $(DIR_O)parabol_shooter_enemy.o
+$(DIR_APP)enemy_parabol_shooter.h\
+$(DIR_APP)enemy_parabol_shooter.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_parabol_shooter.cpp -o $(DIR_O)enemy_parabol_shooter.o
 
-$(DIR_O)flying_enemy.o:\
+$(DIR_O)enemy_flying.o:\
 $(DIR_O)enemy.o\
-$(DIR_APP)flying_enemy.h\
-$(DIR_APP)flying_enemy.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)flying_enemy.cpp -o $(DIR_O)flying_enemy.o
+$(DIR_APP)enemy_flying.h\
+$(DIR_APP)enemy_flying.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_flying.cpp -o $(DIR_O)enemy_flying.o
 
-$(DIR_O)parabol_enemy.o:\
+$(DIR_O)enemy_flying_parabol.o:\
 $(DIR_O)enemy.o\
-$(DIR_APP)parabol_enemy.h\
-$(DIR_APP)parabol_enemy.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)parabol_enemy.cpp -o $(DIR_O)parabol_enemy.o
+$(DIR_APP)enemy_flying_parabol.h\
+$(DIR_APP)enemy_flying_parabol.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_flying_parabol.cpp -o $(DIR_O)enemy_flying_parabol.o
 
-$(DIR_O)patrolling_enemy.o:\
+$(DIR_O)enemy_patrolling_pause.o:\
 $(DIR_O)enemy.o\
-$(DIR_APP)patrolling_enemy.h\
-$(DIR_APP)patrolling_enemy.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)patrolling_enemy.cpp -o $(DIR_O)patrolling_enemy.o
+$(DIR_APP)enemy_patrolling_pause.h\
+$(DIR_APP)enemy_patrolling_pause.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_patrolling_pause.cpp -o $(DIR_O)enemy_patrolling_pause.o
+
+$(DIR_O)enemy_patrolling.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)enemy_patrolling.h\
+$(DIR_APP)enemy_patrolling.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_patrolling.cpp -o $(DIR_O)enemy_patrolling.o
 
 $(DIR_O)enemy.o:\
 $(DIR_O)motion_actor.o\

@@ -1,4 +1,4 @@
-#include "parabol_shooter_enemy.h"
+#include "enemy_parabol_shooter.h"
 
 #include <class/number_generator.h>
 
@@ -6,7 +6,7 @@
 
 using namespace app_game;
 
-parabol_shooter_enemy::parabol_shooter_enemy(std::vector<projectile_def>& vp, const app_interfaces::spatiable& pt, const app_interfaces::spatiable& pl)
+enemy_parabol_shooter::enemy_parabol_shooter(std::vector<projectile_def>& vp, const app_interfaces::spatiable& pt, const app_interfaces::spatiable& pl)
 	:enemy(fixed_w, fixed_h),
 	projectiles(vp), player_target(pt), period(0.f)
 {
@@ -18,7 +18,7 @@ parabol_shooter_enemy::parabol_shooter_enemy(std::vector<projectile_def>& vp, co
 	set_position(x, y);
 }
 
-void parabol_shooter_enemy::do_turn(float delta)
+void enemy_parabol_shooter::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 
@@ -40,7 +40,7 @@ void parabol_shooter_enemy::do_turn(float delta)
 	}
 }
 
-void parabol_shooter_enemy::transform_draw_struct(draw_control& dc)const
+void enemy_parabol_shooter::transform_draw_struct(draw_control& dc)const
 {
 	dc.set(1);
 	auto &b=dc[0];
@@ -55,28 +55,28 @@ void parabol_shooter_enemy::transform_draw_struct(draw_control& dc)const
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
-void parabol_shooter_enemy::collide_with_player()
+void enemy_parabol_shooter::collide_with_player()
 {
 
 }
 
-void parabol_shooter_enemy::get_jumped_on()
+void enemy_parabol_shooter::get_jumped_on()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }
 
-void parabol_shooter_enemy::get_trapped()
+void enemy_parabol_shooter::get_trapped()
 {
 	trap(app::definitions::default_enemy_trap_time);
 }
 
-void parabol_shooter_enemy::be_friendly(player_effects& pe)
+void enemy_parabol_shooter::be_friendly(player_effects& pe)
 {
 	pe.add_score(50);
 	befriend();
 }
 
-void parabol_shooter_enemy::get_hit_by_projectile()
+void enemy_parabol_shooter::get_hit_by_projectile()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }

@@ -1,5 +1,5 @@
-#ifndef PARABOL_SHOOTER_ENEMY_H
-#define PARABOL_SHOOTER_ENEMY_H
+#ifndef ENEMY_PARABOL_SHOOTER_H
+#define ENEMY_PARABOL_SHOOTER_H
 
 #include "enemy.h"
 #include "projectile_def.h"
@@ -7,25 +7,25 @@
 namespace app_game
 {
 
-class parabol_shooter_enemy:
+class enemy_parabol_shooter:
 	public enemy
 {
 	public:
 
-				parabol_shooter_enemy(std::vector<projectile_def>&, const app_interfaces::spatiable&, const app_interfaces::spatiable&);
+				enemy_parabol_shooter(std::vector<projectile_def>&, const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 
 	//////////////////////
 	//Enemy
 
-	void			do_turn(float);
-	void			collide_with_player();
-	void			get_jumped_on();
-	void			get_trapped();
-	void			get_hit_by_projectile();
-	void			be_friendly(player_effects&);
-	bool			can_be_trapped() const {return true;}
-	bool			can_be_jumped_on() const {return !is_stunned() && !is_friendly();}
-	bool			can_be_hit_by_projectile() const {return !is_friendly();}
+	virtual void		do_turn(float);
+	virtual void		collide_with_player();
+	virtual void		get_jumped_on();
+	virtual void		get_trapped();
+	virtual void		get_hit_by_projectile();
+	virtual void		be_friendly(player_effects&);
+	virtual bool		can_be_trapped() const {return true;}
+	virtual bool		can_be_jumped_on() const {return !is_stunned() && !is_friendly();}
+	virtual bool		can_be_hit_by_projectile() const {return !is_friendly();}
 
 	//////////////////////
 	//Drawable.

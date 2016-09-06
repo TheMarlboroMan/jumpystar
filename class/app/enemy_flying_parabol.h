@@ -1,29 +1,29 @@
-#ifndef PARABOL_ENEMY_H
-#define PARABOL_ENEMY_H
+#ifndef ENEMY_FLYING_PARABOL_H
+#define ENEMY_FLYING_PARABOL_H
 
 #include "enemy.h"
 
 namespace app_game
 {
 
-class parabol_enemy:
+class enemy_flying_parabol:
 	public enemy
 {
 	public:
 
-				parabol_enemy(t_point, float);
+				enemy_flying_parabol(t_point, float);
 
 	//////////////////////
 	//Enemy.
-	void			do_turn(float);
-	void			collide_with_player();
-	void			get_jumped_on();
-	void			get_trapped();
-	void			be_friendly(player_effects&);
-	bool			can_be_trapped() const {return false;}
-	bool			can_be_jumped_on() const {return false;}
-	void			get_hit_by_projectile();
-	bool			can_be_hit_by_projectile() const {return false;}
+	virtual void		do_turn(float);
+	virtual void		collide_with_player();
+	virtual void		get_jumped_on();
+	virtual void		get_trapped();
+	virtual void		be_friendly(player_effects&);
+	virtual bool		can_be_trapped() const {return false;}
+	virtual bool		can_be_jumped_on() const {return false;}
+	virtual void		get_hit_by_projectile();
+	virtual bool		can_be_hit_by_projectile() const {return false;}
 
 	//////////////////////
 	//Drawable.
