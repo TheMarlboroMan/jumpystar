@@ -67,11 +67,11 @@ void world::do_turn(float delta)
 
 	//Evaluate possible deletions... traps are not discarded this way!.
 	//TODO: A sexier template would get a vector of pointers to these.
-	check_bounds_helper(enemies);
-	check_bounds_helper(pickups);
-	check_bounds_helper(projectiles);
-	check_bounds_helper(player_projectiles);
-	check_bounds_helper(platforms);
+//	check_bounds_helper(enemies);
+//	check_bounds_helper(pickups);
+//	check_bounds_helper(projectiles);
+//	check_bounds_helper(player_projectiles);
+//	check_bounds_helper(platforms);
 	
 	if(player_traps.size()==max_player_traps)
 	{
@@ -101,6 +101,8 @@ void world::do_turn(float delta)
 	//If someone shot, turn the definitions into real projectiles.
 	if(projectile_definitions.size()) create_projectiles();
 
+	camera_movement=0;
+
 	if(moving)
 	{
 		//Considering the camera moves in integer values, we
@@ -116,11 +118,7 @@ void world::do_turn(float delta)
 		{
 			float mov=0.f;
 			partial=std::modf(partial, &mov);
-			camera_movement=mov;
-		}
-		else 
-		{
-			camera_movement=0;
+			camera_movement=+mov;
 		}
 
 		//And maybe create some other platforms...
@@ -193,11 +191,10 @@ negative.
 
 bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) const
 {
-	const float 	cam_height=500.f,
-			bottom_limit=distance-cam_height-s.get_spatiable_h()-extra;
-
-	//Measure from the bottom of the object since it's negated.
-	return bottom_limit > -s.get_spatiable_ey();
+	const float bottom_limit=-distance+app::definitions::playground_height+extra;
+	return false;
+//	std::cout<<s.get_spatiable_y()<<" >= "<<bottom_limit<<"     ("<<-distance<<"+"<<app::definitions::playground_height<<"+"<<extra<<")"<<std::endl;
+//	return s.get_spatiable_y() >= bottom_limit;
 }
 
 void world::delete_discarded_objects()
@@ -580,16 +577,14 @@ float world::get_relative_y(float y) const
 
 void world::adjust_high_jump_distance(int y)
 {
+	//TODO: There's something rotten about this????... Once we trigger this everything fucks up.
+
 	int d=get_relative_y(y);
 	if(d < 250)
 	{
 		int mv=250-d;
+		std::cout<<"D WAS "<<d<<" WILL MOVE "<<mv<<" ORIGINAL "<<distance<<" NEW: "<<distance+mv<<std::endl;
 		distance+=mv;
-		std::cout<<"WILL MOVE "<<mv<<" FROM "<<d<<" DIST "<<distance<<std::endl;
+		camera_movement+=mv;
 	}
 }
-
-//		int d=250-world.get_relative_y(pl.get_spatiable_y())
-//		std::cout<<()<<std::endl;
-//		world.adjust_camera(
-//		std::cout<<"DIST: "<<world.get_distance()<<" Y:"<<pl.get_spatiable_y()<<" W:"<<std::endl;

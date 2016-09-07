@@ -50,6 +50,12 @@ void game_controller::loop(dfw::input& input, float delta)
 		do_player_turn(delta, player_instance, get_user_input(input));
 		do_player_signals(player_instance);
 		do_player_collisions(player_instance);
+
+//		if(world.is_moving())
+//		{
+		camera.move_by(0, -world.get_camera_movement());
+//		}
+//		camera.move_by(0, -world.get_camera_movement());
 	}
 }
 
@@ -185,7 +191,6 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	//TODO: This controls whether the player has fallen from the edge.
 	if(world.is_outside_bounds(pl))
 	{
-std::cout<<"PLAYER OUTSIDE BOUNDS!!!"<<std::endl;
 		reset();
 	}
 }
@@ -330,11 +335,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 void game_controller::do_world_turn(float delta)
 {
 	world.do_turn(delta);
-
-	if(world.is_moving())
-	{
-		camera.move_by(0, -world.get_camera_movement());
-	}
 }
 
 void game_controller::reset()

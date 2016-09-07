@@ -4,6 +4,8 @@ A happy, family oriented little platformer.
 
 Bugfix:
 
+	- Both "adjust_high_jump_distance" and "is_outside_bounds" in "world" are botched.
+
 Better coding:
 
 	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
@@ -12,7 +14,6 @@ Better coding:
 Do better:
 
 	- The trap sistem is cool but the implementation sucks a bit... Use tighter limits?.
-	- When the player high jumps, the distance of the world moves with it.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
 	- More than one bonus per platform.
