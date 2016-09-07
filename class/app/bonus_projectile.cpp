@@ -20,6 +20,6 @@ void bonus_projectile::transform_draw_struct(draw_control &dc)const
 
 void bonus_projectile::get_picked_up(player_effects& pe)
 {
-	pe.add_effect(app_game::player_effects::projectile);
+	pe.add_effect(app_game::player_effects::specials::projectile);
 	set_delete(true);
 }

@@ -45,6 +45,8 @@ class world
 	void		do_turn(float delta);
 	void 		init();
 	void 		reset(); 
+	void 		adjust_high_jump_distance(int);
+	float		get_relative_y(float) const;
 
 	private:
 

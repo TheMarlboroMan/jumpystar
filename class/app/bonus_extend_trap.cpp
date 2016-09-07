@@ -20,6 +20,6 @@ void bonus_extend_trap::transform_draw_struct(draw_control &dc)const
 
 void bonus_extend_trap::get_picked_up(player_effects& pe)
 {
-	pe.add_effect(app_game::player_effects::extend_trap);
+	pe.add_effect(app_game::player_effects::specials::extend_trap);
 	set_delete(true);
 }

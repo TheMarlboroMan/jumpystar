@@ -20,6 +20,6 @@ void bonus_score_multiplier::transform_draw_struct(draw_control &dc)const
 
 void bonus_score_multiplier::get_picked_up(player_effects& pe)
 {
-	pe.add_effect(app_game::player_effects::score_multiplier);
+	pe.add_effect(app_game::player_effects::specials::score_multiplier);
 	set_delete(true);
 }

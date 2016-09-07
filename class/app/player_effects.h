@@ -1,7 +1,7 @@
 #ifndef PLAYER_EFFECTS
 #define PLAYER_EFFECTS
 
-#include <vector>
+#include <set>
 
 namespace app_game
 {
@@ -10,12 +10,11 @@ class player_effects
 {
 	public:
 	
-	enum class specials{triple_jump, all_friendly, extend_trap, slow_down, invulnerability, high_jump, score_multiplier, projectile};
-	enum types {triple_jump=1, all_friendly=2, extend_trap=4, slow_down=8, invulnerability=16, high_jump=32, score_multiplier=64, projectile=128};
+	enum class specials{triple_jump, all_friendly, extend_trap, slow_down, invulnerability, high_jump, score_multiplier, projectile, always_trap};
 
-	int		get_score() const {return score;}
-	int		get_effects() const {return effects;}
-	void		add_effect(int s) {effects|=s;}
+	int				get_score() const {return score;}
+	const std::set<specials>&	get_effects() const {return effects;}
+	void				add_effect(specials s) {effects.insert(s);}
 
 	//Stores different scores for the same tic. 
 	//TODO: In the future we'll need to add a position for the score marker to appear!.
@@ -28,9 +27,9 @@ class player_effects
 	private:
 
 	std::vector<int>	scores;
+	std::set<specials>	effects;
 
-	int		score=0,
-			effects=0;
+	int		score=0;
 };
 
 }

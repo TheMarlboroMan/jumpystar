@@ -9,7 +9,7 @@ player::player()
 	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
 	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
-	can_cancel_jump(false), cancel_jump(false), stunned_time(0.f), next_special(player_effects::specials::triple_jump),
+	can_cancel_jump(false), cancel_jump(false), next_special(player_effects::specials::triple_jump),
 	facing(faces::right)
 {
 	reset();
@@ -29,13 +29,16 @@ void player::reset()
 	signals=0;
 	can_cancel_jump=false;
 	cancel_jump=false;
-	specials.clear();
+//	specials.clear();
+	specials={player_effects::specials::high_jump, player_effects::specials::high_jump, player_effects::specials::high_jump};
 
-	specials_period[player_effects::specials::triple_jump]=0.f;
-	specials_period[player_effects::specials::extend_trap]=0.f;
-	specials_period[player_effects::specials::slow_down]=0.f;
-	specials_period[player_effects::specials::invulnerability]=0.f;
-	specials_period[player_effects::specials::score_multiplier]=0.f;
+	timers_period[timers::always_trap]=0.f;
+	timers_period[timers::stunned]=0.f;
+	timers_period[timers::triple_jump]=0.f;
+	timers_period[timers::extend_trap]=0.f;
+	timers_period[timers::slow_down]=0.f;
+	timers_period[timers::invulnerability]=0.f;
+	timers_period[timers::score_multiplier]=0.f;
 
 	shuffle_next_special();
 }
@@ -91,12 +94,13 @@ void player::transform_draw_struct(draw_control& dc)const
 	int 	steps=1,
 		curstep=0;
 
-	bool	with_triple_jump=specials_period.at(player_effects::specials::triple_jump),
-		with_extended_trap=specials_period.at(player_effects::specials::extend_trap),
-		with_invulnerability=specials_period.at(player_effects::specials::invulnerability),
-		with_score_multiplier=specials_period.at(player_effects::specials::score_multiplier);
+	bool	with_triple_jump=timers_period.at(timers::triple_jump),
+		with_extended_trap=timers_period.at(timers::extend_trap),
+		with_invulnerability=timers_period.at(timers::invulnerability),
+		with_score_multiplier=timers_period.at(timers::score_multiplier),
+		with_always_trap=timers_period.at(timers::always_trap);
 
-	steps+=with_triple_jump+with_extended_trap+with_score_multiplier;
+	steps+=with_triple_jump+with_extended_trap+with_score_multiplier+with_always_trap;
 
 	dc.set(steps);
 	auto& b=dc[curstep++];
@@ -122,38 +126,21 @@ void player::transform_draw_struct(draw_control& dc)const
 		x_indicators=get_spatiable_x()-5;
 		if(x_indicators < 0) x_indicators=0;
 
-	if(with_triple_jump)
+	auto do_indicator=[&dc, &curstep, &y_indicators, x_indicators](ldv::rgba_color col)
 	{
 		y_indicators-=7;
-		auto& jump_indicator=dc[curstep++];
-		jump_indicator.set_color(ldv::rgba8(0, 0, 255, 255));
-		jump_indicator.set_type(draw_struct::types::polygon);
-		jump_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
-		jump_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
-		jump_indicator.go_to({x_indicators, y_indicators});
-	}
+		auto& indicator=dc[curstep++];
+		indicator.set_color(col);
+		indicator.set_type(draw_struct::types::polygon);
+		indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
+		indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
+		indicator.go_to({x_indicators, y_indicators});
+	};
 
-	if(with_extended_trap)
-	{
-		y_indicators-=7;
-		auto& extend_trap_indicator=dc[curstep++];
-		extend_trap_indicator.set_color(ldv::rgba8(245, 120, 176, 255));
-		extend_trap_indicator.set_type(draw_struct::types::polygon);
-		extend_trap_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
-		extend_trap_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
-		extend_trap_indicator.go_to({x_indicators, y_indicators});
-	}
-
-	if(with_score_multiplier)
-	{
-		y_indicators-=7;
-		auto& score_multiplier_indicator=dc[curstep++];
-		score_multiplier_indicator.set_color(ldv::rgba8(0, 0, 0, 255));
-		score_multiplier_indicator.set_type(draw_struct::types::polygon);
-		score_multiplier_indicator.set_polygon_fill(ldv::polygon_representation::type::fill);
-		score_multiplier_indicator.set_polygon_points({{0,0}, {5,-10}, {10,0}});
-		score_multiplier_indicator.go_to({x_indicators, y_indicators});
-	}
+	if(with_triple_jump) do_indicator(ldv::rgba8(0, 0, 255, 255));
+	if(with_extended_trap) do_indicator(ldv::rgba8(245, 120, 176, 255));
+	if(with_score_multiplier) do_indicator(ldv::rgba8(0, 0, 0, 255));
+	if(with_always_trap) do_indicator(ldv::rgba8(0, 255, 0, 255));
 }
 
 void player::turn(float delta)
@@ -161,96 +148,84 @@ void player::turn(float delta)
 	const float ACELERACION_HORIZONTAL_SEGUNDO=200.f; //300.f;
 	const float MAXIMA_VELOCIDAD_HORIZONTAL=150.f; //250.f;
 
-	if(state==states::stunned)
+	//Timers...
+	auto do_timers=[this, delta](timers key, float& value)
 	{
-		stunned_time+=delta;
-		//TODO: Gimme my constants.
-		if(stunned_time >= 1.f)
+		if(value)
 		{
-			stunned_time=0.f;
-			state=wakestate;
+			value-=delta;
+			if(value <= 0.f)
+			{
+				value=0.f;
+				switch(key)
+				{
+					case timers::stunned:
+						state=wakestate;
+						set_timer_period(timers::invulnerability, 1.5f); //Small invulnerability period added :).
+					break;
+					case timers::triple_jump: 
+						this->max_jumps=2; 
+						if(remaining_jumps > max_jumps) remaining_jumps=max_jumps;
+					break;
+					case timers::extend_trap: 
+						this->signals|=s_reset_trap; 
+					break;
+					case timers::slow_down: 
+						this->signals|=s_reset_slowdown; 
+					break;
+					case timers::score_multiplier: 
+						score_multiplier=1;
+					break;
+					case timers::always_trap:
+					case timers::invulnerability: 
+					break;
+				}
+			}
 		}
+		
+	};
+	for(auto& sp : timers_period) do_timers(sp.first, sp.second);
+
+	if(state==states::stunned) return;
+
+	//Specials.
+	if(specials.size())
+	{
+		if(p_input.y < 0) activate_special();
+		else if(p_input.y > 0)
+		{
+			if(specials.size()==max_specials) trade_special();
+			else if(specials.size() > 0) remove_special();
+		}
+	}
+
+	//Horizontal movement...
+	if(p_input.x)
+	{
+		float v=get_vector_x();
+		//Controlar el "contravolante...".
+		float extra=(p_input.x > 0 && v > 0.0f) 
+			|| (p_input.x < 0 && v < 0.0f) 
+			? 1.0f : 2.5f; 
+
+		v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * p_input.x;
+		if(v > MAXIMA_VELOCIDAD_HORIZONTAL) v=MAXIMA_VELOCIDAD_HORIZONTAL;
+		else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
+
+		set_vector(v, axis::x);
+
+		//Control facing
+		facing=v > 0.f ? faces::right : faces::left;
 	}
 	else
 	{
-		//Timers...
-		auto do_specials_timer=[this, delta](player_effects::specials key, float& value)
-		{
-			if(value)
-			{
-				value-=delta;
-				if(value <= 0.f)
-				{
-					value=0.f;
-					switch(key)
-					{
-						case player_effects::specials::triple_jump: 
-							this->max_jumps=2; 
-							if(remaining_jumps > max_jumps) remaining_jumps=max_jumps;
-						break;
-						case player_effects::specials::extend_trap: 
-							this->signals|=s_reset_trap; 
-						break;
-						case player_effects::specials::slow_down: 
-							this->signals|=s_reset_slowdown; 
-						break;
-						case player_effects::specials::score_multiplier: 
-							score_multiplier=1;
-						break;
-			
-						//These are cases that won't apply but I prefer to list them
-						//instead of defaulting (in case new effects are added this
-						//will trigger a warning).
-						case player_effects::specials::invulnerability: break;
-						case player_effects::specials::all_friendly: break;
-						case player_effects::specials::high_jump: break;
-						case player_effects::specials::projectile: break;
-					}
-				}
-			}
-			
-		};
-		for(auto& sp : specials_period) do_specials_timer(sp.first, sp.second);
-
-		//Specials.
-		if(specials.size())
-		{
-			if(p_input.y < 0) activate_special();
-			else if(p_input.y > 0)
-			{
-				if(specials.size()==max_specials) trade_special();
-				else if(specials.size() > 0) remove_special();
-			}
-		}
-
-		//Horizontal movement...
-		if(p_input.x)
-		{
-			float v=get_vector_x();
-			//Controlar el "contravolante...".
-			float extra=(p_input.x > 0 && v > 0.0f) 
-				|| (p_input.x < 0 && v < 0.0f) 
-				? 1.0f : 2.5f; 
-
-			v+=(delta * ACELERACION_HORIZONTAL_SEGUNDO * extra) * p_input.x;
-			if(v > MAXIMA_VELOCIDAD_HORIZONTAL) v=MAXIMA_VELOCIDAD_HORIZONTAL;
-			else if(v < -MAXIMA_VELOCIDAD_HORIZONTAL) v=-MAXIMA_VELOCIDAD_HORIZONTAL;
-
-			set_vector(v, axis::x);
-
-			//Control facing
-			facing=v > 0.f ? faces::right : faces::left;
-		}
-		else
-		{
-			float v=abs(get_vector_x());
-			v-=(delta * ACELERACION_HORIZONTAL_SEGUNDO);
-			if(v < 0.0) v=0;
-				//Aproximarse al cero.
-			float vr=get_vector_x();
-			if(vr > 0.0) set_vector(v, axis::x);
-			else if(vr < 0.0) set_vector(-v, axis::x);
-		}
+		float v=abs(get_vector_x());
+		v-=(delta * ACELERACION_HORIZONTAL_SEGUNDO);
+		if(v < 0.0) v=0;
+			//Aproximarse al cero.
+		float vr=get_vector_x();
+		if(vr > 0.0) set_vector(v, axis::x);
+		else if(vr < 0.0) set_vector(-v, axis::x);
 	}
 
 	switch(state)
@@ -289,6 +264,7 @@ void player::set_falling()
 void player::collide_with_harm_actor(const motion_actor& e)
 {
 	state=states::stunned;
+	set_timer_period(timers::stunned, 1.f);
 
 	//By default we'll wake on air, as this will send us flying.
 	//In case the player touches ground, wakestate will change.
@@ -307,15 +283,7 @@ void player::collide_with_harm_actor(const motion_actor& e)
 
 void player::recieve_effects(player_effects pe)
 {
-	//TODO: Can we do this in a more idiomatic way?. There's no switch-case for this.
-	if(pe.get_effects() & player_effects::triple_jump) add_special(player_effects::specials::triple_jump);
-	if(pe.get_effects() & player_effects::all_friendly) add_special(player_effects::specials::all_friendly);
-	if(pe.get_effects() & player_effects::extend_trap) add_special(player_effects::specials::extend_trap);
-	if(pe.get_effects() & player_effects::slow_down) add_special(player_effects::specials::slow_down);
-	if(pe.get_effects() & player_effects::invulnerability) add_special(player_effects::specials::invulnerability);
-	if(pe.get_effects() & player_effects::high_jump) add_special(player_effects::specials::high_jump);
-	if(pe.get_effects() & player_effects::score_multiplier) add_special(player_effects::specials::score_multiplier);
-	if(pe.get_effects() & player_effects::projectile) add_special(player_effects::specials::projectile);
+	if(pe.get_effects().size()) for(const auto& e : pe.get_effects()) add_special(e);
 	score+=pe.get_score()*score_multiplier;
 }
 
@@ -338,26 +306,24 @@ void player::activate_special()
 
 	switch(specials.front())
 	{
-		//TODO:Create new method to avoid referencing periods directly and assert that everything is cool.
-
 		case player_effects::specials::triple_jump:
 			max_jumps=extended_jump_quantity;
 			if(remaining_jumps==default_jump_quantity) remaining_jumps=extended_jump_quantity;
-			set_special_period(player_effects::specials::triple_jump, 10.f);
+			set_timer_period(timers::triple_jump, 10.f);
 		break;
 		case player_effects::specials::all_friendly:
 			signals|=s_all_friendly;
 		break;
 		case player_effects::specials::extend_trap:
 			signals|=s_extend_trap;
-			set_special_period(player_effects::specials::extend_trap, 10.f);
+			set_timer_period(timers::extend_trap, 10.f);
 		break;
 		case player_effects::specials::slow_down:
 			signals|=s_slowdown;
-			set_special_period(player_effects::specials::slow_down, 5.f);
+			set_timer_period(timers::slow_down, 5.f);
 		break;
 		case player_effects::specials::invulnerability:
-			set_special_period(player_effects::specials::invulnerability, 5.f);
+			set_timer_period(timers::invulnerability, 5.f);
 		break;
 		case player_effects::specials::high_jump:
 			do_jump(jump_types::high_jump);
@@ -365,19 +331,22 @@ void player::activate_special()
 		case player_effects::specials::score_multiplier:
 			//TODO: Maybe stack more of them????
 			score_multiplier=2;
-			set_special_period(player_effects::specials::score_multiplier, 5.f);
+			set_timer_period(timers::score_multiplier, 5.f);
 		break;
 		case player_effects::specials::projectile:
 			signals|=s_projectile;
+		break;
+		case player_effects::specials::always_trap:
+			set_timer_period(timers::always_trap, 5.f);
 		break;
 	}
 	remove_special();
 }
 
-void player::set_special_period(player_effects::specials index, float ptime)
+void player::set_timer_period(timers index, float ptime)
 {
-	assert(specials_period.count(index));
-	specials_period[index]=ptime;
+	assert(timers_period.count(index));
+	timers_period[index]=ptime;
 }
 
 void player::shuffle_next_special()

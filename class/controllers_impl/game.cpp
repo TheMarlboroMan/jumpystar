@@ -91,7 +91,8 @@ void game_controller::draw(ldv::screen& screen)
 
 	fps_text.draw(screen);
 
-	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y());
+	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+" "+std::to_string(world.get_relative_y(player_instance.get_spatiable_y()));
+
 	distance_text.set_text(distance_txt);
 	distance_text.draw(screen);
 
@@ -107,6 +108,7 @@ void game_controller::draw(ldv::screen& screen)
 			case app_game::player_effects::specials::high_jump:		txt+="[J]";break;
 			case app_game::player_effects::specials::score_multiplier:	txt+="[x]";break;
 			case app_game::player_effects::specials::projectile:		txt+="[>]";break;
+			case app_game::player_effects::specials::always_trap:		txt+="[A]";break;
 		}	
 	};
 
@@ -153,6 +155,11 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 		world.set_moving(true);
 	}
 
+	if(pl.is_high_jumping() && world.is_moving())
+	{
+		world.adjust_high_jump_distance(pl.get_spatiable_y());
+	}
+
 	//Try and force a state change.
 	if(pl.can_fall())
 	{
@@ -178,6 +185,7 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	//TODO: This controls whether the player has fallen from the edge.
 	if(world.is_outside_bounds(pl))
 	{
+std::cout<<"PLAYER OUTSIDE BOUNDS!!!"<<std::endl;
 		reset();
 	}
 }

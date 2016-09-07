@@ -26,6 +26,7 @@ class player:
 	void				turn(float delta);
 	void				set_falling();
 	bool				can_fall() const {return state==states::ground;}
+	bool				is_high_jumping() const {return state==states::high_jump;}
 	const std::vector<player_effects::specials>& get_specials() const {return specials;}
 	void				recieve_effects(player_effects);
 	int				get_score() const {return score;}
@@ -36,8 +37,8 @@ class player:
 
 	bool				can_land_on_enemies() const {return state==states::air && get_vector().y > 0.f;}
 	//Player can't set traps after double jump or when falling from an edge.
-	bool				can_set_trap() const {return state==states::air && remaining_jumps;}
-	bool				is_vulnerable() const {return !specials_period.at(player_effects::specials::invulnerability) && !(state==states::stunned || state==states::high_jump);}
+	bool				can_set_trap() const {return state==states::air && (timers_period.at(timers::always_trap) || remaining_jumps);}
+	bool				is_vulnerable() const {return !timers_period.at(timers::invulnerability) && !(state==states::stunned || state==states::high_jump);}
 	void 				collide_with_harm_actor(const motion_actor&);
 	void				reset();
 	void				bounce_on_enemy();
@@ -59,13 +60,14 @@ class player:
 
 	enum class 			states{ground, air, high_jump, stunned};
 	enum class			jump_types{regular, high_jump, bounce_platform, bounce_enemy};
+	enum class			timers{stunned, triple_jump, extend_trap, slow_down, invulnerability, score_multiplier, always_trap};
 
 	void				shuffle_next_special();
 	void				add_special(player_effects::specials);
 	void				remove_special();
 	void				activate_special();
 	void				trade_special();
-	void				set_special_period(player_effects::specials, float);
+	void				set_timer_period(timers, float);
 	void				do_jump(jump_types);
 
 	t_box				previous_position;
@@ -73,11 +75,10 @@ class player:
 	player_input			p_input;
 	int				remaining_jumps, max_jumps, score, score_multiplier, signals;
 	bool				can_cancel_jump, cancel_jump;
-	float				stunned_time;
 	player_effects::specials	next_special;
 	faces				facing;
 	std::vector<player_effects::specials>	specials;
-	std::map<player_effects::specials, float> specials_period;
+	std::map<timers, float> 	timers_period;
 	
 	//If the vector x is less than this and the player is hit, a larger vector is recieved.
 	static const int	min_vector_hit_guard=30,

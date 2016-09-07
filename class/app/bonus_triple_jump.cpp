@@ -20,6 +20,6 @@ void bonus_triple_jump::transform_draw_struct(draw_control &dc)const
 
 void bonus_triple_jump::get_picked_up(player_effects& pe)
 {
-	pe.add_effect(app_game::player_effects::triple_jump);
+	pe.add_effect(app_game::player_effects::specials::triple_jump);
 	set_delete(true);
 }

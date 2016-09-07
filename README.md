@@ -11,6 +11,7 @@ Better coding:
 
 Do better:
 
+	- The trap sistem is cool but the implementation sucks a bit... Use tighter limits?.
 	- When the player high jumps, the distance of the world moves with it.
 	- World generation (perhaps branching paths?... Think about it on paper first...)
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
@@ -18,7 +19,6 @@ Do better:
 	- More than one enemy per platform.
 
 Features:
-	- Invulnerability after recovering from hit.
 	- More score should be given for enemies trapped without stunning them.
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:

@@ -26,6 +26,7 @@ $(DIR_O)bonus_score_multiplier.o \
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_high_jump.o\
+$(DIR_O)bonus_always_trap.o \
 $(DIR_O)enemy.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
@@ -120,6 +121,7 @@ $(DIR_O)bonus_score.o \
 $(DIR_O)bonus_projectile.o \
 $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_triple_jump.o \
+$(DIR_O)bonus_always_trap.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)enemy_patrolling.o \
 $(DIR_O)enemy_patrolling_pause.o \
@@ -225,6 +227,12 @@ $(DIR_O)pickup.o \
 $(DIR_APP)bonus_projectile.h\
 $(DIR_APP)bonus_projectile.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_projectile.cpp -o $(DIR_O)bonus_projectile.o
+
+$(DIR_O)bonus_always_trap.o:\
+$(DIR_O)pickup.o \
+$(DIR_APP)bonus_always_trap.h\
+$(DIR_APP)bonus_always_trap.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)bonus_always_trap.cpp -o $(DIR_O)bonus_always_trap.o
 
 $(DIR_O)pickup.o:\
 $(DIR_O)actor.o \

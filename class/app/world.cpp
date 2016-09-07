@@ -13,6 +13,7 @@
 #include "bonus_high_jump.h"
 #include "bonus_projectile.h"
 #include "bonus_score_multiplier.h"
+#include "bonus_always_trap.h"
 
 #include "projectile_parabol.h"
 #include "enemy_patrolling.h"
@@ -361,8 +362,8 @@ alongside the horizontal length of the last platform, on its top.
 
 void world::create_new_bonus()
 {
-	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier, projectile};
-	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier, types::projectile};
+	enum class types{score, triple_jump, extend_trap, high_jump, score_multiplier, projectile, always_trap};
+	std::vector<types> t{types::score, types::triple_jump, types::extend_trap, types::high_jump, types::score_multiplier, types::projectile, types::always_trap};
 
 	if(!t.size()) return;
 
@@ -378,6 +379,7 @@ void world::create_new_bonus()
 		case types::high_jump:		b.reset(new bonus_high_jump()); break;
 		case types::score_multiplier:	b.reset(new bonus_score_multiplier()); break;
 		case types::projectile:		b.reset(new bonus_projectile()); break;
+		case types::always_trap:	b.reset(new bonus_always_trap()); break;
 	}	
 
 	auto&	last_platform=*(platforms.back());
@@ -417,9 +419,9 @@ bool world::create_new_enemy()
 	float 	left=last_platform.get_spatiable_x(),
 		right=last_platform.get_spatiable_ex();
 
-	//if(!t.size()) return false;
-//	switch(t[gen()])
-	switch(types::patrolling_pause)
+	if(!t.size()) return false;
+	switch(t[gen()])
+//	switch(types::patrolling_pause)
 	{
 		case types::patrolling:
 			e.reset(new enemy_patrolling{{left, right}, last_platform.get_spatiable_y()});
@@ -566,3 +568,28 @@ void world::add_player_projectile(const motion_actor& pl, actor::faces f)
 		projectile_def::types::parabol, 
 		projectile_def::sides::player});
 }
+
+/** Gets how far is the y position from the edge of the camera.
+*/
+
+float world::get_relative_y(float y) const
+{
+	if(y > 0.f) return abs(y-distance);
+	else return distance-abs(y);
+}
+
+void world::adjust_high_jump_distance(int y)
+{
+	int d=get_relative_y(y);
+	if(d < 250)
+	{
+		int mv=250-d;
+		distance+=mv;
+		std::cout<<"WILL MOVE "<<mv<<" FROM "<<d<<" DIST "<<distance<<std::endl;
+	}
+}
+
+//		int d=250-world.get_relative_y(pl.get_spatiable_y())
+//		std::cout<<()<<std::endl;
+//		world.adjust_camera(
+//		std::cout<<"DIST: "<<world.get_distance()<<" Y:"<<pl.get_spatiable_y()<<" W:"<<std::endl;
