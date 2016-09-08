@@ -3,8 +3,11 @@
 A happy, family oriented little platformer.
 
 Bugfix:
-
-	- Both "adjust_high_jump_distance" and "is_outside_bounds" in "world" are botched.
+	
+	- Fix score markers... TTFs won't work.
+		- Could be a reference thing?
+		- Could be a bug with the external type?
+		- Could be a bug with the copy?.
 
 Better coding:
 
@@ -36,9 +39,8 @@ Features:
 
 		- More stuff, maybe?
 
-	- Game speed: do no make it faster as it's done now.
+	- Game speed: get the level duration and speed with the + / - keys.
 	- Add bonus random chance.
-	- Add score markers (each thing you pick up makes a score decoration appear).
 	- Platform types:
 		- Completely solid platforms (except for high jump).
 			- These are a bitch to implement as are to be done in separate x and y passes.

@@ -9,6 +9,12 @@ actor::actor()
 	
 }
 
+actor::actor(const t_box& pb)
+	:box{pb}
+{
+	
+}
+
 actor::actor(float x, float y, unsigned int w, unsigned int h)
 	:box{x, y, w, h}
 {

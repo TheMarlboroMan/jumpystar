@@ -15,9 +15,8 @@ class motion_actor:
 
 	enum class adjust_pos {none, top, bottom, left, right};
 
-			motion_actor(float x, float y, unsigned int w, unsigned int h, t_vector v={0.f, 0.f})
-		:actor(x, y, w, h), app_interfaces::motionable(v)
-	{}
+			motion_actor(float x, float y, unsigned int w, unsigned int h, t_vector v={0.f, 0.f});
+			motion_actor(const t_box&, t_vector v={0.f, 0.f});
 
 	void 		adjust(float, adjust_pos);
 	void 		adjust(const spatiable&, adjust_pos);

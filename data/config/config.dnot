@@ -16,6 +16,10 @@ config:{
 			0, 0, 44
 		], pause:[
 			0, 0, 19
+		], speed_up:[
+			0, 0, 87
+		], speed_down:[
+			0, 0, 86
 		]
 	}, meta:{
 		v:1

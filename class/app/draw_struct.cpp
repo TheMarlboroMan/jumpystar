@@ -67,9 +67,12 @@ void draw_struct::set_type(types t)
 		break;
 	}
 
-	rep->reset_transform();
-	set_alpha(255);
-	set_blend(ldv::representation::blends::alpha);
+	if(rep)
+	{
+		rep->reset_transform();
+		set_alpha(255);
+		set_blend(ldv::representation::blends::alpha);
+	}
 	visible=true;
 }
 

@@ -13,8 +13,8 @@
 
 using namespace app;
 
-game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, tools::ttf_manager& ttf_man)
-	:log(plog),
+game_controller::game_controller(ldt::log& plog, ldv::resource_manager& vm, const tools::ttf_manager& pttf_man)
+	:log(plog), ttf_man(pttf_man),
 	camera({0,0,400,500},{0,0}),
 	fps_text(ttf_man.get("ad-mono", 12), ldv::rgba8(0,0,0,255), ""),
 	distance_text(ttf_man.get("ad-mono", 16), ldv::rgba8(0,0,0,255), ""),
@@ -44,12 +44,23 @@ void game_controller::loop(dfw::input& input, float delta)
 
 	if(input.is_input_down(input_app::pause)) paused=!paused;
 
+	//TODO: These are all tests...
+	if(input.is_input_down(input_app::speed_up)) world.add_speed(1.f);
+	else if(input.is_input_down(input_app::speed_down)) world.add_speed(-1.f);
+
 	if(!paused)
 	{
+		pl_effects.reset();
 		do_world_turn(delta);
 		do_player_turn(delta, player_instance, get_user_input(input));
 		do_player_signals(player_instance);
 		do_player_collisions(player_instance);
+
+		if(pl_effects.is_significant())
+		{
+			player_instance.recieve_effects(pl_effects);
+			world.create_effect_decorations(pl_effects, ttf_man);
+		}
 
 		if(world.get_camera_movement())
 		{
@@ -96,7 +107,7 @@ void game_controller::draw(ldv::screen& screen)
 
 	fps_text.draw(screen);
 
-	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+" "+std::to_string(world.get_relative_y_to_distance(player_instance.get_spatiable_y()));
+	std::string distance_txt="DIST: "+std::to_string(world.get_distance())+" SPEED: "+std::to_string(world.get_speed())+"\n"+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+" "+std::to_string(world.get_relative_y_to_distance(player_instance.get_spatiable_y()));
 
 	distance_text.set_text(distance_txt);
 	distance_text.draw(screen);
@@ -133,7 +144,6 @@ void game_controller::draw(ldv::screen& screen)
 		overlay.set_blend(ldv::representation::blends::alpha);
 		overlay.draw(screen);
 	}
-
 }
 
 void  game_controller::awake()
@@ -190,8 +200,7 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	//This controls whether the player has fallen from the edge.
 	if(world.is_outside_bounds(pl))
 	{
-		std::cout<<"PLAYER OUTSIDE BOUNDS!!!"<<std::endl;
-		//reset();
+		reset();
 	}
 }
 
@@ -203,9 +212,7 @@ void game_controller::do_player_signals(app_game::player& pl)
 	if(sig & app_game::player::s_all_friendly)
 	{
 		auto cb=camera.get_focus_box();
-		app_game::player_effects pe; //Player effects are used for score purposes.
-		world.trigger_all_friendly_signal(app_interfaces::spatiable::t_box(cb.origin.x, cb.origin.y, cb.w, cb.h), pe);
-		pl.recieve_effects(pe);
+		world.trigger_all_friendly_signal(app_interfaces::spatiable::t_box(cb.origin.x, cb.origin.y, cb.w, cb.h), pl_effects);
 	}
 
 	if(sig & app_game::player::s_extend_trap)
@@ -252,13 +259,12 @@ void game_controller::do_player_collisions(app_game::player& pl)
 	}
 
 	//pickups
-	app_game::player_effects pe;
 	for(auto& i : world.get_pickups())
 	{
 		auto& p=*i;
 		if(pl.is_colliding_with(p))
 		{
-			p.get_picked_up(pe);
+			p.get_picked_up(pl_effects);
 		}
 	}
 
@@ -296,7 +302,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 		{
 			if(e.is_trapped())
 			{
-				e.be_friendly(pe);
+				e.be_friendly(pl_effects);
 			}
 			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && e.is_under(pl.get_previous_position()) )
 			{
@@ -323,8 +329,6 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			pl.collide_with_harm_actor(p);
 		}
 	}
-
-	pl.recieve_effects(pe);
 }
 
 void game_controller::do_world_turn(float delta)

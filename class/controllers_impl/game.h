@@ -26,7 +26,7 @@ class game_controller:
 {
 	public:
 
-						game_controller(ldt::log&, ldv::resource_manager&, tools::ttf_manager&);
+						game_controller(ldt::log&, ldv::resource_manager&, const tools::ttf_manager&);
 
 	virtual void 				preloop(dfw::input& input, float delta, int);
 	virtual void 				loop(dfw::input& input, float delta);
@@ -46,6 +46,7 @@ class game_controller:
 	app_game::player_input			get_user_input(const dfw::input&);
 
 	ldt::log&					log;
+	const tools::ttf_manager&			ttf_man;
 
 	ldv::camera					camera;
 	ldv::ttf_representation				fps_text,
@@ -54,6 +55,7 @@ class game_controller:
 	app_game::player				player_instance;
 	app_game::world					world;
 	app_game::draw_control				draw_ctrl;
+	app_game::player_effects 			pl_effects;
 
 	bool						paused;
 };

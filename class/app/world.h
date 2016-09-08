@@ -5,6 +5,7 @@
 
 //tools
 #include <class/number_generator.h>
+#include <class/ttf_manager.h>
 
 //locals
 #include "platform.h"
@@ -12,6 +13,7 @@
 #include "projectile_def.h"
 #include "projectile.h"
 #include "enemy.h"
+#include "decoration.h"
 #include "player_trap.h"
 #include "definitions.h"
 
@@ -32,7 +34,13 @@ class world
 	std::vector<app_interfaces::drawable const *> 	get_drawables() const;
 
 	int		get_camera_movement() const {return camera_movement;}
-	int		get_distance() const {return distance;} //TODO: Remove if unused.
+
+	//TODO: All these: remove when unused.
+
+		int		get_distance() const {return distance;} 
+		float		get_speed() const {return speed;}
+		void		add_speed(float v) {speed+=v;}
+
 	bool		is_moving() const {return moving;}
 	bool		is_outside_bounds(const app_interfaces::spatiable&, float=0.f) const;
 
@@ -40,6 +48,7 @@ class world
 	void		set_player_trap(const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 	void 		trigger_all_friendly_signal(const app_interfaces::spatiable::t_box&, player_effects&);
 	void		trigger_slowdown(bool v) {slowdown=v; slowdown_process=true;}
+	void		create_effect_decorations(const player_effects&, const tools::ttf_manager&);
 
 	void 		add_player_projectile(const motion_actor&, actor::faces);
 	void		do_turn(float delta);
@@ -47,6 +56,7 @@ class world
 	void 		reset(); 
 	void 		adjust_high_jump_distance(int);
 	float		get_relative_y_to_distance(float) const;
+
 
 	private:
 
@@ -71,6 +81,7 @@ class world
 	std::vector<std::unique_ptr<pickup>>		pickups;
 	std::vector<std::unique_ptr<projectile>>	projectiles;
 	std::vector<std::unique_ptr<projectile>>	player_projectiles;
+	std::vector<std::unique_ptr<decoration>>	decorations;
 	std::vector<projectile_def>			projectile_definitions;
 	std::vector<player_trap>			player_traps;
 

@@ -86,7 +86,7 @@ void enemy_patrolling_pause::get_trapped()
 
 void enemy_patrolling_pause::be_friendly(player_effects& pe)
 {
-	pe.add_score(50);
+	pe.add_score(50, {(int)get_spatiable_x(), (int)get_spatiable_y()});
 	befriend();
 }
 

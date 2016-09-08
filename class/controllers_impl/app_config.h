@@ -50,12 +50,15 @@ class app_config:
 	int get_w_screen_px() const {return token_from_path("config:video:window_w_px");}
 	int get_h_screen_px() const {return token_from_path("config:video:window_h_px");}
 
+	//The values of the keys (for the config file) can be found in SDL_scancode.h
 	user_input get_left() const	{return token_from_path_input("left");}
 	user_input get_right() const 	{return token_from_path_input("right");}
 	user_input get_up() const 	{return token_from_path_input("up");}
 	user_input get_down() const		{return token_from_path_input("down");}
 	user_input get_jump() const	{return token_from_path_input("jump");}
 	user_input get_pause() const	{return token_from_path_input("pause");}
+	user_input get_speed_up() const	{return token_from_path_input("speed_up");}
+	user_input get_speed_down() const	{return token_from_path_input("speed_down");}
 
 	void set_w_screen_logical(int p_valor) {set("config:video:window_w_logical", p_valor);}
 	void set_h_screen_logical(int p_valor) {set("config:video:window_h_logical", p_valor);}

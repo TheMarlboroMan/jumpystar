@@ -2,6 +2,18 @@
 
 using namespace app_game;
 
+motion_actor::motion_actor(float x, float y, unsigned int w, unsigned int h, t_vector v)
+	:actor(x, y, w, h), app_interfaces::motionable(v)
+{
+
+}
+
+motion_actor::motion_actor(const t_box& pb, t_vector v)
+	:actor(pb), app_interfaces::motionable(v)
+{
+
+}
+
 /*
 * @param float pos: punto en el espacio.
 * @param adjust_pos tipo: tipo de ajuste.

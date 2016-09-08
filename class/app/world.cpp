@@ -22,6 +22,8 @@
 #include "enemy_parabol_shooter.h"
 #include "enemy_flying.h"
 
+#include "decoration_score.h"
+
 //#include <class/number_generator.h>
 
 //#include "definitions.h"
@@ -30,13 +32,29 @@ using namespace app_game;
 
 world::world(const app_interfaces::spatiable& ppos)
 	:player_position(ppos), 
-	moving(false), slowdown(false), distance(0.f), partial(0.f), speed(20.f), game_speed_multipler(1.f),
+	moving(false), slowdown(false), distance(0.f), partial(0.f), speed(10.f), game_speed_multipler(1.f),
 	camera_movement(0), world_threshold(0),
 	bonus_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage),
 	//TODO: Use other values..
 	enemy_chance_calculator(app::definitions::base_bonus_chance, app::definitions::min_bonus_percentage, app::definitions::max_bonus_percentage)
 {
 
+}
+
+void world::reset()
+{
+	distance=0.f;
+	partial=0.f;
+	speed=10.f;
+	game_speed_multipler=1.f;
+	platforms.clear();
+	enemies.clear();
+	pickups.clear();
+	projectiles.clear();
+	player_projectiles.clear();
+	projectile_definitions.clear();
+	player_traps.clear();
+	moving=false;
 }
 
 void world::do_turn(float delta)
@@ -72,6 +90,7 @@ void world::do_turn(float delta)
 	check_bounds_helper(projectiles);
 	check_bounds_helper(player_projectiles);
 	check_bounds_helper(platforms);
+	check_bounds_helper(decorations);
 	
 	if(player_traps.size()==max_player_traps)
 	{
@@ -85,6 +104,7 @@ void world::do_turn(float delta)
 	for(auto& p: platforms) p->do_turn(delta);
 	for(auto& e: enemies) e->do_turn(delta);
 	for(auto& p: projectiles) p->do_turn(delta);
+	for(auto& d: decorations) d->do_turn(delta);
 	for(auto& p: player_projectiles) 
 	{
 		p->do_turn(delta);
@@ -109,7 +129,6 @@ void world::do_turn(float delta)
 		//will fake it a bit.
 
 		float dist=delta*speed;
-		speed+=delta;
 
 		distance+=dist;
 		partial+=dist;
@@ -165,22 +184,6 @@ void world::generate_new_world()
 	evaluate_new_enemy();
 }
 
-void world::reset()
-{
-	distance=0.f;
-	partial=0.f;
-	speed=0.f;
-	game_speed_multipler=1.f;
-	platforms.clear();
-	enemies.clear();
-	pickups.clear();
-	projectiles.clear();
-	player_projectiles.clear();
-	projectile_definitions.clear();
-	player_traps.clear();
-	moving=false;
-}
-
 /*Consider the bottom of the camera begins at distance 0+cam_height. As distance 
 goes up, the camera moves upwards the same negative position. An object 
 positioned below the camera is considered to be outside bounds. The camera is 
@@ -202,6 +205,7 @@ void world::delete_discarded_objects()
 	delete_helper_ptr(pickups);
 	delete_helper_ptr(projectiles);
 	delete_helper_ptr(player_projectiles);
+	delete_helper_ptr(decorations);
 	delete_helper(player_traps);
 	delete_helper_ptr(enemies);
 }
@@ -281,6 +285,7 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	for(const auto &p : enemies) res.push_back(p.get());
 	for(const auto &p : projectiles) res.push_back(p.get());
 	for(const auto &p : player_projectiles) res.push_back(p.get());
+	for(const auto &p : decorations) res.push_back(p.get());
 	for(const auto &p : player_traps) res.push_back(&p);
 
 	return res;
@@ -584,5 +589,15 @@ void world::adjust_high_jump_distance(int y)
 		int mv=app::definitions::high_jump_scroll_threshold-d;
 		distance+=mv;
 		camera_movement+=mv;
+	}
+}
+
+void world::create_effect_decorations(const player_effects& pe, const tools::ttf_manager& ttf_man)
+{
+	const auto& font=ttf_man.get("ad-mono", 12);
+
+	for(const auto& d : pe.get_scores())
+	{
+		decorations.push_back(std::unique_ptr<decoration>(new decoration_score({(float)d.pt.x, (float)d.pt.y}, d.score, font)));
 	}
 }

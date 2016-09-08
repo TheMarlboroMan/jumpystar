@@ -23,6 +23,7 @@ class actor:
 
 				actor();
 				actor(float x, float y, unsigned int w, unsigned int h);
+				actor(const t_box&);
 
 	void			set_box(t_box);
 	void 			set_box(float x, float y, unsigned int w, unsigned int h);

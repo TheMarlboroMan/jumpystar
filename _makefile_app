@@ -28,6 +28,8 @@ $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_high_jump.o\
 $(DIR_O)bonus_always_trap.o \
 $(DIR_O)enemy.o \
+$(DIR_O)decoration.o \
+$(DIR_O)decoration_score.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
 $(DIR_O)enemy_flying.o \
@@ -111,6 +113,7 @@ $(DIR_APP)player.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player.cpp -o $(DIR_O)player.o
 
 $(DIR_O)world.o:\
+$(DIR_O)decoration_score.o \
 $(DIR_O)platform_bouncy.o \
 $(DIR_O)platform_crumbling.o \
 $(DIR_O)platform_regular.o \
@@ -191,6 +194,20 @@ $(DIR_APP)drawable.h \
 $(DIR_APP)enemy.h\
 $(DIR_APP)enemy.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy.cpp -o $(DIR_O)enemy.o
+
+$(DIR_O)decoration_score.o:\
+$(DIR_O)decoration.o\
+$(DIR_APP)decoration_score.h\
+$(DIR_APP)decoration_score.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)decoration_score.cpp -o $(DIR_O)decoration_score.o
+
+$(DIR_O)decoration.o:\
+$(DIR_O)motion_actor.o\
+$(DIR_O)game_object.o\
+$(DIR_APP)drawable.h \
+$(DIR_APP)decoration.h\
+$(DIR_APP)decoration.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)decoration.cpp -o $(DIR_O)decoration.o
 
 $(DIR_O)bonus_score_multiplier.o:\
 $(DIR_O)pickup.o \

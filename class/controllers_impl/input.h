@@ -14,7 +14,9 @@ down,
 left,
 right,
 jump,
-pause
+pause,
+speed_up,
+speed_down
 };
 
 };

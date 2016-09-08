@@ -43,6 +43,6 @@ void bonus_score::transform_draw_struct(draw_control &dc)const
 
 void bonus_score::get_picked_up(player_effects& pe)
 {
-	pe.add_score(score);
+	pe.add_score(score, {(int)get_spatiable_x(), (int)get_spatiable_y()});
 	set_delete(true);
 }
