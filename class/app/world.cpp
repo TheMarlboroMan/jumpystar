@@ -67,11 +67,11 @@ void world::do_turn(float delta)
 
 	//Evaluate possible deletions... traps are not discarded this way!.
 	//TODO: A sexier template would get a vector of pointers to these.
-//	check_bounds_helper(enemies);
-//	check_bounds_helper(pickups);
-//	check_bounds_helper(projectiles);
-//	check_bounds_helper(player_projectiles);
-//	check_bounds_helper(platforms);
+	check_bounds_helper(enemies);
+	check_bounds_helper(pickups);
+	check_bounds_helper(projectiles);
+	check_bounds_helper(player_projectiles);
+	check_bounds_helper(platforms);
 	
 	if(player_traps.size()==max_player_traps)
 	{
@@ -192,9 +192,7 @@ negative.
 bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) const
 {
 	const float bottom_limit=-distance+app::definitions::playground_height+extra;
-	return false;
-//	std::cout<<s.get_spatiable_y()<<" >= "<<bottom_limit<<"     ("<<-distance<<"+"<<app::definitions::playground_height<<"+"<<extra<<")"<<std::endl;
-//	return s.get_spatiable_y() >= bottom_limit;
+	return s.get_spatiable_y() >= bottom_limit;
 }
 
 void world::delete_discarded_objects()
@@ -403,7 +401,7 @@ bool world::create_new_enemy()
 	enum class types {patrolling, patrolling_pause, parabol, flying, parabol_shooter};
 	
 	std::vector<types> t;
-	//TODO: Rework this values.
+	//TODO: Rework these values.
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling_pause);
 	if(distance > 100.f) t.push_back(types::flying);
@@ -567,23 +565,23 @@ void world::add_player_projectile(const motion_actor& pl, actor::faces f)
 }
 
 /** Gets how far is the y position from the edge of the camera.
+An easier solution would be to start the player on the position 0 and have it
+move towards the negative space from that on.
 */
 
-float world::get_relative_y(float y) const
+float world::get_relative_y_to_distance(float y) const
 {
-	if(y > 0.f) return abs(y-distance);
+	if(y > 0.f) return y+distance;
 	else return distance-abs(y);
 }
 
+//TODO: Once this is working see if we can make it less robotic...
 void world::adjust_high_jump_distance(int y)
 {
-	//TODO: There's something rotten about this????... Once we trigger this everything fucks up.
-
-	int d=get_relative_y(y);
-	if(d < 250)
+	int d=get_relative_y_to_distance(y);
+	if(d < app::definitions::high_jump_scroll_threshold)
 	{
-		int mv=250-d;
-		std::cout<<"D WAS "<<d<<" WILL MOVE "<<mv<<" ORIGINAL "<<distance<<" NEW: "<<distance+mv<<std::endl;
+		int mv=app::definitions::high_jump_scroll_threshold-d;
 		distance+=mv;
 		camera_movement+=mv;
 	}

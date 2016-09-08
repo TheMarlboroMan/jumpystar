@@ -51,11 +51,10 @@ void game_controller::loop(dfw::input& input, float delta)
 		do_player_signals(player_instance);
 		do_player_collisions(player_instance);
 
-//		if(world.is_moving())
-//		{
-		camera.move_by(0, -world.get_camera_movement());
-//		}
-//		camera.move_by(0, -world.get_camera_movement());
+		if(world.get_camera_movement())
+		{
+			camera.move_by(0, -world.get_camera_movement());
+		}
 	}
 }
 
@@ -97,7 +96,7 @@ void game_controller::draw(ldv::screen& screen)
 
 	fps_text.draw(screen);
 
-	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+" "+std::to_string(world.get_relative_y(player_instance.get_spatiable_y()));
+	std::string distance_txt=std::to_string(world.get_distance())+"   "+std::to_string((int)player_instance.get_spatiable_x())+","+std::to_string((int)player_instance.get_spatiable_y())+" "+std::to_string(world.get_relative_y_to_distance(player_instance.get_spatiable_y()));
 
 	distance_text.set_text(distance_txt);
 	distance_text.draw(screen);
@@ -188,10 +187,11 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 	pl.update_previos_position();
 	pl.move(delta);
 
-	//TODO: This controls whether the player has fallen from the edge.
+	//This controls whether the player has fallen from the edge.
 	if(world.is_outside_bounds(pl))
 	{
-		reset();
+		std::cout<<"PLAYER OUTSIDE BOUNDS!!!"<<std::endl;
+		//reset();
 	}
 }
 
@@ -235,11 +235,6 @@ app_game::player_input game_controller::get_user_input(const dfw::input& input)
 
 	if(input.is_input_down(input_app::jump)) pi.jump=true;
 	if(input.is_input_pressed(input_app::jump)) pi.jump_press=true;
-
-//	if(input.is_input_down(input_app::down))
-//	{
-//		world.create_new_enemy();
-//	}
 
 	return pi;
 }

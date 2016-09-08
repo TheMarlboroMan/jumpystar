@@ -8,6 +8,7 @@ Bugfix:
 
 Better coding:
 
+	- High jump from the top: less robotic movement, slowly drag the players towards the limit.
 	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
 	- Use templates to do the filters below distance.
 

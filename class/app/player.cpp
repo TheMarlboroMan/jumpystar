@@ -29,8 +29,7 @@ void player::reset()
 	signals=0;
 	can_cancel_jump=false;
 	cancel_jump=false;
-//	specials.clear();
-	specials={player_effects::specials::high_jump, player_effects::specials::high_jump, player_effects::specials::high_jump};
+	specials.clear();
 
 	timers_period[timers::always_trap]=0.f;
 	timers_period[timers::stunned]=0.f;
@@ -296,7 +295,6 @@ void player::add_special(player_effects::specials sp)
 void player::remove_special()
 {
 	assert(specials.size() > 0);
-
 	specials.erase(std::begin(specials));
 }
 

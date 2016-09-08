@@ -46,7 +46,7 @@ class world
 	void 		init();
 	void 		reset(); 
 	void 		adjust_high_jump_distance(int);
-	float		get_relative_y(float) const;
+	float		get_relative_y_to_distance(float) const;
 
 	private:
 

@@ -34,7 +34,10 @@ struct definitions
 	//The bonus are lifted from the ground by this value.
 			bonus_units_above_ground=4,
 			default_enemy_stun_time=2,
-			default_enemy_trap_time=3;
+			default_enemy_trap_time=3,
+
+	//Distance to top to activate autoscroll when high jumping.
+			high_jump_scroll_threshold=200;
 
 	static const float default_gravity;
 	//Enough force to reach the middle of the screen, more or less.
