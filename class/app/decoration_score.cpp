@@ -14,8 +14,8 @@ decoration_score::decoration_score(t_point origin, int ps, const ldv::ttf_font& 
 		add_to_map(score, font);
 	}
 
-	set_box_w(score_map.at(score)->get_base_view_position().w);
-	set_box_h(score_map.at(score)->get_base_view_position().h);
+	set_box_w(score_map.at(score).get_base_view_position().w);
+	set_box_h(score_map.at(score).get_base_view_position().h);
 
 	set_vector(-100.f, axis::y);
 }
@@ -33,7 +33,7 @@ void decoration_score::transform_draw_struct(draw_control& dc) const
 	dc.set(1);
 	auto& b=dc[0];
 
-	auto& sc_rep=*(score_map[score]);
+	auto& sc_rep=score_map.at(score);
 	sc_rep.go_to((int)get_spatiable_x(), (int)get_spatiable_y());
 	sc_rep.set_alpha(period_ltf());
 	b.set_type(draw_struct::types::external);
@@ -43,6 +43,6 @@ void decoration_score::transform_draw_struct(draw_control& dc) const
 void decoration_score::add_to_map(int sc, const ldv::ttf_font& font)
 {
 	assert(!score_map.count(sc));
-	score_map[score]=t_uptr(new ldv::ttf_representation{font, ldv::rgba8(0, 0, 0, 255), std::to_string(sc)});
-	score_map[score]->set_blend(ldv::representation::blends::alpha);
+	score_map.insert({sc, ldv::ttf_representation(font, ldv::rgba8(255, 0, 0, 255), std::to_string(sc))});
+	score_map.at(sc).set_blend(ldv::representation::blends::alpha);
 }

@@ -15,8 +15,7 @@ class decoration_score:
 {
 	public:
 
-	using t_uptr=std::unique_ptr<ldv::ttf_representation>;
-	using t_map=std::map<int, std::unique_ptr<ldv::ttf_representation>>;
+	using t_map=std::map<int, ldv::ttf_representation>;
 
 						decoration_score(t_point, int, const ldv::ttf_font& font);
 	virtual	void				do_turn(float);
