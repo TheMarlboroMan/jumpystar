@@ -1,13 +1,13 @@
-#include "decoration_score.h"
+#include "particle_score.h"
 
 #include <cassert>
 
 using namespace app_game;
 
-decoration_score::t_map decoration_score::score_map=decoration_score::t_map();
+particle_score::t_map particle_score::score_map=particle_score::t_map();
 
-decoration_score::decoration_score(t_point origin, int ps, const ldv::ttf_font& font)
-	:decoration({origin.x, origin.y, 0, 0}), score(ps), period_ltf(tools::linear_timed_function<float>::from_time(255, 0, 1.f))
+particle_score::particle_score(t_point origin, int ps, const ldv::ttf_font& font)
+	:particle({origin.x, origin.y, 0, 0}), score(ps), period_ltf(tools::linear_timed_function<float>::from_time(255, 0, 1.f))
 {
 	if(!score_map.count(score))
 	{
@@ -20,14 +20,14 @@ decoration_score::decoration_score(t_point origin, int ps, const ldv::ttf_font& 
 	set_vector(-100.f, axis::y);
 }
 
-void decoration_score::do_turn(float delta)
+void particle_score::do_turn(float delta)
 {
 	move(delta);
 	period_ltf.tic(delta);
 	if(!period_ltf()) set_delete(true);
 }
 
-void decoration_score::transform_draw_struct(draw_control& dc) const
+void particle_score::transform_draw_struct(draw_control& dc) const
 {
 	dc.ignore();
 	dc.set(1);
@@ -40,7 +40,7 @@ void decoration_score::transform_draw_struct(draw_control& dc) const
 	b.set_external(sc_rep);
 }
 
-void decoration_score::add_to_map(int sc, const ldv::ttf_font& font)
+void particle_score::add_to_map(int sc, const ldv::ttf_font& font)
 {
 	assert(!score_map.count(sc));
 	score_map.insert({sc, ldv::ttf_representation(font, ldv::rgba8(255, 0, 0, 255), std::to_string(sc))});

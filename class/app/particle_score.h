@@ -6,18 +6,18 @@
 
 #include <templates/linear_timed_function.h>
 
-#include "decoration.h"
+#include "particle.h"
 
 namespace app_game
 {
-class decoration_score:
-	public decoration
+class particle_score:
+	public particle
 {
 	public:
 
 	using t_map=std::map<int, ldv::ttf_representation>;
 
-						decoration_score(t_point, int, const ldv::ttf_font& font);
+						particle_score(t_point, int, const ldv::ttf_font& font);
 	virtual	void				do_turn(float);
 
 	//////////////////////

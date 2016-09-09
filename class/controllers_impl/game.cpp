@@ -59,7 +59,7 @@ void game_controller::loop(dfw::input& input, float delta)
 		if(pl_effects.is_significant())
 		{
 			player_instance.recieve_effects(pl_effects);
-			world.create_effect_decorations(pl_effects, ttf_man);
+			world.create_effect_particles(pl_effects, ttf_man);
 		}
 
 		if(world.get_camera_movement())

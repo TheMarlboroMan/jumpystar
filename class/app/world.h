@@ -13,7 +13,7 @@
 #include "projectile_def.h"
 #include "projectile.h"
 #include "enemy.h"
-#include "decoration.h"
+#include "particle.h"
 #include "player_trap.h"
 #include "definitions.h"
 
@@ -48,7 +48,7 @@ class world
 	void		set_player_trap(const app_interfaces::spatiable&, const app_interfaces::spatiable&);
 	void 		trigger_all_friendly_signal(const app_interfaces::spatiable::t_box&, player_effects&);
 	void		trigger_slowdown(bool v) {slowdown=v; slowdown_process=true;}
-	void		create_effect_decorations(const player_effects&, const tools::ttf_manager&);
+	void		create_effect_particles(const player_effects&, const tools::ttf_manager&);
 
 	void 		add_player_projectile(const motion_actor&, actor::faces);
 	void		do_turn(float delta);
@@ -81,7 +81,7 @@ class world
 	std::vector<std::unique_ptr<pickup>>		pickups;
 	std::vector<std::unique_ptr<projectile>>	projectiles;
 	std::vector<std::unique_ptr<projectile>>	player_projectiles;
-	std::vector<std::unique_ptr<decoration>>	decorations;
+	std::vector<std::unique_ptr<particle>>		particles;
 	std::vector<projectile_def>			projectile_definitions;
 	std::vector<player_trap>			player_traps;
 

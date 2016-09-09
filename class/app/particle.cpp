@@ -1,8 +1,8 @@
-#include "decoration.h"
+#include "particle.h"
 
 using namespace app_game;
 
-decoration::decoration(const t_box& pb)
+particle::particle(const t_box& pb)
 	:motion_actor(pb),
 	game_object()
 {

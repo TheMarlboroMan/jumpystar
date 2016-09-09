@@ -22,7 +22,7 @@
 #include "enemy_parabol_shooter.h"
 #include "enemy_flying.h"
 
-#include "decoration_score.h"
+#include "particle_score.h"
 
 //#include <class/number_generator.h>
 
@@ -90,7 +90,7 @@ void world::do_turn(float delta)
 	check_bounds_helper(projectiles);
 	check_bounds_helper(player_projectiles);
 	check_bounds_helper(platforms);
-	check_bounds_helper(decorations);
+	check_bounds_helper(particles);
 	
 	if(player_traps.size()==max_player_traps)
 	{
@@ -104,7 +104,7 @@ void world::do_turn(float delta)
 	for(auto& p: platforms) p->do_turn(delta);
 	for(auto& e: enemies) e->do_turn(delta);
 	for(auto& p: projectiles) p->do_turn(delta);
-	for(auto& d: decorations) d->do_turn(delta);
+	for(auto& p: particles) p->do_turn(delta);
 	for(auto& p: player_projectiles) 
 	{
 		p->do_turn(delta);
@@ -205,7 +205,7 @@ void world::delete_discarded_objects()
 	delete_helper_ptr(pickups);
 	delete_helper_ptr(projectiles);
 	delete_helper_ptr(player_projectiles);
-	delete_helper_ptr(decorations);
+	delete_helper_ptr(particles);
 	delete_helper(player_traps);
 	delete_helper_ptr(enemies);
 }
@@ -285,7 +285,7 @@ std::vector<app_interfaces::drawable const *> world::get_drawables() const
 	for(const auto &p : enemies) res.push_back(p.get());
 	for(const auto &p : projectiles) res.push_back(p.get());
 	for(const auto &p : player_projectiles) res.push_back(p.get());
-	for(const auto &p : decorations) res.push_back(p.get());
+	for(const auto &p : particles) res.push_back(p.get());
 	for(const auto &p : player_traps) res.push_back(&p);
 
 	return res;
@@ -592,12 +592,14 @@ void world::adjust_high_jump_distance(int y)
 	}
 }
 
-void world::create_effect_decorations(const player_effects& pe, const tools::ttf_manager& ttf_man)
+void world::create_effect_particles(const player_effects& pe, const tools::ttf_manager& ttf_man)
 {
-	const auto& font=ttf_man.get("ad-mono", 12);
-
-	for(const auto& d : pe.get_scores())
+	if(pe.get_scores().size())
 	{
-		decorations.push_back(std::unique_ptr<decoration>(new decoration_score({(float)d.pt.x, (float)d.pt.y}, d.score, font)));
+		const auto& font=ttf_man.get("ad-mono", 12);
+		for(const auto& d : pe.get_scores())
+		{
+			particles.push_back(std::unique_ptr<particle>(new particle_score({(float)d.pt.x, (float)d.pt.y}, d.score, font)));
+		}
 	}
 }
