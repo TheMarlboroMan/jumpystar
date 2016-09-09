@@ -29,6 +29,8 @@ class platform_dissapearing:
 	private:
 
 	enum class states {in, trans_out, out, trans_in} state;
+
+	//TODO Actually, we don't need this period variable when there's a linear timed function. Review elsewhere.
 	float					period, max_period;
 	tools::linear_timed_function<float>	ltf;
 
