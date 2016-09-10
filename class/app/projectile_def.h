@@ -13,7 +13,7 @@ class projectile_def
 	public:
 	app_interfaces::spatiable::t_point		origin;
 	app_interfaces::motionable::t_vector		direction;
-	enum class types {parabol}			type;
+	enum class types {parabol, straight}		type;
 	enum class sides {enemy, player}		side;
 };
 }

@@ -16,8 +16,12 @@
 #include "bonus_always_trap.h"
 
 #include "projectile_parabol.h"
+#include "projectile_straight.h"
+
+#include "enemy_runner.h"
 #include "enemy_patrolling.h"
 #include "enemy_patrolling_pause.h"
+#include "enemy_patrolling_shooter.h"
 #include "enemy_flying_parabol.h"
 #include "enemy_parabol_shooter.h"
 #include "enemy_flying.h"
@@ -195,7 +199,9 @@ negative.
 bool world::is_outside_bounds(const app_interfaces::spatiable& s, float extra) const
 {
 	const float bottom_limit=-distance+app::definitions::playground_height+extra;
-	return s.get_spatiable_y() >= bottom_limit;
+	return s.get_spatiable_y() >= bottom_limit || 
+		s.get_spatiable_ex() <= app::definitions::playground_min_x ||
+		s.get_spatiable_x() >= app::definitions::playground_width;
 }
 
 void world::delete_discarded_objects()
@@ -256,8 +262,6 @@ void world::create_new_platform(float y)
 		w_pos=w*app::definitions::unit;
 	
 	//TODO: The types should appear as the game goes on.
-	//TODO: Don't add two dissapearing in a row... Or better, after
-	//a dissapearing or crumbling, add a regular.
 	enum class types{regular, dissapearing, crumbling, bouncy};
 	std::vector<types> t{types::regular, types::dissapearing, types::crumbling, types::bouncy};
 	std::unique_ptr<platform> p{nullptr};
@@ -403,15 +407,20 @@ bool world::create_new_enemy()
 {
 	const auto&	last_platform=*(platforms.back());
 
-	enum class types {patrolling, patrolling_pause, parabol, flying, parabol_shooter};
+if(enemies.size()) return false;
+
+	enum class types {patrolling, patrolling_pause, patrolling_shooter, parabol, flying, parabol_shooter, runner};
 	
 	std::vector<types> t;
 	//TODO: Rework these values.
+	//TODO: Consider platform width!!.
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling_pause);
+	if(last_platform.can_spawn_ground_based_enemies() && distance > 20.f) t.push_back(types::patrolling_shooter);
 	if(distance > 100.f) t.push_back(types::flying);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 300.f) t.push_back(types::parabol_shooter);
 	if(distance > 300.f) t.push_back(types::parabol);
+	t.push_back(types::runner);
 
 	tools::int_generator gen(0, t.size()-1);
 	std::unique_ptr<enemy> e{nullptr};
@@ -421,13 +430,16 @@ bool world::create_new_enemy()
 
 	if(!t.size()) return false;
 	switch(t[gen()])
-//	switch(types::patrolling_pause)
+//	switch(types::patrolling_shooter)
 	{
 		case types::patrolling:
 			e.reset(new enemy_patrolling{{left, right}, last_platform.get_spatiable_y()});
 		break;
 		case types::patrolling_pause:
 			e.reset(new enemy_patrolling_pause{{left, right}, last_platform.get_spatiable_y()});
+		break;
+		case types::patrolling_shooter:
+			e.reset(new enemy_patrolling_shooter{{left, right}, last_platform.get_spatiable_y(), projectile_definitions});
 		break;
 		case types::parabol:
 			e.reset(new enemy_flying_parabol(player_position.get_spatiable_position(), app::definitions::playground_height-distance));
@@ -437,6 +449,9 @@ bool world::create_new_enemy()
 		break;
 		case types::parabol_shooter:
 			e.reset(new enemy_parabol_shooter(projectile_definitions, player_position, last_platform));
+		break;
+		case types::runner:
+			e.reset(new enemy_runner{{left, right}, last_platform.get_spatiable_y()});
 		break;
 	}
 
@@ -477,6 +492,9 @@ void world::create_projectiles()
 			{
 				case projectile_def::types::parabol:
 					container->push_back(std::unique_ptr<projectile>(new projectile_parabol(pd.origin, pd.direction)));
+				break;
+				case projectile_def::types::straight:
+					container->push_back(std::unique_ptr<projectile>(new projectile_straight(pd.origin, pd.direction)));
 				break;
 			}
 		}
@@ -580,13 +598,17 @@ float world::get_relative_y_to_distance(float y) const
 	else return distance-abs(y);
 }
 
-//TODO: Once this is working see if we can make it less robotic...
+/** When the player is high jumping we make the world scroll up once it reaches
+over a certain threshold. In order to have this as little robotic as possible
+there's a maximum adjustment to be done.
+*/
 void world::adjust_high_jump_distance(int y)
 {
 	int d=get_relative_y_to_distance(y);
 	if(d < app::definitions::high_jump_scroll_threshold)
 	{
 		int mv=app::definitions::high_jump_scroll_threshold-d;
+		if(mv > app::definitions::high_jump_max_displacement) mv=app::definitions::high_jump_max_displacement;
 		distance+=mv;
 		camera_movement+=mv;
 	}

@@ -37,7 +37,8 @@ struct definitions
 			default_enemy_trap_time=3,
 
 	//Distance to top to activate autoscroll when high jumping.
-			high_jump_scroll_threshold=200;
+			high_jump_scroll_threshold=200,
+			high_jump_max_displacement=8;
 
 	static const float default_gravity;
 	//Enough force to reach the middle of the screen, more or less.

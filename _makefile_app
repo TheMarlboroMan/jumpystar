@@ -30,13 +30,16 @@ $(DIR_O)bonus_always_trap.o \
 $(DIR_O)enemy.o \
 $(DIR_O)particle.o \
 $(DIR_O)particle_score.o \
+$(DIR_O)projectile_straight.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
+$(DIR_O)enemy_runner.o \
 $(DIR_O)enemy_flying.o \
 $(DIR_O)enemy_flying_parabol.o \
 $(DIR_O)enemy_parabol_shooter.o \
 $(DIR_O)enemy_patrolling.o \
 $(DIR_O)enemy_patrolling_pause.o \
+$(DIR_O)enemy_patrolling_shooter.o \
 $(DIR_O)platform_bouncy.o \
 $(DIR_O)platform_crumbling.o \
 $(DIR_O)platform_dissapearing.o \
@@ -126,8 +129,11 @@ $(DIR_O)bonus_extend_trap.o\
 $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_always_trap.o \
 $(DIR_O)projectile_parabol.o \
+$(DIR_O)projectile_straight.o \
+$(DIR_O)enemy_runner.o \
 $(DIR_O)enemy_patrolling.o \
 $(DIR_O)enemy_patrolling_pause.o \
+$(DIR_O)enemy_patrolling_shooter.o \
 $(DIR_O)enemy_flying.o \
 $(DIR_O)enemy_flying_parabol.o \
 $(DIR_O)enemy_parabol_shooter.o \
@@ -142,6 +148,12 @@ $(DIR_APP)drawable.h \
 $(DIR_APP)player_trap.h\
 $(DIR_APP)player_trap.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)player_trap.cpp -o $(DIR_O)player_trap.o
+
+$(DIR_O)projectile_straight.o:\
+$(DIR_O)projectile.o\
+$(DIR_APP)projectile_straight.h\
+$(DIR_APP)projectile_straight.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)projectile_straight.cpp -o $(DIR_O)projectile_straight.o
 
 $(DIR_O)projectile_parabol.o:\
 $(DIR_O)projectile.o\
@@ -162,6 +174,12 @@ $(DIR_O)enemy.o\
 $(DIR_APP)enemy_parabol_shooter.h\
 $(DIR_APP)enemy_parabol_shooter.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_parabol_shooter.cpp -o $(DIR_O)enemy_parabol_shooter.o
+
+$(DIR_O)enemy_runner.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)enemy_runner.h\
+$(DIR_APP)enemy_runner.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_runner.cpp -o $(DIR_O)enemy_runner.o
 
 $(DIR_O)enemy_flying.o:\
 $(DIR_O)enemy.o\
@@ -186,6 +204,12 @@ $(DIR_O)enemy.o\
 $(DIR_APP)enemy_patrolling.h\
 $(DIR_APP)enemy_patrolling.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_patrolling.cpp -o $(DIR_O)enemy_patrolling.o
+
+$(DIR_O)enemy_patrolling_shooter.o:\
+$(DIR_O)enemy.o\
+$(DIR_APP)enemy_patrolling_shooter.h\
+$(DIR_APP)enemy_patrolling_shooter.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_patrolling_shooter.cpp -o $(DIR_O)enemy_patrolling_shooter.o
 
 $(DIR_O)enemy.o:\
 $(DIR_O)motion_actor.o\

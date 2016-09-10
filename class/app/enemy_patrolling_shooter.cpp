@@ -1,4 +1,4 @@
-#include "enemy_patrolling_pause.h"
+#include "enemy_patrolling_shooter.h"
 
 #include <class/number_generator.h>
 
@@ -6,8 +6,9 @@
 
 using namespace app_game;
 
-enemy_patrolling_pause::enemy_patrolling_pause(const enemy_sideways_limit& esl, float pbottom)
+enemy_patrolling_shooter::enemy_patrolling_shooter(const enemy_sideways_limit& esl, float pbottom, std::vector<projectile_def>& pr)
 	:enemy(fixed_w, fixed_h),
+	projectiles(pr),
 	limits(esl), 
 	state(states::move), period(0.f),
 	max_period(0.f)
@@ -24,7 +25,7 @@ enemy_patrolling_pause::enemy_patrolling_pause(const enemy_sideways_limit& esl, 
 	max_period=g();
 	period=max_period;
 }
-void enemy_patrolling_pause::do_turn(float delta)
+void enemy_patrolling_shooter::do_turn(float delta)
 {
 	enemy::do_turn(delta);
 	if(!is_active()) return;
@@ -35,7 +36,8 @@ void enemy_patrolling_pause::do_turn(float delta)
 		period=max_period;
 		switch(state)
 		{
-			case states::move: state=states::pause; break;
+			case states::move: state=states::shoot; break;
+			case states::shoot: state=states::pause; break;
 			case states::pause: state=states::move; break;
 		}
 	}
@@ -43,18 +45,26 @@ void enemy_patrolling_pause::do_turn(float delta)
 	switch(state)
 	{
 		case states::move:
-			//TODO: Exquisite bug when it stops right on the limit and
-			//would keep on turning around.
 			move(delta);
 			limit_sideways_patrol(limits);
 		break;
+
+		case states::shoot:
+			if(!is_friendly())
+			{
+				//TODO: Different speeds on enemies would yield different projectile speeds.
+				projectiles.push_back({{get_spatiable_cx(), get_spatiable_y()}, {2*get_vector_x(), 0.f}, projectile_def::types::straight, projectile_def::sides::enemy});
+			}
+			state=states::pause;
+		break;
+
 		case states::pause:
 
 		break;
 	}
 }
 
-void enemy_patrolling_pause::transform_draw_struct(draw_control& dc) const
+void enemy_patrolling_shooter::transform_draw_struct(draw_control& dc) const
 {
 	dc.set(1);
 	auto &b=dc[0];
@@ -68,7 +78,7 @@ void enemy_patrolling_pause::transform_draw_struct(draw_control& dc) const
 	b.set_location_box({(int)get_spatiable_x(), (int)get_spatiable_y(), get_spatiable_w(), get_spatiable_h()});
 }
 
-void enemy_patrolling_pause::collide_with_player()
+void enemy_patrolling_shooter::collide_with_player()
 {
 	if(state==states::move)
 	{
@@ -76,22 +86,22 @@ void enemy_patrolling_pause::collide_with_player()
 	}
 }
 
-void enemy_patrolling_pause::get_jumped_on()
+void enemy_patrolling_shooter::get_jumped_on()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }
 
-void enemy_patrolling_pause::get_trapped()
+void enemy_patrolling_shooter::get_trapped()
 {
 	trap(app::definitions::default_enemy_trap_time);
 }
 
-void enemy_patrolling_pause::be_friendly(player_effects& pe)
+void enemy_patrolling_shooter::be_friendly(player_effects& pe)
 {
 	befriend(pe, 50);
 }
 
-void enemy_patrolling_pause::get_hit_by_projectile()
+void enemy_patrolling_shooter::get_hit_by_projectile()
 {
 	stun(app::definitions::default_enemy_stun_time);
 }

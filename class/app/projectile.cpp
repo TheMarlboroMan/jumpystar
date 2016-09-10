@@ -15,6 +15,6 @@ projectile::projectile(t_point pos, t_vector vec, int w, int h)
 void projectile::do_turn(float delta)
 {
 	move(delta);
-	do_gravity(delta, app::definitions::default_gravity);
+	if(get_weight()) do_gravity(delta, app::definitions::default_gravity);
 }
 
