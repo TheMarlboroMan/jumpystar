@@ -3,12 +3,14 @@
 A happy, family oriented little platformer.
 
 Bugfix:
+	- Do not place ground based enemies on small platforms.
 	
 Better coding:
 
 	- High jump from the top: less robotic movement, slowly drag the players towards the limit.
 	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
 	- Use templates to do the filters below distance.
+	- Perhaps make DNOT compatible with JSON.
 
 Do better:
 
@@ -17,9 +19,13 @@ Do better:
 	- Tweaks to the engine so two states can be rendered at once (for example, render the game and on top of it, render the menu).
 	- More than one bonus per platform.
 	- More than one enemy per platform.
+	- Bonus between platforms.
 
 Features:
-	- More score should be given for enemies trapped without stunning them.
+	- Lives?
+		- Where could we appear?
+			- Maybe in a middle platform somewhere?
+	- Score tables at caballorenoir.net. Retrieve them with DNOTs.
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:
 		- Patrolling horizontal shooter (walks, pauses, shoots, walks...).

@@ -6,7 +6,8 @@ enemy::enemy(int w, int h)
 	:motion_actor(0.f, 0.f, w, h),
 	game_object(),
 	state(states::harmful),
-	state_period(0.f)
+	state_period(0.f),
+	score_divisor(1)
 {
 
 }
@@ -21,7 +22,11 @@ void enemy::do_turn(float delta)
 		case states::trapped:
 		case states::stunned:  
 			state_period-=delta;
-			if(state_period <= 0.f) state=states::harmful;
+			if(state_period <= 0.f) 
+			{
+				state=states::harmful;
+				score_divisor=1;
+			}
 		break;
 	}
 }
@@ -51,3 +56,29 @@ void enemy::limit_sideways_patrol(const enemy_sideways_limit& esl)
 		}
 	}
 }
+
+/* Stunned, cannot move, the score divisor diminishes until waking from the 
+stun.*/
+
+void enemy::stun(float sp)
+{
+	state_period=sp; 
+	state=states::stunned;
+	score_divisor=2;
+}
+
+/* Trapped, cannot move, vulnerable to player touch, which would make it 
+friendly. */
+
+void enemy::trap(float sp)
+{
+	state_period=sp; 
+	state=states::trapped;
+}
+
+void enemy::befriend(player_effects& pe, int score)
+{
+	pe.add_score(score / score_divisor, {(int)get_spatiable_x(), (int)get_spatiable_y()});
+	state=states::friendly;
+}
+

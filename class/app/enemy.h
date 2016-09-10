@@ -57,15 +57,16 @@ class enemy:
 
 	enum class states {harmful, friendly, trapped, stunned}	state;
 
-	void			stun(float sp) {state_period=sp; state=states::stunned;}
-	void			trap(float sp) {state_period=sp; state=states::trapped;}
-	void			befriend() {state=states::friendly;}
+	void			stun(float);
+	void			trap(float);
+	void			befriend(player_effects& pe, int);
 	void			force_turnaround();
 	void 			limit_sideways_patrol(const enemy_sideways_limit&);
 
 	private:
 	
 	float			state_period;
+	int			score_divisor;
 };
 
 }
