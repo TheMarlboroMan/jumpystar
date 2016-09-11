@@ -11,16 +11,21 @@ Bugfix:
 Better coding:
 
 	- Correct the chaser path better, I'd like it to turn instead of instantly change directions.
+		- Perhaps sum the previous and the current vector, normalize the result and then do the multiplication.
 	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
 	- Use templates to do the filters below distance.
 	- Separate factory classes for platforms, enemies and bonus, to unclutter "world".
 	- The whole "period" for the enemies is starting to grow weary. Can we have a class for this with different periods?
 		- It could have "tic_all", "tic({periods})", "is_done({period})", "set(period, time)"...
-	- do_gravity could be included in "move", maybe prior to it. Check with the player first.
+		- Replace on enemies.
+		- Replace on particles.
+		- Replace on player.
+	- do_gravity() could be included in "move", maybe prior to it. Check with the player first.
 
 Do better:
 
-	- Hop on flying enemies and parabol and stuff.
+	- Hop on flying enemies and parabol and stuff. Also shoot them.
+		- Would make them fall for a while.
 	- Different speeds for the patrolling enemies, along with different starting points and directions.
 	- Maybe stunned enemies give less score forever.
 	- Make the score bonus dependant on something instead of being completely random... 
@@ -43,7 +48,8 @@ Features:
 	- Score tables at caballorenoir.net. Retrieve them with DNOTs.
 	- Day - Night cycle for the background: starts at midday, ends at night.
 	- More enemy types:
-		- Flying, descending after the player.
+		- Appears at the top of the screen, does a flyby dropping some stuff and goes away.
+		- Flying, descending after the player from the top.
 		- Patrolling, no jumping on.
 		- Flying, stops and shoots directly at the player.
 		- Descending from a side of the screen, shooting nasty patterns.
@@ -59,6 +65,8 @@ Features:
 
 		- More stuff, maybe?
 
+	- Redefine controls.
+		- Try and set up these pesky tool menus again.
 	- Game speed: get the level duration and speed with the + / - keys.
 	- Study bonus random chance and distribution.
 	- Study enemy random chance and distribution.

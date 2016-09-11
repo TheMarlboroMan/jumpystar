@@ -408,8 +408,6 @@ bool world::create_new_enemy()
 {
 	const auto&	last_platform=*(platforms.back());
 
-if(enemies.size()) return false;
-
 	enum class types {patrolling, patrolling_pause, patrolling_shooter, parabol, flying, flying_chaser, parabol_shooter, runner};
 	
 	std::vector<types> t;
@@ -431,8 +429,8 @@ if(enemies.size()) return false;
 		right=last_platform.get_spatiable_ex();
 
 	if(!t.size()) return false;
-//	switch(t[gen()])
-	switch(types::flying_chaser)
+	switch(t[gen()])
+//	switch(types::flying_chaser)
 	{
 		case types::patrolling:
 			e.reset(new enemy_patrolling{{left, right}, last_platform.get_spatiable_y()});

@@ -29,9 +29,6 @@ void player::reset()
 	can_cancel_jump=false;
 	cancel_jump=false;
 	specials.clear();
-	specials.push_back(player_effects::specials::high_jump);
-	specials.push_back(player_effects::specials::high_jump);
-	specials.push_back(player_effects::specials::high_jump);
 
 	timers_period[timers::always_trap]=0.f;
 	timers_period[timers::stunned]=0.f;
