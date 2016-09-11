@@ -3,7 +3,7 @@
 using namespace app_game;
 
 motion_actor::motion_actor(float x, float y, unsigned int w, unsigned int h, t_vector v)
-	:actor(x, y, w, h), app_interfaces::motionable(v)
+	:actor(x, y, w, h), app_interfaces::motionable(v), previous_position(get_box())
 {
 
 }
@@ -57,6 +57,7 @@ void motion_actor::adjust(const spatiable& e, adjust_pos type)
 
 void motion_actor::move(float delta)
 {
+	previous_position=get_box();
 	const auto& v=get_vector();
 	displace_box(v.x * delta, v.y * delta);
 }

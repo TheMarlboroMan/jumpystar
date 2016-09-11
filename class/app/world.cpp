@@ -23,6 +23,7 @@
 #include "enemy_patrolling_pause.h"
 #include "enemy_patrolling_shooter.h"
 #include "enemy_flying_parabol.h"
+#include "enemy_flying_chaser.h"
 #include "enemy_parabol_shooter.h"
 #include "enemy_flying.h"
 
@@ -409,7 +410,7 @@ bool world::create_new_enemy()
 
 if(enemies.size()) return false;
 
-	enum class types {patrolling, patrolling_pause, patrolling_shooter, parabol, flying, parabol_shooter, runner};
+	enum class types {patrolling, patrolling_pause, patrolling_shooter, parabol, flying, flying_chaser, parabol_shooter, runner};
 	
 	std::vector<types> t;
 	//TODO: Rework these values.
@@ -420,6 +421,7 @@ if(enemies.size()) return false;
 	if(distance > 100.f) t.push_back(types::flying);
 	if(last_platform.can_spawn_ground_based_enemies() && distance > 300.f) t.push_back(types::parabol_shooter);
 	if(distance > 300.f) t.push_back(types::parabol);
+	if(distance > 300.f) t.push_back(types::flying_chaser);
 	t.push_back(types::runner);
 
 	tools::int_generator gen(0, t.size()-1);
@@ -429,8 +431,8 @@ if(enemies.size()) return false;
 		right=last_platform.get_spatiable_ex();
 
 	if(!t.size()) return false;
-	switch(t[gen()])
-//	switch(types::patrolling_shooter)
+//	switch(t[gen()])
+	switch(types::flying_chaser)
 	{
 		case types::patrolling:
 			e.reset(new enemy_patrolling{{left, right}, last_platform.get_spatiable_y()});
@@ -452,6 +454,9 @@ if(enemies.size()) return false;
 		break;
 		case types::runner:
 			e.reset(new enemy_runner{{left, right}, last_platform.get_spatiable_y()});
+		break;
+		case types::flying_chaser:
+			e.reset(new enemy_flying_chaser{player_position, last_platform, platforms});
 		break;
 	}
 

@@ -35,6 +35,7 @@ $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile.o \
 $(DIR_O)enemy_runner.o \
 $(DIR_O)enemy_flying.o \
+$(DIR_O)enemy_flying_chaser.o \
 $(DIR_O)enemy_flying_parabol.o \
 $(DIR_O)enemy_parabol_shooter.o \
 $(DIR_O)enemy_patrolling.o \
@@ -130,6 +131,7 @@ $(DIR_O)bonus_triple_jump.o \
 $(DIR_O)bonus_always_trap.o \
 $(DIR_O)projectile_parabol.o \
 $(DIR_O)projectile_straight.o \
+$(DIR_O)enemy_flying_chaser.o \
 $(DIR_O)enemy_runner.o \
 $(DIR_O)enemy_patrolling.o \
 $(DIR_O)enemy_patrolling_pause.o \
@@ -186,6 +188,13 @@ $(DIR_O)enemy.o\
 $(DIR_APP)enemy_flying.h\
 $(DIR_APP)enemy_flying.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_flying.cpp -o $(DIR_O)enemy_flying.o
+
+$(DIR_O)enemy_flying_chaser.o:\
+$(DIR_O)enemy.o\
+$(DIR_O)platform.o\
+$(DIR_APP)enemy_flying_chaser.h\
+$(DIR_APP)enemy_flying_chaser.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) $(DIR_APP)enemy_flying_chaser.cpp -o $(DIR_O)enemy_flying_chaser.o
 
 $(DIR_O)enemy_flying_parabol.o:\
 $(DIR_O)enemy.o\

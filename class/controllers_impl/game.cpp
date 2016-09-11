@@ -194,7 +194,6 @@ void game_controller::do_player_turn(float delta, app_game::player& pl, app_game
 
 	pl.turn(delta);
 	pl.do_gravity(delta, app::definitions::default_gravity);
-	pl.update_previos_position();
 	pl.move(delta);
 
 	//This controls whether the player has fallen from the edge.
@@ -276,6 +275,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 
 		if(pl.is_colliding_with(p))
 		{
+			//For platforms that don't move up and down, this will suffice.
 			if(p.is_under(pl.get_previous_position()))
 			{
 				//Only one trap can be set per tic.
@@ -304,7 +304,7 @@ void game_controller::do_player_collisions(app_game::player& pl)
 			{
 				e.be_friendly(pl_effects);
 			}
-			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && e.is_under(pl.get_previous_position()) )
+			else if(pl.can_land_on_enemies() && e.can_be_jumped_on() && app_interfaces::spatiable::is_under(e.get_previous_position(), pl.get_previous_position()) )
 			{
 				e.get_jumped_on();
 				pl.bounce_on_enemy();

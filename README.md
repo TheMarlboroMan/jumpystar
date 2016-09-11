@@ -5,17 +5,22 @@ A happy, family oriented little platformer.
 Bugfix:
 	- Do not place ground based enemies on small platforms.
 	- Don't add two dissapearing or crumbling platforms in a row.
-	- Special out of bounds check for projectiles.
-		- Just test it, please.
 	- Friendly enemies don't shoot!!!
+	- Befriended chaser should fly away!!!.
 	
 Better coding:
 
+	- Correct the chaser path better, I'd like it to turn instead of instantly change directions.
 	- The whole "can_cancel_jump" and "cancel_jump" deal on the player smells rotten.
 	- Use templates to do the filters below distance.
+	- Separate factory classes for platforms, enemies and bonus, to unclutter "world".
+	- The whole "period" for the enemies is starting to grow weary. Can we have a class for this with different periods?
+		- It could have "tic_all", "tic({periods})", "is_done({period})", "set(period, time)"...
+	- do_gravity could be included in "move", maybe prior to it. Check with the player first.
 
 Do better:
 
+	- Hop on flying enemies and parabol and stuff.
 	- Different speeds for the patrolling enemies, along with different starting points and directions.
 	- Maybe stunned enemies give less score forever.
 	- Make the score bonus dependant on something instead of being completely random... 
@@ -48,9 +53,6 @@ Features:
 			- Do we just make it invert the direction and that's it?.
 			- Could only be trapped when on the ground.
 			- Stun it and it would be driven to the ground.
-		- Something that chases the player flying but can be jumped on and has to be trapped this way.
-			- Once stunned it would fall down.
-			- It would have to check itself against platforms when falling!!!.
 		- We need more variety here. Think a while...
 		
 	- Specials: We need more regular specials so there's a point to the best of them.

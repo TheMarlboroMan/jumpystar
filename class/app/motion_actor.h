@@ -18,10 +18,14 @@ class motion_actor:
 			motion_actor(float x, float y, unsigned int w, unsigned int h, t_vector v={0.f, 0.f});
 			motion_actor(const t_box&, t_vector v={0.f, 0.f});
 
+	const t_box&	get_previous_position() const {return previous_position;}
+	void		reset_previous_position() {previous_position=get_box();}
 	void 		adjust(float, adjust_pos);
 	void 		adjust(const spatiable&, adjust_pos);
 	void 		move(float delta);
 	t_box		get_below_position() const;
+
+	//TODO: All motion actors could store their previous position. Yeah...
 
 	/////////////////
 	//motionable
@@ -32,6 +36,10 @@ class motion_actor:
 	/////////////////
 	//A implementar, propio.
 	virtual void 	adjust_callback(float position, adjust_pos)=0;
+	
+	private:
+	
+	t_box		previous_position;
 };
 
 }

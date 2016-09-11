@@ -21,8 +21,6 @@ class player:
 					player();
 	faces				get_facing() const {return facing;}
 	void				get_input(player_input pi) {p_input=pi;}
-	const t_box&			get_previous_position() const {return previous_position;}
-	void				update_previos_position() {previous_position=get_box();}
 	void				turn(float delta);
 	void				set_falling();
 	bool				can_fall() const {return state==states::ground;}
@@ -70,7 +68,6 @@ class player:
 	void				set_timer_period(timers, float);
 	void				do_jump(jump_types);
 
-	t_box				previous_position;
 	states				state, wakestate;
 	player_input			p_input;
 	int				remaining_jumps, max_jumps, score, score_multiplier, signals;

@@ -6,7 +6,6 @@ using namespace app_game;
 
 player::player()
 	:motion_actor(0.f, 0.f, 20, 32), 
-	previous_position(get_box()), 
 	state(states::air), wakestate(states::air), remaining_jumps(0), 
 	max_jumps(default_jump_quantity), score(0), score_multiplier(1), signals(0),
 	can_cancel_jump(false), cancel_jump(false), next_special(player_effects::specials::triple_jump),
@@ -19,7 +18,7 @@ player::player()
 void player::reset()
 {
 	set_position(20.f, 400.f);
-	previous_position=get_box(); 
+	reset_previous_position();
 	state=states::air;
 	wakestate=states::air;
 	remaining_jumps=0; //This is so a trap won't spawn when the game starts.
